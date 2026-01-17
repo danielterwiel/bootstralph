@@ -494,7 +494,7 @@
       "phase": 1,
       "task": "Create tooling selection prompt (recommended vs customize)",
       "files": ["src/prompts/tooling.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-011",

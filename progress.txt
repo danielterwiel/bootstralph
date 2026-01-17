@@ -1717,3 +1717,40 @@ When user selects edge platform (Cloudflare, Vercel Edge, Netlify Edge) with Pri
 
 **Verification**:
 - `npm run typecheck` passes
+
+## 2026-01-17: impl-010 completed
+
+**Task**: Create tooling selection prompt (recommended vs customize)
+**Files**: `src/prompts/tooling.ts`
+
+**What was done**:
+1. Created `promptTooling()` function offering two approaches:
+   - **Recommended**: Quick path using default tooling (oxlint + oxfmt + Vitest/Jest + Playwright/Maestro + prek)
+   - **Customize**: Step-by-step selection of each tool
+
+2. Implemented individual prompts:
+   - `promptLinter()` - Select oxlint (recommended), Biome, or ESLint
+   - `promptFormatter()` - Select oxfmt (recommended) or Prettier (skipped if Biome selected)
+   - `promptUnitTesting()` - Select Vitest (web) or Jest (mobile, auto-selected for RN)
+   - `promptE2ETesting()` - Select Playwright (web) or Maestro/Detox (mobile)
+   - `promptPreCommit()` - Select prek (recommended), Lefthook, or Husky
+
+3. Added helper functions:
+   - `getToolingSummary()` - Returns array of display strings for selected tools
+   - `usesBiome()` - Check if using Biome (all-in-one)
+   - `usesOxcTools()` - Check if using oxlint + oxfmt combination
+   - `getToolingPackages()` - Returns devDependencies and installation notes
+   - `getToolingConfigFiles()` - Returns list of config files to generate
+
+4. Key implementation details:
+   - Uses filtering logic from `src/compatibility/filters.ts` for linter/formatter
+   - Implements Biome mutual exclusivity (skips formatter question when Biome selected)
+   - Auto-selects when only one option available (e.g., Jest for mobile)
+   - Platform-aware testing recommendations (Vitest for web, Jest for mobile)
+   - Tracks `isCustomized` flag to know if user customized vs used defaults
+   - Returns devDependencies list for package.json generation
+   - Returns config file list for scaffolding
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
