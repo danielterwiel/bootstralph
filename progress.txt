@@ -152,3 +152,32 @@
 - https://clerk.com/docs/quickstarts/astro
 - https://dev.to/isnan__h/authenticating-users-in-astro-react-apps-with-better-auth-3loe
 - https://www.better-auth.com/docs/reference/resources
+
+## 2026-01-17: review-008 completed
+
+**Task**: Check feature selection order
+**Check**: Features are selected before deployment. Should deployment affect available features (e.g., edge functions)?
+
+**Finding**:
+- The current flow (features before deployment) is CORRECT
+- Edge runtimes have significant limitations that require post-selection validation:
+  - **Cloudflare Workers**: V8 isolates, 3MB bundle limit on free plan, TCP connection restrictions
+  - **Vercel Edge**: V8 isolates, limited Node.js APIs
+  - **Netlify Edge**: Deno-based runtime, different API surface
+- ORM compatibility varies by deployment platform:
+  - **Prisma**: Requires Prisma Accelerate or Prisma Postgres for edge (bundle too large, TCP issues)
+  - **Drizzle**: Edge-compatible but needs specific drivers (@libsql/client for Turso, Neon serverless, PlanetScale serverless)
+- Most features work on most platforms, so asking deployment first adds unnecessary cognitive overhead
+- Better UX pattern: Let users select features first, then validate against deployment and warn about incompatibilities with suggested alternatives
+
+**Action Required**: Add post-deployment validation step to wizard:
+1. Check for edge runtime incompatibilities in src/compatibility/validators.ts
+2. When user selects Cloudflare/Vercel Edge/Netlify Edge AND Prisma, warn that Prisma Accelerate is required OR suggest Drizzle with edge-compatible driver
+3. Added "Edge Runtime Compatibility" section to PLAN.md with detailed ORM compatibility matrix
+
+**Sources**:
+- https://www.prisma.io/docs/orm/prisma-client/deployment/edge/overview
+- https://orm.drizzle.team/docs/tutorials/drizzle-with-vercel-edge-functions
+- https://github.com/drizzle-team/drizzle-orm/discussions/3146
+- https://dev.to/dataformathub/cloudflare-vs-vercel-vs-netlify-the-truth-about-edge-performance-2026-50h0
+- https://github.com/t3-oss/create-t3-app/issues/1452

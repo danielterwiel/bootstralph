@@ -159,6 +159,20 @@ note: Use React islands for interactive UI; auth works server-side via middlewar
 | Railway | Full-stack, databases | - |
 | Render | Backend, containers | - |
 
+### Edge Runtime Compatibility (IMPORTANT)
+
+Edge runtimes have significant limitations that affect ORM and driver choices:
+
+| Platform | Runtime | ORM Compatibility |
+|----------|---------|-------------------|
+| Cloudflare Workers | V8 isolates | Drizzle (with @libsql/client, Neon serverless, PlanetScale serverless), Prisma (requires Accelerate or Prisma Postgres) |
+| Vercel Edge | V8 isolates | Drizzle (with edge drivers), Prisma (requires Accelerate) |
+| Netlify Edge | Deno | Drizzle (with edge drivers), limited Prisma support |
+| Vercel Serverless | Node.js | All ORMs supported |
+| Railway/Fly.io | Node.js/Docker | All ORMs supported |
+
+**Wizard Validation**: After deployment selection, validate ORM choice against edge runtime. If user selects Prisma + edge platform, warn that Prisma Accelerate is required OR suggest switching to Drizzle with edge-compatible driver.
+
 ### Auth Provider Compatibility
 
 | Provider | Next.js | TanStack | Expo | React Native |

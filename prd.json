@@ -108,7 +108,9 @@
       "category": "wizard-flow",
       "task": "Check feature selection order",
       "check": "Features are selected before deployment. Should deployment affect available features (e.g., edge functions)?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The current flow (features before deployment) is CORRECT, but post-selection validation is needed. Edge runtimes have significant limitations: Cloudflare Workers (V8 isolates, 3MB limit, TCP restrictions), Vercel Edge (limited Node.js APIs), Netlify Edge (Deno-based). Key incompatibilities: Prisma requires Accelerate/Prisma Postgres for edge (bundle too large, TCP issues), Drizzle needs edge-specific drivers (@libsql/client, Neon serverless, PlanetScale serverless). Most features work on most platforms, so asking deployment first adds unnecessary cognitive overhead. Better UX: validate after deployment selection and warn about incompatibilities with suggested alternatives.",
+      "action_required": "Add post-deployment validation step to wizard that checks for edge runtime incompatibilities. When user selects Cloudflare/Vercel Edge/Netlify Edge AND Prisma, warn that Prisma Accelerate is required OR suggest Drizzle with edge-compatible driver. Add this validation logic to src/compatibility/validators.ts."
     },
     {
       "id": "review-009",
