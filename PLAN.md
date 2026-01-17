@@ -274,20 +274,20 @@ openskills sync
 
 | Stack Selection | Skills to Install |
 |-----------------|-------------------|
-| **All Projects** | `planning-with-files`, `superpowers` (TDD, debugging) |
-| **Next.js** | `react-best-practices`, `vercel-deploy-claimable`, `web-design-guidelines` |
-| **TanStack Start** | `react-best-practices`, `web-design-guidelines` |
-| **Expo** | `expo-app-design`, `expo-deployment`, `upgrading-expo` |
-| **Supabase** | `supabase-operations`, `supabase-platform-specialist` |
-| **Drizzle** | Drizzle patterns (community) |
-| **better-auth** | `better-auth` skill |
-| **Clerk** | `clerk-pack` (24 skills) |
-| **Stripe** | `stripe-integration`, `stripe-best-practices` |
-| **Testing (web)** | `vitest-testing-expert`, `webapp-testing` |
-| **Tailwind** | `tailwind-v4-shadcn` |
-| **Docker** | `docker-containerization` |
-| **Monorepo** | `turborepo`, `monorepo-management` |
-| **Security** | Trail of Bits skills |
+| **All Projects** | `planning-with-files` (OthmanAdi/planning-with-files), `test-driven-development`, `systematic-debugging`, `verification-before-completion` (obra/superpowers) |
+| **Next.js** | `react-best-practices`, `vercel-deploy-claimable`, `web-design-guidelines` (vercel-labs/agent-skills) |
+| **TanStack Start** | `react-best-practices`, `web-design-guidelines` (vercel-labs/agent-skills) |
+| **Expo** | `expo-app-design`, `expo-deployment`, `upgrading-expo` (expo/skills) |
+| **Supabase** | `supabase-operations` (FastMCP marketplace) |
+| **Drizzle** | `drizzle-orm-d1`, `drizzle`, `drizzle-migration` (community skills) |
+| **better-auth** | `better-auth` (@Microck/ordinary-claude-skills) |
+| **Clerk** | `clerk-pack` (24 skills from claude-code-plugins-plus) |
+| **Stripe** | Custom skills required - no official marketplace skill available |
+| **Testing (web)** | `webapp-testing` (anthropics/skills) |
+| **Tailwind** | `tailwind-v4-shadcn` (community skills) |
+| **Docker** | `docker-containerization` (community skills) |
+| **Monorepo** | `turborepo`, `monorepo-management` (community skills) |
+| **Security** | `building-secure-contracts`, `burpsuite-project-parser` (trailofbits/skills) |
 
 ---
 

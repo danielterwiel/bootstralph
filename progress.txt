@@ -419,3 +419,55 @@
 - https://www.npmjs.com/package/openskills
 - https://deepwiki.com/numman-ali/openskills/2-getting-started
 - https://github.com/numman-ali/openskills/blob/main/package.json
+
+## 2026-01-17: review-018 completed
+
+**Task**: Verify all skill names are correct
+**Check**: Check that skill names like 'supabase-operations' exist in marketplaces
+
+**Finding**:
+Most skill names in PLAN.md are correct but several needed corrections:
+
+**VERIFIED EXISTING:**
+- `planning-with-files` - ✅ EXISTS (OthmanAdi/planning-with-files)
+- `react-best-practices` - ✅ EXISTS (vercel-labs/agent-skills)
+- `vercel-deploy-claimable` - ✅ EXISTS (vercel-labs/agent-skills)
+- `web-design-guidelines` - ✅ EXISTS (vercel-labs/agent-skills)
+- `expo-app-design` - ✅ EXISTS (expo/skills)
+- `expo-deployment` - ✅ EXISTS (expo/skills)
+- `upgrading-expo` - ✅ EXISTS (expo/skills)
+- `supabase-operations` - ✅ EXISTS (FastMCP marketplace)
+- `better-auth` - ✅ EXISTS (@Microck/ordinary-claude-skills)
+- `clerk-pack` - ✅ EXISTS (24 skills from claude-code-plugins-plus)
+- `webapp-testing` - ✅ EXISTS (official anthropics/skills)
+- `tailwind-v4-shadcn` - ✅ EXISTS (multiple sources)
+- `docker-containerization` - ✅ EXISTS (multiple sources)
+- `turborepo` - ✅ EXISTS (multiple sources)
+- `monorepo-management` - ✅ EXISTS (wshobson/agents-plugins)
+- Trail of Bits skills - ✅ EXISTS (trailofbits/skills: building-secure-contracts, burpsuite-project-parser)
+- Drizzle skills - ✅ EXISTS (drizzle-orm-d1, drizzle, drizzle-migration)
+
+**NOT FOUND / INCORRECT:**
+- `superpowers` - NOT a skill name, it's the repo name (obra/superpowers). Actual skills are: test-driven-development, systematic-debugging, verification-before-completion, brainstorming, writing-plans, executing-plans, etc.
+- `supabase-platform-specialist` - ❌ DOES NOT EXIST
+- `stripe-integration` - ❌ NOT FOUND as specific skill
+- `stripe-best-practices` - ❌ NOT FOUND as specific skill
+- `vitest-testing-expert` - ❌ NOT FOUND (use `webapp-testing` instead)
+
+**Action Required**: Updated PLAN.md Skills Installation Strategy table with corrected skill names and sources.
+
+**Sources**:
+- https://github.com/vercel-labs/agent-skills
+- https://github.com/obra/superpowers
+- https://github.com/expo/skills
+- https://github.com/anthropics/skills/tree/main/skills
+- https://github.com/OthmanAdi/planning-with-files
+- https://fastmcp.me/Skills/Details/316/supabase-operations
+- https://claudecodeplugins.io/skills/clerk-migration-deep-dive/
+- https://claude-plugins.dev/skills/@Microck/ordinary-claude-skills/better-auth
+- https://claude-plugins.dev/skills/@ovachiever/droid-tings/tailwind-v4-shadcn
+- https://claude-plugins.dev/skills/@ailabs-393/ai-labs-claude-skills/docker-containerization
+- https://claude-plugins.dev/skills/@timelessco/recollect/turborepo
+- https://skillsmp.com/skills/wshobson-agents-plugins-developer-essentials-skills-monorepo-management-skill-md
+- https://github.com/trailofbits/skills
+- https://claude-plugins.dev/skills/@jezweb/claude-skills/drizzle-orm-d1
