@@ -495,6 +495,52 @@ Files to generate in `src/ralph/sandbox.ts`:
 
 **Note**: There is no official `ghcr.io/anthropics/claude-code` image. Use the methods above instead.
 
+#### docker-compose.yml Template (Custom Dockerfile Approach)
+
+```yaml
+version: '3.8'
+
+services:
+  claude-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${PROJECT_NAME:-claude-dev}
+    volumes:
+      # Mount project workspace
+      - .:/workspace
+      # Persist Claude configuration between restarts
+      - claude-config:/home/node/.claude
+      # Persist command history and shell config
+      - claude-data:/home/node/.local
+    environment:
+      # API key from .env file - NEVER hardcode
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      # Optional: for GitHub operations
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # Development environment
+      - NODE_ENV=development
+    working_dir: /workspace
+    # Keep container running for interactive use
+    stdin_open: true
+    tty: true
+    # Optional: restrict network (uncomment for isolation)
+    # network_mode: none
+
+volumes:
+  # Named volumes for persistence across container restarts
+  claude-config:
+    name: ${PROJECT_NAME:-claude}-config
+  claude-data:
+    name: ${PROJECT_NAME:-claude}-data
+```
+
+**Security Notes:**
+- API keys MUST be provided via `.env` file or host environment variables
+- Never commit `.env` files to version control (add to `.gitignore`)
+- Consider using Docker secrets for production environments
+- The `network_mode: none` option provides isolation but prevents package installation
+
 ---
 
 ## Sources

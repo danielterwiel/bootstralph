@@ -171,7 +171,9 @@
       "category": "docker",
       "task": "Verify Docker compose syntax",
       "check": "Is the docker-compose.yml syntax correct? Check volume mounts for API key",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Docker's official 'docker sandbox' approach uses CLI flags (-e, -v) not docker-compose.yml. For custom Dockerfile approach, docker-compose.yml should use standard syntax: (1) Environment variables via 'environment:' section referencing .env files (ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}), never hardcoded. (2) Volume mounts with 'volumes:' using 'host-path:container-path' syntax (e.g., '.:/workspace', 'claude-config:/home/user/.claude'). (3) For enhanced security, Docker secrets can be used. (4) Credentials persist in 'docker-claude-sandbox-data' Docker volume mounted at /mnt/claude-data. The PLAN.md correctly notes docker-compose.yml as a file to generate but doesn't include a template - one should be added to src/templates/docker-compose.yml.ts following these patterns.",
+      "action_required": "Add docker-compose.yml template to PLAN.md showing correct syntax for custom Dockerfile approach with: (1) Environment variable reference pattern, (2) Volume mounts for workspace and .claude config, (3) Named volumes for persistence. Template should NOT hardcode API keys."
     },
     {
       "id": "review-016",
