@@ -48,6 +48,20 @@ export {
   getAllAPIVariants,
 } from "./api.js";
 
+// Re-export Fullstack preset
+export {
+  FULLSTACK_PRESET,
+  FULLSTACK_MOBILE_PRESET,
+  FULLSTACK_TANSTACK_PRESET,
+  FULLSTACK_CONVEX_PRESET,
+  FULLSTACK_CLERK_PRESET,
+  FULLSTACK_PRISMA_PRESET,
+  FULLSTACK_API_PRESET,
+  getFullstackPreset,
+  getFullstackVariant,
+  getAllFullstackVariants,
+} from "./fullstack.js";
+
 // ============================================================================
 // Preset Registry
 // ============================================================================
@@ -55,6 +69,7 @@ export {
 import { SAAS_PRESET, type PresetConfig } from "./saas.js";
 import { MOBILE_PRESET } from "./mobile.js";
 import { API_PRESET } from "./api.js";
+import { FULLSTACK_PRESET } from "./fullstack.js";
 
 /**
  * All available presets by ID
@@ -63,6 +78,7 @@ export const PRESETS: Record<string, PresetConfig> = {
   saas: SAAS_PRESET,
   mobile: MOBILE_PRESET,
   api: API_PRESET,
+  fullstack: FULLSTACK_PRESET,
 };
 
 /**

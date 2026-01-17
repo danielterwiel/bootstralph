@@ -639,3 +639,47 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 - Uses `fly-io` deployment target (not `fly` - fixed type error)
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-030: Implement Monorepo preset
+
+### Completed
+- Created `src/presets/fullstack.ts` with comprehensive Fullstack/Monorepo preset configuration
+- Updated `src/presets/index.ts` to export and register the Fullstack preset
+
+### Features
+- Main `FULLSTACK_PRESET` configuration optimized for Turborepo monorepos:
+  - Turborepo for monorepo management and build orchestration
+  - Next.js for web application (apps/web)
+  - Bun workspaces for package management (Turborepo 2.6+ stable support)
+  - Shared packages: ui, db, tsconfig, eslint-config
+  - Drizzle ORM for type-safe database access (shared schema)
+  - Supabase for backend services
+  - better-auth for authentication (shared across apps)
+  - Tailwind CSS + shadcn/ui
+  - Vitest + Playwright for testing
+  - oxlint + oxfmt + prek for fast tooling
+  - Remote caching with Turborepo
+  - Parallel task execution
+
+### Preset Variants
+- `FULLSTACK_MOBILE_PRESET` - Adds Expo mobile app for universal (web + mobile) apps
+- `FULLSTACK_TANSTACK_PRESET` - Uses TanStack Start instead of Next.js
+- `FULLSTACK_CONVEX_PRESET` - Uses Convex for real-time backend
+- `FULLSTACK_CLERK_PRESET` - Uses Clerk for enterprise auth (MFA, SSO, organizations)
+- `FULLSTACK_PRISMA_PRESET` - Uses Prisma ORM instead of Drizzle
+- `FULLSTACK_API_PRESET` - Adds Hono API service in apps/api
+
+### Helper Functions
+- `getFullstackPreset()` - Get the default Fullstack preset
+- `getFullstackVariant(variant)` - Get a specific variant by name
+- `getAllFullstackVariants()` - Get all Fullstack preset variants
+
+### Technical Details
+- Follows same pattern as SaaS, Mobile, and API presets for consistency
+- Uses spread operator for variants to inherit base configuration
+- Includes turborepo and monorepo-management skills for monorepo development
+- Uses bun workspaces (not pnpm) per review-022 finding
+- Documents --cwd flag usage for workspace-specific installs
+- Registered in PRESETS registry for use with `--preset fullstack` flag
+
+### Type check: PASSED
