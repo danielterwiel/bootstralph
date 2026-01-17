@@ -281,3 +281,30 @@
 - https://www.npmjs.com/package/create-react-router
 - https://reactrouter.com/start/framework/installation
 - https://developers.cloudflare.com/workers/framework-guides/web-apps/react-router/
+
+## 2026-01-17: review-013 completed
+
+**Task**: Verify Astro scaffolder integration
+**Check**: Does create astro support all the integrations we want to offer?
+
+**Finding**:
+- `create astro` (invoked via `npm create astro@latest`) DOES support all integrations we want to offer
+- **Official integrations via `astro add`**:
+  - UI frameworks: @astrojs/react, @astrojs/vue, @astrojs/svelte, @astrojs/solid-js, @astrojs/preact, @astrojs/alpinejs
+  - Adapters: @astrojs/vercel, @astrojs/netlify, @astrojs/cloudflare, @astrojs/node
+  - Other: @astrojs/db, @astrojs/mdx, @astrojs/markdoc, @astrojs/sitemap, @astrojs/partytown
+- **Tailwind CSS**: Astro 5.2+ supports `astro add tailwind` which installs @tailwindcss/vite plugin for Tailwind v4 (the old @astrojs/tailwind is deprecated)
+- **Auth providers**: Clerk (@clerk/astro) and better-auth require manual npm install but have full native Astro support with server-side middleware
+- **ORMs**: Drizzle and Prisma require manual installation but work fully in Astro API routes
+- **The `--add` flag** allows adding multiple integrations during creation: `npm create astro@latest -- --add react --add tailwind`
+- All PLAN.md Astro requirements (styling, auth, ORM, deploy, testing) are achievable
+
+**Action Required**: None - the PLAN.md correctly states 'Wrap `create astro`' and all desired integrations are supported
+
+**Sources**:
+- https://docs.astro.build/en/install-and-setup/
+- https://docs.astro.build/en/guides/integrations-guide/
+- https://docs.astro.build/en/guides/integrations-guide/react/
+- https://tailwindcss.com/docs/guides/astro
+- https://clerk.com/docs/quickstarts/astro
+- https://docs.astro.build/en/guides/authentication/

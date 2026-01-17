@@ -153,7 +153,9 @@
       "category": "scaffolders",
       "task": "Verify Astro scaffolder integration",
       "check": "Does create astro support all the integrations we want to offer?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "create astro (npm create astro@latest) DOES support all integrations we want to offer. Official integrations via 'astro add': UI frameworks (React, Vue, Svelte, Solid, Preact, Alpine), adapters (Vercel, Netlify, Cloudflare, Node), and others (MDX, sitemap, partytown). Tailwind v4 supported via 'astro add tailwind' which installs @tailwindcss/vite plugin (Astro 5.2+). Auth (Clerk @clerk/astro, better-auth) and ORMs (Drizzle, Prisma) require manual npm install but work fully in Astro API routes. The '--add' flag allows adding multiple integrations during creation: 'npm create astro@latest -- --add react --add tailwind'. All PLAN.md Astro requirements are achievable.",
+      "action_required": null
     },
     {
       "id": "review-014",
