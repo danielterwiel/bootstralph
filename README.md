@@ -1,8 +1,44 @@
 # bootstralph
 
-**CLI for scaffolding Ralph-powered projects with intelligent skill installation and compatibility-aware option selection.**
+**Scaffold projects. Write PRDs. Let Claude Code build while you sleep.**
 
-> **Docker-First Philosophy**: Claude Code MUST always run in a Docker sandbox. This CLI makes container instantiation as frictionless as possible and guides users to interactive Claude sessions within the container.
+```bash
+# Create a project, generate a PRD, run Ralph Loop
+bootstralph create my-saas-app
+bootstralph prd "Add Stripe payments with usage-based billing"
+./ralph.sh afk 20   # Run 20 iterations autonomously
+```
+
+---
+
+## What Makes bootstralph Different
+
+| Feature | What it does |
+|---------|--------------|
+| **🔄 Ralph Loop** | Autonomous development cycles—Claude works through your PRD while you're AFK |
+| **📋 PRD-Driven Development** | Structured task specs that Claude can execute without hand-holding |
+| **🧠 Compatibility Matrix** | Wizard filters impossible combinations before you choose them |
+| **🔌 Auto-Skill Installation** | Installs relevant [openskills](https://openskills.io) based on your stack |
+| **🐳 Docker-First** | Claude Code always runs sandboxed—security by default |
+
+---
+
+## The Ralph Loop Pattern
+
+Ralph is an autonomous development loop that iterates through your PRD:
+
+```
+┌─────────────────────────────────────────────────────────┐
+│  1. Read PRD → Find next incomplete story               │
+│  2. Implement ONLY that story (single-task focus)       │
+│  3. Run tests + type checks                             │
+│  4. Mark story as passes: true                          │
+│  5. Commit + log progress                               │
+│  6. Loop until done or max iterations                   │
+└─────────────────────────────────────────────────────────┘
+```
+
+**AFK Mode**: Run `./ralph.sh afk 10` and come back to 10 completed stories.
 
 ---
 
@@ -101,45 +137,84 @@ cd existing-project
 bootstralph init
 ```
 
+---
+
+## PRD Commands
+
+Create and manage Product Requirements Documents for autonomous development:
+
+```bash
+# Create a new PRD from a description
+bootstralph prd "Add user authentication with better-auth"
+
+# List all PRDs
+bootstralph prd --list
+
+# Run Ralph Loop on a PRD
+bootstralph ralph                 # Interactive: select PRD
+bootstralph ralph prd-auth        # Run specific PRD
+
+# AFK mode (unattended)
+./ralph.sh afk 10                 # Run 10 iterations
+./afk-ralph.sh 20                 # Alternative script
+```
+
+PRD files are stored in `.agents/tasks/` with the schema defined in `prd.schema.json`.
+
+### Writing Good PRDs
+
+Each user story should be:
+- **Atomic**: Completable in one Claude iteration (5-30 min)
+- **Verifiable**: Clear acceptance criteria that can be tested
+- **Independent**: Minimal dependencies on other stories
+
+```json
+{
+  "id": "IMPL-001",
+  "title": "Add login endpoint",
+  "acceptanceCriteria": [
+    "POST /api/auth/login returns JWT on valid credentials",
+    "Returns 401 with error message on invalid credentials",
+    "Rate limited to 5 attempts per minute"
+  ],
+  "passes": false
+}
+```
+
+---
+
 ## Project Structure
 
 ```
 bootstralph/
+├── .agents/
+│   └── tasks/                # PRD storage
+│       ├── prd-*.json        # PRD files
+│       └── prd.schema.json   # PRD JSON schema
+├── .claude/
+│   └── skills/               # Claude Code skills
+│       └── prd-writer/       # PRD writing skill
 ├── src/
 │   ├── index.ts              # CLI entry point
 │   ├── commands/
 │   │   ├── create.ts         # Main create command
 │   │   ├── init.ts           # Initialize existing project
+│   │   ├── prd.ts            # PRD management
+│   │   ├── ralph.ts          # Ralph loop runner
 │   │   └── add.ts            # Add features post-scaffold
 │   ├── prompts/              # @clack/prompts wizard steps
-│   │   ├── project-type.ts
-│   │   ├── framework.ts
-│   │   ├── features.ts
-│   │   ├── deployment.ts
-│   │   └── tooling.ts
 │   ├── compatibility/        # Smart filtering logic
-│   │   ├── matrix.ts         # Compatibility data
-│   │   ├── filters.ts        # Option filtering
-│   │   └── validators.ts     # Combination validation
 │   ├── scaffolders/          # Framework CLI wrappers
-│   │   ├── nextjs.ts
-│   │   ├── tanstack.ts
-│   │   ├── expo.ts
-│   │   ├── react-router.ts
-│   │   ├── rn-cli.ts
-│   │   ├── astro.ts
-│   │   └── api.ts
 │   ├── ralph/                # Claude Code setup
+│   │   ├── prd-schema.ts     # PRD TypeScript types
 │   │   ├── claudemd.ts       # CLAUDE.md generator
 │   │   ├── skills.ts         # openskills installation
 │   │   ├── hooks.ts          # Pre-commit setup
 │   │   └── sandbox.ts        # Docker configuration
 │   ├── presets/              # Quick-start configurations
-│   │   ├── saas.ts
-│   │   ├── mobile.ts
-│   │   ├── api.ts
-│   │   └── fullstack.ts
 │   └── templates/            # Generated file templates
+├── ralph.sh                  # Ralph loop shell script
+├── afk-ralph.sh              # AFK mode runner
 └── tests/
 ```
 
@@ -256,4 +331,4 @@ MIT
 
 ---
 
-*Built for developers who want Claude Code to scaffold and configure projects autonomously—within secure Docker sandboxes.*
+*Built for developers who want Claude Code to work autonomously—scaffold projects, execute PRDs, and ship features while you're AFK.*

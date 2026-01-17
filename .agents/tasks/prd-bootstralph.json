@@ -577,8 +577,8 @@
       "id": "impl-022",
       "phase": 2,
       "task": "Implement Claude Code hooks setup",
-      "files": ["src/templates/.claude/settings.json.ts"],
-      "status": "pending"
+      "files": ["src/templates/.claude/settings.json.ts", "src/ralph/settings.ts"],
+      "status": "completed"
     },
     {
       "id": "impl-023",

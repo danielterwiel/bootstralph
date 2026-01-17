@@ -287,3 +287,44 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 - Manual steps returned for user guidance (lefthook install, husky install, prek install)
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-022: Implement Claude Code hooks setup
+
+### Completed
+- Created `src/templates/.claude/settings.json.ts` with Claude Code settings template generator
+- Created `src/ralph/settings.ts` with settings file writing and management utilities
+
+### Features - settings.json.ts Template Generator
+- `generateClaudeSettings(config)` - Main generator function for Claude Code settings
+- `generateClaudeSettingsJson(config)` - Generate JSON string output
+- `generateMinimalClaudeSettings(config)` - Generate settings without hooks
+- `generateClaudeSettingsLocal()` - Generate settings.local.json template
+- Permissions system with allow/deny patterns using Tool(pattern) syntax
+- Framework-specific patterns for Next.js, TanStack Start, React Router v7, Astro, Expo, RN CLI, Hono, Elysia
+- ORM-specific patterns for Drizzle and Prisma
+- Backend-specific patterns for Supabase, Firebase, Convex
+- Auth-specific patterns for Clerk, better-auth, Supabase Auth
+- Common deny patterns for .env files, key files, secrets directories, cloud credentials, SSH keys
+- PreToolUse hooks for reliable security enforcement (workaround for deny rule enforcement issues)
+
+### Features - settings.ts Settings Manager
+- `writeClaudeSettings(options)` - Write .claude/settings.json and optionally settings.local.json
+- `hasClaudeSettings(projectPath)` - Check if settings exist
+- `readClaudeSettings(projectPath)` - Read existing settings
+- `getClaudeSettingsPath(projectPath)` - Get settings file path
+- `getClaudeSettingsLocalPath(projectPath)` - Get local settings file path
+- `generateClaudeSettingsContent(config)` - Generate content without writing
+- `createClaudeSettingsConfig(options)` - Create config from common project options
+- Automatic .gitignore update to exclude settings.local.json
+- Overwrite control for existing settings
+
+### Technical Details
+- Settings file hierarchy: .claude/settings.local.json > .claude/settings.json > ~/.claude/settings.json
+- PreToolUse hooks execute before tools and can block (exit 2) or allow (exit 0)
+- Hook matchers: Read, Write, Edit, Bash with grep-based pattern matching
+- Security warning included about permissions.deny not being reliably enforced (GitHub issues #6631, #6699, #4467)
+- Sensitive file patterns include: .env*, *.key, *.pem, /secrets/, /.aws/, /.ssh/, service-account*.json
+- Dangerous command patterns include: sudo, rm -rf, chmod 777, curl, wget, mysqldump, pg_dump
+
+### Type check: PASSED
+

@@ -53,16 +53,25 @@ list_prds() {
   find "$AGENTS_TASKS_DIR" -name "prd-*.json" -type f 2>/dev/null | sort
 }
 
-# Check if PRD is complete (all passes: true)
+# Check if PRD is complete (all tasks completed)
 is_prd_complete() {
   local prd_file=$1
   # Use jq if available, fallback to grep
   if command -v jq &> /dev/null; then
-    local incomplete=$(jq '[.userStories[] | select(.passes == false)] | length' "$prd_file")
+    # Support both old format (userStories with passes) and new format (implementation_tasks with status)
+    local incomplete=$(jq '
+      if .userStories then
+        [.userStories[] | select(.passes == false)] | length
+      elif .implementation_tasks then
+        [.implementation_tasks[] | select(.status | . == "completed" | not)] | length
+      else
+        0
+      end
+    ' "$prd_file")
     [ "$incomplete" = "0" ]
   else
-    # Fallback: check if any "passes": false exists
-    ! grep -q '"passes":\s*false' "$prd_file"
+    # Fallback: check if any incomplete status exists
+    ! grep -q '"status":\s*"pending"\|"status":\s*"in_progress"\|"passes":\s*false' "$prd_file"
   fi
 }
 
@@ -80,8 +89,25 @@ get_prd_name() {
 get_prd_progress() {
   local prd_file=$1
   if command -v jq &> /dev/null; then
-    local total=$(jq '.userStories | length' "$prd_file")
-    local complete=$(jq '[.userStories[] | select(.passes == true)] | length' "$prd_file")
+    # Support both old format (userStories with passes) and new format (implementation_tasks with status)
+    local total=$(jq '
+      if .userStories then
+        .userStories | length
+      elif .implementation_tasks then
+        .implementation_tasks | length
+      else
+        0
+      end
+    ' "$prd_file")
+    local complete=$(jq '
+      if .userStories then
+        [.userStories[] | select(.passes == true)] | length
+      elif .implementation_tasks then
+        [.implementation_tasks[] | select(.status == "completed")] | length
+      else
+        0
+      end
+    ' "$prd_file")
     echo "$complete/$total"
   else
     echo "?/?"
