@@ -592,7 +592,7 @@
       "phase": 2,
       "task": "Implement Ralph setup orchestration",
       "files": ["src/ralph/setup.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-025",

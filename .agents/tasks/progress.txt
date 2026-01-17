@@ -382,3 +382,49 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-024: Implement Ralph setup orchestration
+
+### Completed
+- Created `src/ralph/setup.ts` with full Ralph setup orchestration
+- Orchestrates all Ralph components: CLAUDE.md, skills, hooks, settings, Docker sandbox
+- Main function `setupRalph(options)` runs the complete setup process
+- Interactive variant `setupRalphInteractive(options)` shows progress spinners for each step
+
+### Features
+- `setupRalph(options)` - Main entry point with configurable skip options
+- `setupRalphInteractive(options)` - Interactive version with @clack/prompts spinners
+- `setupRalphQuick(projectPath, projectName, framework)` - Minimal setup with sensible defaults
+- `addRalphToExistingProject(projectPath)` - Placeholder for adding Ralph to existing projects
+
+### Setup Steps (in order)
+1. **CLAUDE.md** - Project-specific guidance for Claude Code
+2. **Skills** - Install relevant skills via openskills CLI
+3. **Git Hooks** - Configure pre-commit hooks (Lefthook/Husky/prek)
+4. **Claude Settings** - Generate .claude/settings.json with permissions and hooks
+5. **Docker Sandbox** - Configure Docker environment (sandbox/devcontainer/compose)
+
+### Configuration Options
+- `skipSkills` - Skip skills installation
+- `skipDocker` - Skip Docker configuration
+- `skipHooks` - Skip git hooks setup
+- `skipSettings` - Skip Claude Code settings
+- `skipClaudeMd` - Skip CLAUDE.md generation
+- `installHooks` - Install hooks after generating config
+- `overwrite` - Overwrite existing files
+- `verbose` - Enable verbose output
+- `dockerEnvironment` - Specify Docker environment (auto-detect if not provided)
+- `allDockerConfigs` - Write all Docker configurations
+
+### Result Tracking
+- `filesWritten` - List of files created/modified
+- `skillsInstalled` - List of successfully installed skills
+- `skillsFailed` - List of skills that failed to install
+- `warnings` - Any warnings during setup
+- `errors` - Any errors during setup
+- `nextSteps` - Suggested next steps for the user
+
+### Re-exports
+- Sub-module functions for direct access: writeClaudeMd, installSkills, writeHooksConfig, writeClaudeSettings, writeSandboxConfig, detectDockerEnvironment
+
+### Type check: PASSED
+
