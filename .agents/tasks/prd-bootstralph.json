@@ -679,7 +679,8 @@
       "phase": 4,
       "task": "Configure npm publishing",
       "files": ["package.json"],
-      "status": "pending"
+      "status": "completed",
+      "passes": true
     },
     {
       "id": "impl-037",

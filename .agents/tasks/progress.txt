@@ -910,3 +910,45 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+
+## 2026-01-17 - impl-036: Configure npm publishing
+
+### Completed
+- Updated `package.json` with complete npm publishing configuration
+- Added `homepage` field pointing to GitHub repository README
+- Added `publishConfig` with public access and npm registry URL
+- Added `sideEffects: false` for better tree-shaking in bundlers
+
+### Existing Configuration (already in place)
+- `name`, `version`, `description`, `license`, `author`
+- `main`, `module`, `types`, `exports` for dual ESM/CJS support
+- `bin` for CLI executable (`bootstralph`)
+- `files` array limiting published files to `dist/` only
+- `prepublishOnly` script to build before publish
+- `engines` field requiring Node.js 18.19.0+
+- `keywords` for npm search discoverability
+- `repository` and `bugs` URLs
+
+### Package Contents (verified via npm pack --dry-run)
+- README.md (10.6kB)
+- dist/index.js (406.0kB) - ESM bundle
+- dist/index.cjs (415.7kB) - CommonJS bundle
+- dist/index.d.ts + dist/index.d.cts - TypeScript declarations
+- Source maps for debugging
+- Total package size: 471.4kB (compressed)
+
+### Publishing Instructions
+```bash
+# Login to npm (first time only)
+npm login
+
+# Publish to npm
+npm publish
+
+# Or with explicit public access
+npm publish --access public
+```
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+### Build: PASSED

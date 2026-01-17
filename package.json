@@ -63,5 +63,11 @@
   },
   "bugs": {
     "url": "https://github.com/danterwiel/bootstralph/issues"
-  }
+  },
+  "homepage": "https://github.com/danterwiel/bootstralph#readme",
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org/"
+  },
+  "sideEffects": false
 }
