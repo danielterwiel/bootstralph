@@ -408,6 +408,9 @@ npx bootstralph create [project-name]
 npx bootstralph create my-app --preset saas
 npx bootstralph create my-app --preset mobile
 npx bootstralph create my-app --preset api
+npx bootstralph create my-app --preset content
+npx bootstralph create my-app --preset universal
+npx bootstralph create my-app --preset fullstack
 
 # Initialize Ralph in existing project
 npx bootstralph init
@@ -461,7 +464,9 @@ bootstralph/
 │       ├── saas.ts                 # Next.js + auth + payments
 │       ├── mobile.ts               # Expo + Supabase
 │       ├── api.ts                  # Hono + Drizzle
-│       └── fullstack.ts            # Monorepo setup
+│       ├── fullstack.ts            # Monorepo setup
+│       ├── content.ts              # Astro + MDX
+│       └── universal.ts            # Expo + Tamagui universal
 ├── package.json
 ├── tsconfig.json
 └── tsup.config.ts
@@ -534,6 +539,54 @@ formatting: Biome
 deploy: Vercel (web) + Fly.io (api)
 skills: planning-with-files, turborepo, monorepo-management, react-best-practices
 ```
+
+### Content Preset (`--preset content`)
+```yaml
+platform: Web (content-first)
+framework: Astro
+content: MDX + Content Collections
+styling: Tailwind CSS
+cms: Markdown files (default), optional: Sanity, Contentful, TinaCMS, PayloadCMS
+auth: Optional - better-auth (for gated content), Clerk
+database: Optional - Drizzle (for dynamic features)
+testing: Vitest (unit), Playwright (e2e)
+linting: oxlint
+formatting: oxfmt
+deploy: Cloudflare Pages (recommended), Vercel, Netlify
+skills: planning-with-files, web-design-guidelines
+```
+
+**Content Preset Notes:**
+- Astro 5's Content Layer API provides 5x faster builds and 50% less memory usage
+- Content Collections enable TypeScript type-safety for frontmatter validation
+- MDX allows interactive React/Vue/Svelte components within content
+- Use Server Islands for combining static content with dynamic sections (auth, personalization)
+
+### Universal Preset (`--preset universal`)
+```yaml
+platform: Universal (Web + Mobile)
+framework: Expo + Next.js (via Tamagui monorepo)
+scaffolder: yarn create tamagui@latest --template expo-router
+routing: Expo Router (unified file-based routing for web + native)
+styling: Tamagui (recommended universal UI kit)
+navigation: Solito (cross-platform navigation)
+state: Zustand, TanStack Query
+auth: Clerk (native SDK), better-auth (native SDK)
+backend: Supabase, Convex
+testing: Jest (unit - required for RN), Vitest (web-only tests), Maestro (mobile e2e), Playwright (web e2e)
+linting: oxlint
+formatting: oxfmt
+deploy: EAS Build (mobile), Vercel (web)
+skills: planning-with-files, expo-app-design, expo-deployment, react-best-practices
+structure: Monorepo (apps/expo, apps/web, packages/app, packages/ui)
+```
+
+**Universal Preset Notes:**
+- Uses Tamagui's starter-free template with Expo + Next.js + Solito
+- Tamagui's optimizing compiler extracts CSS on web for production performance
+- Code shared in `packages/app/features` with platform-specific entry points
+- Expo Router provides same file-based routing concepts for both web and native
+- Note: `yarn create tamagui@latest` requires Yarn 4.4.0+; run `yarn set version stable` first if needed
 
 **Monorepo Package Manager Notes:**
 - Turborepo 2.6 (December 2025) moved Bun support from beta to **stable**

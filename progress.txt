@@ -1267,3 +1267,42 @@ module.exports = {
 - PLAN.md Directory Structure (lines 440-448)
 - review-012 finding (Remix merged into React Router v7)
 
+## 2026-01-17: review-038 completed
+
+**Task**: Verify presets completeness
+**Check**: Missing presets for content (Astro) and universal (Expo + Tamagui)
+
+**Finding**:
+YES, both presets were missing from PLAN.md:
+
+**1. Content Preset (Astro)** - Was NOT defined despite Astro being a supported framework:
+- Astro 5's Content Layer API provides 5x faster builds and 50% less memory usage
+- MDX + Content Collections enable TypeScript type-safety for frontmatter
+- CMS options: Markdown files (default), Sanity, Contentful, TinaCMS, PayloadCMS
+- Deploy: Cloudflare Pages (recommended), Vercel, Netlify
+- Server Islands allow combining static content with dynamic sections (auth, personalization)
+
+**2. Universal Preset (Expo + Tamagui)** - Was NOT defined despite Universal platform being listed:
+- Official scaffolder: `yarn create tamagui@latest --template expo-router`
+- Sets up monorepo with Expo + Next.js + Solito for true universal apps
+- Tamagui's optimizing compiler extracts CSS on web for production performance
+- Expo Router provides same file-based routing for both web and native
+- Code shared in `packages/app/features` with platform-specific entry points
+- Note: Requires Yarn 4.4.0+ (run `yarn set version stable` first)
+
+**Changes Made**:
+1. Added "Content Preset (`--preset content`)" to PLAN.md with complete configuration
+2. Added "Universal Preset (`--preset universal`)" to PLAN.md with complete configuration
+3. Added `content.ts` and `universal.ts` to presets directory structure
+4. Updated Command Structure to include `--preset content`, `--preset universal`, `--preset fullstack`
+
+**Action Required**: None - presets are now complete
+
+**Sources**:
+- https://tamagui.dev/docs/guides/create-tamagui-app
+- https://github.com/tamagui/starter-free
+- https://astro.build/blog/whats-new-november-2025/
+- https://inhaq.com/blog/getting-started-with-astro-content-collections/
+- https://hygraph.com/blog/astro-cms
+- https://dev.to/hasan_py/setup-your-universal-app-with-react-native-expo-router-tamagui-and-storybook-28m6
+
