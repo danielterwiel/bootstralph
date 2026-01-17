@@ -428,3 +428,45 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-025: Implement init command for existing projects
+
+### Completed
+- Created `src/commands/init.ts` with full init command implementation
+- Detects existing project configuration from package.json and config files
+- Supports all frameworks: Next.js, TanStack Start, React Router v7, Astro, Expo, React Native CLI, Hono, Elysia
+- Auto-detects package manager from lock files (bun, pnpm, yarn, npm)
+- Updated `src/index.ts` to use the new handleInit from commands module
+
+### Project Detection Features
+- **Framework detection**: Analyzes dependencies to identify framework
+- **Platform detection**: Determines web, mobile, universal, or api based on framework
+- **Styling detection**: Tailwind, shadcn/ui, Tamagui, Uniwind, NativeWind, Unistyles
+- **State detection**: Zustand, Jotai, TanStack Query
+- **ORM detection**: Drizzle, Prisma
+- **Backend detection**: Supabase, Convex, Firebase
+- **Auth detection**: better-auth, Clerk, Supabase Auth
+- **Linter detection**: oxlint, Biome, ESLint (from deps and config files)
+- **Formatter detection**: oxfmt, Biome, Prettier (from deps and config files)
+- **Testing detection**: Vitest, Jest, Playwright, Cypress, Detox, Maestro
+- **Pre-commit detection**: Lefthook, Husky, prek (from deps and config files)
+
+### User Flow
+1. Validates project directory has package.json
+2. Checks if Ralph is already initialized (CLAUDE.md, .claude/settings.json)
+3. Analyzes project and displays detected configuration
+4. User confirms or modifies detected configuration
+5. User selects which Ralph components to set up (CLAUDE.md, skills, hooks, settings, Docker)
+6. Runs `setupRalphInteractive()` with selected options
+7. Displays results: files created, warnings, errors, next steps
+
+### Exported Functions
+- `handleInit()` - Main command handler
+- `detectProjectConfig()` - Detect config from existing project
+- `confirmConfiguration()` - User confirmation flow
+- `promptSetupOptions()` - Setup component selection
+- `readPackageJson()` - Read and parse package.json
+- `detectFramework()` - Framework detection logic
+- `detectPlatform()` - Platform detection logic
+
+### Type check: PASSED
+

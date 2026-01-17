@@ -599,7 +599,7 @@
       "phase": 3,
       "task": "Implement init command for existing projects",
       "files": ["src/commands/init.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-026",

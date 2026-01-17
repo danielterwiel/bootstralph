@@ -2,6 +2,7 @@ import * as p from "@clack/prompts";
 import { handlePrd } from "./commands/prd.js";
 import { handleRalph } from "./commands/ralph.js";
 import { handleCreate, type Preset } from "./commands/create.js";
+import { handleInit } from "./commands/init.js";
 
 /**
  * CLI version - should match package.json
@@ -152,17 +153,6 @@ Learn more: https://github.com/danterwiel/bootstralph
 `);
 }
 
-/**
- * Handle the 'init' command - initialize Ralph in existing project
- */
-async function handleInit(): Promise<void> {
-  p.intro("bootstralph init - Add Ralph to existing project");
-
-  // TODO: Will be implemented in impl-025
-  p.log.warn("The init command will be implemented in impl-025");
-
-  p.outro("Coming soon!");
-}
 
 /**
  * Handle the 'add' command - add features to existing project
