@@ -557,7 +557,7 @@
       "phase": 2,
       "task": "Implement CLAUDE.md template generator",
       "files": ["src/ralph/claudemd.ts", "src/templates/CLAUDE.md.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-020",

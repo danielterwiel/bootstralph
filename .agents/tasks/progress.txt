@@ -181,3 +181,31 @@
 - Exports PRESET_CONFIGS, runWizard, applyPreset, runScaffolder, displayConfigSummary
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-019: Implement CLAUDE.md template generator
+
+### Completed
+- Created `src/ralph/claudemd.ts` with CLAUDE.md generation and file writing utilities
+- Created `src/templates/CLAUDE.md.ts` with comprehensive template generator
+- Template includes all project configuration sections:
+  - Project overview (platform, framework, package manager)
+  - Tech stack (styling, state, ORM, backend, auth, testing, tooling, deployment)
+  - Development workflow (getting started, testing, code quality, database commands)
+  - Coding standards (architecture patterns, styling, state management, database, auth)
+  - Important files (configuration, environment)
+  - Conventions (git, code style, testing)
+  - Ralph loop notes (usage, best practices)
+
+### Technical Details
+- `generateClaudeMd(config)` generates full CLAUDE.md content based on ClaudeMdConfig
+- `writeClaudeMd(options)` writes CLAUDE.md to project directory with overwrite control
+- `generateClaudeMdContent(config)` generates content without writing (for preview/testing)
+- `hasClaudeMd(projectPath)` checks if CLAUDE.md exists
+- `readClaudeMd(projectPath)` reads existing CLAUDE.md content
+- Framework-specific patterns for Next.js, TanStack Start, React Router v7, Astro, Expo, RN CLI, Hono, Elysia
+- Styling-specific patterns for Tailwind/shadcn, NativeWind, Uniwind, Tamagui
+- State management patterns for Zustand, TanStack Query, Jotai
+- Database patterns for Drizzle and Prisma
+- Auth patterns for better-auth, Clerk, Supabase Auth
+
+### Type check: PASSED
