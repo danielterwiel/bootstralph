@@ -135,6 +135,43 @@ testing: Jest (unit), Maestro/Detox (e2e)
 deploy: Manual (Xcode/Android Studio), Fastlane
 ```
 
+**React Native CLI Prerequisites Warning:**
+When user selects React Native CLI, display a warning with helpful guidance:
+
+```
+⚠️  React Native CLI requires local development tools:
+
+  iOS Development:
+  • Xcode (Mac App Store) with Command Line Tools
+  • CocoaPods (`sudo gem install cocoapods` or via Homebrew)
+
+  Android Development:
+  • Android Studio with Android SDK
+  • ANDROID_HOME environment variable configured
+  • Java Development Kit (JDK 17+)
+
+  Estimated setup time: ~1 hour if not already installed
+
+💡 Consider Expo instead? Expo offers:
+  • No Xcode/Android Studio required for development
+  • Cloud builds via EAS (test on device without local tools)
+  • Same React Native code, easier setup
+  • Can "eject" to bare workflow later if needed
+
+[Continue with React Native CLI] [Switch to Expo]
+```
+
+**When to recommend React Native CLI over Expo:**
+- Custom native modules requiring direct native code access
+- Brownfield apps (integrating RN into existing native app)
+- Performance-critical apps needing native-level optimization
+- Teams with existing native iOS/Android expertise
+
+**Wizard implementation note:** In `src/prompts/framework.ts`, when user selects "React Native CLI", check for local tools before proceeding:
+1. Check if Xcode is installed (macOS): `xcode-select -p`
+2. Check if Android Studio SDK exists: `$ANDROID_HOME/platform-tools`
+3. If prerequisites missing, show warning with option to switch to Expo
+
 #### Astro (Content-First Web)
 ```yaml
 routing: File-based (built-in)

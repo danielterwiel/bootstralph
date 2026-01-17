@@ -411,7 +411,9 @@
       "category": "ux",
       "task": "Verify React Native CLI warning is helpful",
       "check": "Warning about Xcode/Android Studio - should we offer to install prerequisites?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The warning SHOULD be helpful and actionable. React Native CLI requires Xcode (iOS) and Android Studio (Android) with ~1 hour setup time. Rather than offering to install prerequisites (which is complex and OS-dependent), the wizard should: (1) Display clear prerequisites list with estimated setup time, (2) Offer to switch to Expo as easier alternative (same RN code, cloud builds via EAS, no local tools needed), (3) Detect if tools are already installed via `xcode-select -p` and `$ANDROID_HOME`. The React Native team now recommends Expo/framework-first approach for new projects. RN CLI should only be recommended for: custom native modules, brownfield apps, performance-critical apps, or teams with native expertise.",
+      "action_required": null
     },
     {
       "id": "review-040",

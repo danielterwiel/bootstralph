@@ -1306,3 +1306,44 @@ YES, both presets were missing from PLAN.md:
 - https://hygraph.com/blog/astro-cms
 - https://dev.to/hasan_py/setup-your-universal-app-with-react-native-expo-router-tamagui-and-storybook-28m6
 
+## 2026-01-17: review-039 completed
+
+**Task**: Verify React Native CLI warning is helpful
+**Check**: Warning about Xcode/Android Studio - should we offer to install prerequisites?
+
+**Finding**:
+- The warning SHOULD be helpful and actionable, not just informational
+- React Native CLI requires significant local setup:
+  - **iOS**: Xcode (Mac App Store) + Command Line Tools + CocoaPods
+  - **Android**: Android Studio + Android SDK + ANDROID_HOME env var + JDK 17+
+  - **Estimated setup time**: ~1 hour if tools not already installed
+- **Should NOT offer to install prerequisites** - too complex, OS-dependent, and error-prone
+- **Instead, the wizard should**:
+  1. Display clear prerequisites list with estimated setup time
+  2. Offer to switch to Expo as easier alternative (same RN code, cloud builds via EAS)
+  3. Detect if tools are already installed (`xcode-select -p`, `$ANDROID_HOME`)
+  4. Provide clear decision guidance on when RN CLI is actually needed
+
+**When React Native CLI is actually recommended:**
+- Custom native modules requiring direct native code access
+- Brownfield apps (integrating RN into existing native app)
+- Performance-critical apps needing native-level optimization
+- Teams with existing native iOS/Android expertise
+
+**Key insight**: The React Native team now recommends Expo/framework-first approach for new projects. The question should be "Do I have a compelling reason NOT to use Expo?" rather than "Why Expo?"
+
+**Action Required**: Added comprehensive "React Native CLI Prerequisites Warning" section to PLAN.md including:
+1. Full prerequisites list for iOS and Android development
+2. Estimated setup time (~1 hour)
+3. Alternative recommendation (Expo) with benefits
+4. Decision guidance for when RN CLI is appropriate
+5. Wizard implementation notes for detecting installed tools
+
+**Sources**:
+- https://reactnative.dev/docs/set-up-your-environment
+- https://medium.com/react-native-journal/expo-vs-react-native-cli-in-2025-which-one-should-you-choose-7badd45e5fa7
+- https://dev.to/wafa_bergaoui/expo-or-react-native-cli-in-2025-lets-settle-this-cl1
+- https://dev.to/devi_green_00f82b6d705/its-2025-you-should-probably-be-using-expo-for-react-native-407a
+- https://getstream.io/blog/react-native-android-ios-setup/
+- https://github.com/anasyd/Install-RN-on-MacOS
+
