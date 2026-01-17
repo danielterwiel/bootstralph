@@ -402,6 +402,101 @@ bootstralph/
 
 ---
 
+## Docker Configuration for Claude Code
+
+### Available Methods (Choose Based on User Environment)
+
+#### 1. Docker Desktop Sandbox (Recommended - Simplest)
+
+For users with Docker Desktop installed:
+
+```bash
+# Run Claude Code in a sandboxed container
+docker sandbox run claude
+
+# With a specific workspace
+docker sandbox run -w ~/my-project claude
+
+# Continue previous conversation
+docker sandbox run claude -c
+
+# Direct prompt
+docker sandbox run claude "explain this codebase"
+```
+
+- Uses `docker/sandbox-templates:claude-code` image
+- Automatic credential management (API key stored in Docker volume)
+- Includes: Docker CLI, GitHub CLI, Node.js, Go, Python 3, Git, ripgrep, jq
+- Runs as non-root user with sudo access
+
+#### 2. Custom Dockerfile (For CI/CD or Custom Environments)
+
+Generate a Dockerfile based on Anthropic's reference:
+
+```dockerfile
+FROM node:20
+
+# Install development tools
+RUN apt-get update && apt-get install -y \
+    git zsh vim \
+    iproute2 iptables \
+    fzf jq gnupg2 unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Claude Code
+ARG CLAUDE_CODE_VERSION=latest
+RUN npm install -g @anthropic-ai/claude-code@${CLAUDE_CODE_VERSION}
+
+# Setup non-root user
+USER node
+WORKDIR /workspace
+
+CMD ["claude"]
+```
+
+#### 3. DevContainer (For VS Code Users)
+
+Add to `.devcontainer/devcontainer.json`:
+
+```json
+{
+  "name": "Claude Code Dev",
+  "image": "node:20",
+  "features": {
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  },
+  "remoteUser": "node"
+}
+```
+
+Or with explicit Node.js feature:
+
+```json
+{
+  "name": "Claude Code Dev",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {},
+    "ghcr.io/anthropics/devcontainer-features/claude-code:1": {}
+  }
+}
+```
+
+### Implementation Strategy for bootstralph
+
+The CLI should:
+1. **Detect Docker Desktop**: If available, prefer `docker sandbox run claude` approach
+2. **Generate Dockerfile**: For users who need custom containers or CI/CD integration
+3. **Generate DevContainer**: For VS Code users who prefer devcontainer workflow
+
+Files to generate in `src/ralph/sandbox.ts`:
+- `docker-compose.yml` (for custom Dockerfile approach)
+- `.devcontainer/devcontainer.json` (for VS Code approach)
+- Shell scripts for `docker sandbox` approach
+
+**Note**: There is no official `ghcr.io/anthropics/claude-code` image. Use the methods above instead.
+
+---
+
 ## Sources
 
 - [openskills](https://github.com/numman-ali/openskills) - Universal skills loader

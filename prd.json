@@ -162,7 +162,9 @@
       "category": "docker",
       "task": "Verify Claude Code Docker image exists",
       "check": "Plan references ghcr.io/anthropics/claude-code:latest - does this image exist?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "There is NO official `ghcr.io/anthropics/claude-code:latest` Docker image. Anthropic provides: (1) DevContainer feature at `ghcr.io/anthropics/devcontainer-features/claude-code:1` for devcontainer.json, (2) Reference Dockerfile in the claude-code repo using `node:20` + `npm install -g @anthropic-ai/claude-code`. Docker provides official support via `docker sandbox run claude` command which uses `docker/sandbox-templates:claude-code` image with automatic credential management. For bootstralph, we should use either the `docker sandbox` approach (simplest for Docker Desktop users) or generate a Dockerfile based on Anthropic's reference implementation.",
+      "action_required": "Update PLAN.md to document correct Docker approaches: (1) Primary: `docker sandbox run claude` for Docker Desktop users, (2) Alternative: Generate Dockerfile using node:20 base + npm install @anthropic-ai/claude-code, (3) DevContainer: For VS Code users with devcontainer.json. Remove any references to non-existent ghcr.io/anthropics/claude-code image."
     },
     {
       "id": "review-015",

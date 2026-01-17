@@ -308,3 +308,31 @@
 - https://tailwindcss.com/docs/guides/astro
 - https://clerk.com/docs/quickstarts/astro
 - https://docs.astro.build/en/guides/authentication/
+
+## 2026-01-17: review-014 completed
+
+**Task**: Verify Claude Code Docker image exists
+**Check**: Plan references ghcr.io/anthropics/claude-code:latest - does this image exist?
+
+**Finding**:
+- There is NO official `ghcr.io/anthropics/claude-code:latest` Docker image
+- Anthropic provides two official methods:
+  1. **DevContainer feature**: `ghcr.io/anthropics/devcontainer-features/claude-code:1` for devcontainer.json
+  2. **Reference Dockerfile**: In the claude-code repo using `node:20` base + `npm install -g @anthropic-ai/claude-code`
+- Docker provides official support via `docker sandbox run claude` command
+  - Uses `docker/sandbox-templates:claude-code` image
+  - Automatic credential management (API key stored in persistent Docker volume)
+  - Includes: Docker CLI, GitHub CLI, Node.js, Go, Python 3, Git, ripgrep, jq
+- For bootstralph, three approaches are valid:
+  1. **Docker Desktop users**: `docker sandbox run claude` (simplest)
+  2. **Custom environments**: Generate Dockerfile using node:20 + npm install
+  3. **VS Code users**: Generate devcontainer.json with claude-code feature
+
+**Action Required**: Updated PLAN.md with comprehensive Docker Configuration section documenting all three approaches, including example configurations for each method.
+
+**Sources**:
+- https://github.com/anthropics/devcontainer-features
+- https://github.com/anthropics/devcontainer-features/blob/main/src/claude-code/README.md
+- https://docs.docker.com/ai/sandboxes/claude-code/
+- https://github.com/anthropics/claude-code/blob/main/.devcontainer/Dockerfile
+- https://code.claude.com/docs/en/devcontainer
