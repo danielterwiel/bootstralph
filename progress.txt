@@ -773,3 +773,29 @@ EAS Build should remain the recommended default (easiest path, great for most us
 - https://blog.logrocket.com/fastlane-build-test-ship-react-native-apps/
 - https://iamkhushbajwa.medium.com/releasing-apps-without-expos-eas-builds-5017f304b6be
 
+## 2026-01-17: review-028 completed
+
+**Task**: Verify Railway compatibility
+**Check**: Railway is listed for Next.js but not for TanStack Start in detailed section
+
+**Finding**:
+- The review premise was INCORRECT - Railway IS already listed for TanStack Start in PLAN.md
+- Line 87 already shows: `deploy: Any (Vercel, Cloudflare, Fly.io, Railway)`
+- Official TanStack Start documentation explicitly lists Railway as a supported deployment target under the Node.js category
+- Railway has multiple community-created templates for TanStack Start:
+  1. **TanStack Start Monorepo (Bun)** - Created Dec 2025, 100% success rate, includes Better Auth + Drizzle + Supabase
+  2. **TanStack Start - Drizzle** - Created Mar 2025, simple starter with TanStack Query
+  3. **TanStack Shopify App Template** - Created Nov 2025, full Shopify app boilerplate
+- TanStack Start uses Nitro as its server runtime which supports the `node-server` preset that works natively with Railway
+- **Bun deployment caveat**: When using Bun, users must configure `preset: 'bun'` in app.config.ts (not `node-server`) and start with `bun run .output/server/index.mjs`
+
+**Action Required**: None - the PLAN.md already correctly lists Railway as a deployment option for TanStack Start
+
+**Sources**:
+- https://tanstack.com/start/latest/docs/framework/react/guide/hosting
+- https://railway.com/deploy/tanstack-start-mon-1
+- https://railway.com/deploy/nAdb0P
+- https://railway.com/deploy/tanstack-shopify-app-template
+- https://station.railway.com/questions/tanstack-start-works-locally-but-not-dep-1b8e915a
+- https://nitro.build/deploy
+
