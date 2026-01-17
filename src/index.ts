@@ -1,7 +1,7 @@
 import * as p from "@clack/prompts";
-import { setTimeout } from "node:timers/promises";
 import { handlePrd } from "./commands/prd.js";
 import { handleRalph } from "./commands/ralph.js";
+import { handleCreate, type Preset } from "./commands/create.js";
 
 /**
  * CLI version - should match package.json
@@ -11,16 +11,14 @@ const VERSION = "0.1.0";
 /**
  * Available presets for quick project scaffolding
  */
-const VALID_PRESETS = [
+const VALID_PRESETS: readonly Preset[] = [
   "saas",
   "mobile",
   "api",
   "content",
   "universal",
   "fullstack",
-] as const;
-
-type Preset = (typeof VALID_PRESETS)[number];
+];
 
 /**
  * Parsed CLI arguments
@@ -152,68 +150,6 @@ Examples:
 
 Learn more: https://github.com/danterwiel/bootstralph
 `);
-}
-
-/**
- * Handle the 'create' command - main wizard entry point
- */
-async function handleCreate(
-  projectName?: string,
-  preset?: Preset
-): Promise<void> {
-  p.intro("bootstralph - Ralph-powered project scaffolding");
-
-  // If no project name provided, prompt for it
-  let name = projectName;
-  if (!name) {
-    const nameResult = await p.text({
-      message: "What is your project named?",
-      placeholder: "my-ralph-app",
-      validate: (value) => {
-        if (!value) return "Project name is required";
-        if (!/^[a-z0-9-_]+$/i.test(value)) {
-          return "Project name can only contain letters, numbers, hyphens, and underscores";
-        }
-        return undefined;
-      },
-    });
-
-    if (p.isCancel(nameResult)) {
-      p.cancel("Operation cancelled");
-      process.exit(0);
-    }
-
-    name = nameResult;
-  }
-
-  // Display preset info if provided
-  if (preset) {
-    p.note(`Using preset: ${preset}`, "Preset");
-  }
-
-  // TODO: This will be implemented in subsequent tasks (impl-006 through impl-018)
-  // For now, show a placeholder message
-  const s = p.spinner();
-  s.start("Initializing project configuration...");
-  await setTimeout(500);
-  s.stop("Configuration ready");
-
-  p.note(
-    `Project: ${name}${preset ? `\nPreset: ${preset}` : ""}`,
-    "Project Details"
-  );
-
-  // Placeholder for future implementation
-  p.log.info("The full wizard will be implemented in upcoming tasks:");
-  p.log.step("impl-006: Project type selection (Web/Mobile/API)");
-  p.log.step("impl-007: Framework selection with compatibility filtering");
-  p.log.step("impl-008: Features selection (auth, DB, etc.)");
-  p.log.step("impl-009: Deployment target selection");
-  p.log.step("impl-010: Tooling selection (linting, formatting, testing)");
-  p.log.step("impl-011 to impl-017: Scaffolders for each framework");
-  p.log.step("impl-018: Create command orchestration");
-
-  p.outro(`Ready to build ${name} with Ralph!`);
 }
 
 /**

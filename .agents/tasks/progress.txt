@@ -148,3 +148,36 @@
 - Cloudflare deployments include wrangler as dev dependency for local dev and deployment
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-018: Implement create command orchestration
+
+### Completed
+- Created `src/commands/create.ts` with full wizard orchestration
+- Orchestrates the complete flow: project type → framework → features → deployment → tooling → scaffold
+- Preset support for quick project setup: saas, mobile, api, content, universal, fullstack
+- Full wizard flow with proper cancellation handling at each step
+- Configuration validation using `validateAllSelections` before scaffolding
+- Confirmation prompt before starting scaffold process
+- Framework-specific scaffolder dispatching (Next.js, TanStack Start, Expo, React Native CLI, React Router v7, Astro, Hono, Elysia)
+- Options builder functions for each scaffolder to handle type conversions
+- Configuration summary display before scaffolding
+- Proper handling of optional properties for exactOptionalPropertyTypes
+- Updated `src/index.ts` to use the new `handleCreate` function
+
+### Preset Configurations
+- **saas**: Next.js + Tailwind/shadcn + Drizzle + Supabase + better-auth + Vercel
+- **mobile**: Expo + Uniwind + Supabase + Clerk + EAS Build + Expo Router
+- **api**: Hono + Drizzle + better-auth + Cloudflare
+- **content**: Astro + Tailwind + Drizzle + Supabase + Vercel
+- **universal**: Expo + Tamagui + Supabase + Clerk + EAS Build
+- **fullstack**: Next.js + Tailwind/shadcn + Drizzle + Supabase + better-auth + Vercel
+
+### Technical Details
+- Uses promptProjectType, promptFramework, promptFeatures, promptDeployment, promptTooling from prompts/
+- Calls appropriate scaffolder based on framework selection
+- Builds scaffold options conditionally to satisfy TypeScript's exactOptionalPropertyTypes
+- Handles directory existence check with overwrite confirmation
+- Displays warnings and next steps from scaffold result
+- Exports PRESET_CONFIGS, runWizard, applyPreset, runScaffolder, displayConfigSummary
+
+### Type check: PASSED
