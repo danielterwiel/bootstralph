@@ -1177,3 +1177,26 @@ module.exports = {
 - https://github.com/anthropics/claude-code/blob/main/plugins/ralph-wiggum/README.md
 - https://venturebeat.com/technology/how-ralph-wiggum-went-from-the-simpsons-to-the-biggest-name-in-ai-right-now
 
+## 2026-01-17: review-035 completed
+
+**Task**: Verify @clack/prompts version
+**Check**: Is ^0.8.0 the latest stable version of @clack/prompts?
+
+**Finding**:
+- ^0.8.0 is **OUTDATED**. The latest stable version is **v0.11.0** (published May 2025)
+- ~2.5 million weekly downloads, actively maintained by bombshell-dev
+- Key features added since 0.8.0:
+  1. **v0.9.0**: `updateSettings()` function for global keybindings, `signal` option for programmatic cancellation with AbortController
+  2. **v0.10.0**: `indicator` option for spinner animations (dots/timer modes), `stream` API for iterable messages
+  3. **v0.11.0**: `taskLog` prompt for log output cleared on success, `format` option for note prompt, customizable spinner cancel/error messages for multilingual CLIs
+- A v1.0.0 is in alpha (1.0.0-alpha.9) with ESM-only distribution, separate stop()/cancel()/error() methods, multiline message rendering, and clear() method for spinners
+- v0.11.0 remains the latest stable release; v1.0 is not yet production-ready
+
+**Action Required**: Update PLAN.md Tech Stack dependencies from `@clack/prompts: ^0.8.0` to `@clack/prompts: ^0.11.0` to get latest features including programmatic cancellation, taskLog prompt, and multilingual support.
+
+**Sources**:
+- https://www.npmjs.com/package/@clack/prompts
+- https://github.com/bombshell-dev/clack/blob/main/packages/prompts/CHANGELOG.md
+- https://github.com/bombshell-dev/clack/releases
+- https://cloudsmith.com/navigator/npm/@clack/prompts
+
