@@ -714,7 +714,8 @@
       "phase": 5,
       "task": "Create StatusBar component",
       "files": ["src/tui/components/StatusBar.tsx"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Display current task ID/title, progress (X/Y completed), iteration count, paused/running state. Update reactively from store."
     },
     {

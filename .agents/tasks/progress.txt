@@ -1056,3 +1056,42 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 ### Build: PASSED
+
+## 2026-01-17 - impl-040: Create StatusBar component
+
+### Completed
+- Created `src/tui/components/StatusBar.tsx` with full status bar implementation using OpenTUI
+- Integrates with TUI state store for reactive updates
+
+### Features
+- **StatusBar component**: Main status bar with task, progress, and state display
+  - Uses `@jsxImportSource @opentui/solid` pragma for OpenTUI JSX types
+  - Shows current task ID and title with elapsed time
+  - Progress bar with percentage and X/Y count
+  - Iteration count (iter X/Y)
+  - Status indicator: RUNNING (green), PAUSED (yellow), STOPPED (gray)
+  - Configurable border and background colors
+
+- **CompactStatusBar component**: Single-line minimal variant
+  - Shows essential info in one line: [STATUS] taskId | X/Y (pct%) | iter X/Y
+  - Useful for space-constrained layouts
+
+- **StatusBarWithPrd component**: StatusBar with PRD info header
+  - Shows PRD name and filename above the main status bar
+  - Uses partial borders (top/left/right) for visual connection
+
+### Helper Functions
+- `getStatusColor(status)` - Returns color based on RUNNING/PAUSED/STOPPED state
+- `getProgressColor(percentage)` - Returns color gradient based on completion percentage
+- `formatElapsedTime(startedAt)` - Formats time as "Xh Ym", "Xm Ys", or "Xs"
+- `buildProgressBar(percentage, width)` - Creates text-based progress bar with █ and ░ characters
+
+### Technical Details
+- Uses createMemo for computed values (progressText, iterationText, taskText, progressBar)
+- Conditionally builds box props to satisfy exactOptionalPropertyTypes
+- Colors as hex strings (e.g., "#55ff55") per OpenTUI RGBA/ColorInput types
+- Uses backgroundColor (not bg) per OpenTUI BoxOptions interface
+- Border sides can be specified as array: ["top", "left", "right"]
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
