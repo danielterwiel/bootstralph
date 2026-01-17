@@ -1,0 +1,12 @@
+{
+  "name": "bootstralph",
+  "version": "1.0.0",
+  "description": "Initialize your entire Ralph project and just get started. Skills get automatically installed based on your chosen stack. Claude oriented at the moment",
+  "license": "MIT",
+  "author": "Daniël Terwiel",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  }
+}
