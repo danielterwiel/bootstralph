@@ -826,3 +826,47 @@ EAS Build should remain the recommended default (easiest path, great for most us
 - https://github.com/vitest-dev/vitest/releases
 - https://www.infoq.com/news/2025/12/vitest-4-browser-mode/
 
+## 2026-01-17: review-030 completed
+
+**Task**: Verify Jest + oxlint combination
+**Check**: Does oxlint work well with Jest for React Native projects?
+
+**Finding**:
+- YES, oxlint works well with Jest for React Native projects
+- Oxlint 1.0 stable (June 2025) includes a **native Jest plugin** with 29 Jest-specific rules built in Rust:
+  - Test organization: `consistent-test-it`, `max-nested-describe`, `require-top-level-describe`
+  - Assertions: `expect-expect`, `max-expects`, `valid-expect`
+  - Test structure: `no-disabled-tests`, `no-focused-tests`, `no-conditional-in-test`
+  - And 20+ more rules covering mocking, hooks, matchers, snapshots
+- **Enable Jest plugin**: Via `--jest-plugin` CLI flag or `"plugins": ["jest"]` in `.oxlintrc.json`
+- **Real-world validation**: OneSignal's `react-native-onesignal` library uses oxlint with Jest configuration in production
+- **Performance**: Oxlint is 50-100x faster than ESLint with native Jest rules
+
+**CAVEAT - eslint-plugin-react-native**:
+- `eslint-plugin-react-native` is NOT natively supported in oxlint
+- Workarounds:
+  1. Use experimental `jsPlugins` feature: `"jsPlugins": ["eslint-plugin-react-native"]`
+  2. Run both linters: `oxlint && eslint` (recommended) - oxlint handles Jest/TS/React fast, ESLint handles RN-specific rules
+- The `eslint-plugin-oxlint` package provides `'flat/jest'` config to disable ESLint rules already covered by oxlint, avoiding duplicate warnings
+
+**Recommended Configuration for React Native + Jest**:
+```json
+// .oxlintrc.json
+{
+  "plugins": ["jest", "react", "typescript"],
+  "rules": {
+    "jest/no-focused-tests": "error",
+    "jest/no-disabled-tests": "warn"
+  }
+}
+```
+
+**Action Required**: None - the PLAN.md correctly shows Jest for React Native testing and oxlint as the default linter. The combination works well with the native Jest plugin.
+
+**Sources**:
+- https://voidzero.dev/posts/announcing-oxlint-1-stable
+- https://oxc.rs/docs/guide/usage/linter/plugins
+- https://github.com/OneSignal/react-native-onesignal/blob/main/.oxlintrc.json
+- https://github.com/oxc-project/eslint-plugin-oxlint
+- https://betterstack.com/community/guides/scaling-nodejs/oxlint-explained/
+
