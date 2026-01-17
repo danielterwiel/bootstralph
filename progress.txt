@@ -653,3 +653,57 @@ The SaaS preset now explicitly shows `styling: Tailwind CSS + shadcn/ui` to prev
 - https://tanstack.com/start/latest/docs/framework/react/examples/start-supabase-basic
 - https://docs.expo.dev/guides/using-supabase/
 
+## 2026-01-17: review-025 completed
+
+**Task**: Verify Convex compatibility with all frameworks
+**Check**: Convex is listed for Expo backend but is it compatible with Next.js/TanStack?
+
+**Finding**:
+Convex is compatible with ALL frameworks mentioned in PLAN.md, not just Expo:
+
+1. **Next.js**: Full App Router support with server rendering (beta) via `convex/nextjs` helpers
+   - `preloadQuery` for SSR with client-side reactivity
+   - `fetchQuery`, `fetchMutation`, `fetchAction` for Server Components/Actions
+   - Official demo app and quickstart available
+
+2. **TanStack Start**: First-class integration via `@convex-dev/react-query`
+   - Uses `@tanstack/react-router-with-query` for SSR
+   - Live updates from Convex supercharge React Query
+   - Hydrating Query Client makes SSR seamless
+   - Official example: TanStack Start + Convex Trellaux
+
+3. **React Router v7**: Works with standard Convex React client
+   - Same React patterns, useQuery hook works as expected
+   - React Router v7 is standard React so Convex React client is compatible
+
+4. **Expo/React Native**: Official support, same React client as web
+   - Official quickstart at docs.convex.dev/quickstart/react-native
+   - Convex Auth (beta) supports both web and React Native
+   - Universal apps possible with Expo + Tamagui + Convex
+
+5. **Astro**: Official starter template available
+   - Uses `withConvexProvider` wrapper for React islands
+   - `useQuery` and Convex hooks work in client components as usual
+
+The PLAN.md only listed Convex under Expo backend options, but it should be a backend option for ALL frameworks.
+
+**Action Required**: Updated PLAN.md:
+1. Added `backend: Convex (real-time), Supabase` to Next.js, TanStack Start, React Router v7, and Astro sections
+2. Added notes explaining Convex integration specifics for each framework
+3. Expanded Database/Backend Options table with "Reactive queries + type-safety" and "Full-stack type-safe backend" use cases
+4. Added "Convex Framework Compatibility" section documenting support for each framework
+5. Added `convex` skill to Skills by Stack table
+
+**Sources**:
+- https://docs.convex.dev/client/nextjs/app-router/
+- https://docs.convex.dev/quickstart/nextjs
+- https://docs.convex.dev/client/tanstack/tanstack-start/
+- https://docs.convex.dev/quickstart/tanstack-start
+- https://tanstack.com/start/latest/docs/framework/react/examples/start-convex-trellaux
+- https://docs.convex.dev/quickstart/react-native
+- https://docs.convex.dev/client/react-native
+- https://www.convex.dev/can-do/mobile-apps
+- https://www.convex.dev/templates/astro
+- https://www.bitdoze.com/astro-convex-realtime-app/
+- https://claude-plugins.dev/skills/@ThijmenGThN/next-leaflet/convex
+

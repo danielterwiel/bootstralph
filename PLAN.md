@@ -65,10 +65,12 @@ bundler: Turbopack (default) or Webpack
 styling: Tailwind + shadcn/ui
 state: Zustand, Jotai, TanStack Query
 orm: Drizzle (edge-compatible), Prisma
+backend: Convex (real-time), Supabase
 auth: better-auth, Clerk, Supabase Auth
 api: tRPC, Server Actions, Route Handlers
 testing: Vitest (unit), Playwright (e2e)
 deploy: Vercel (optimal), Netlify, Cloudflare, Railway
+note: Convex provides server rendering via convex/nextjs helpers (preloadQuery, fetchQuery)
 ```
 
 #### TanStack Start (Web)
@@ -78,11 +80,13 @@ bundler: Vite (required)
 styling: Tailwind + shadcn/ui
 state: TanStack Query (built-in), Zustand
 orm: Drizzle (recommended for edge)
+backend: Convex (real-time), Supabase
 auth: better-auth, Clerk, Supabase Auth
 api: Server Functions, tRPC, Hono
 testing: Vitest (unit), Playwright (e2e)
 deploy: Any (Vercel, Cloudflare, Fly.io, Railway)
 rsc: Not yet supported (coming soon)
+note: Convex + TanStack Query integration via @convex-dev/react-query with SSR and live updates
 ```
 
 #### React Router v7 - Framework Mode (Web)
@@ -92,11 +96,13 @@ bundler: Vite (built-in)
 styling: Tailwind + shadcn/ui
 state: Zustand, Jotai, TanStack Query
 orm: Drizzle, Prisma
+backend: Convex (real-time), Supabase
 auth: better-auth, Clerk, Supabase Auth
 api: Loaders/Actions (built-in)
 testing: Vitest (unit), Playwright (e2e)
 deploy: Any (Cloudflare Workers optimal)
 rsc: Preview available (unstable)
+note: Convex React client works with React Router v7's standard React patterns
 ```
 
 #### Expo (Mobile)
@@ -130,11 +136,12 @@ bundler: Vite
 styling: Tailwind, vanilla CSS
 state: Minimal (islands architecture)
 orm: Drizzle, Prisma (for API routes)
+backend: Convex (via React islands), Supabase
 auth: better-auth, Clerk, Supabase Auth (native Astro SDKs with server-side middleware)
 api: API Routes, Server Endpoints
 testing: Vitest (unit), Playwright (e2e)
 deploy: Vercel, Netlify, Cloudflare
-note: Use React islands for interactive UI; auth works server-side via middleware
+note: Use React islands for interactive UI; Convex uses withConvexProvider wrapper for islands
 ```
 
 ### Database/Backend Options by Use Case
@@ -143,10 +150,19 @@ note: Use React islands for interactive UI; auth works server-side via middlewar
 |----------|-------------|--------------|
 | Real-time + Postgres | Supabase | Convex |
 | Real-time collaborative | Convex | Supabase |
+| Reactive queries + type-safety | Convex | Supabase |
 | MySQL at scale | PlanetScale | - |
 | Edge-compatible | Drizzle + Turso/Neon | Drizzle + PlanetScale |
-| NoSQL / Firebase-like | Firebase | Supabase |
+| NoSQL / Firebase-like | Firebase | Supabase, Convex |
 | Self-hosted | Postgres + Drizzle | Supabase (self-host) |
+| Full-stack type-safe backend | Convex | tRPC + Drizzle |
+
+**Convex Framework Compatibility:**
+- **Next.js**: Full support via `convex/nextjs` helpers (preloadQuery, fetchQuery, fetchMutation)
+- **TanStack Start**: First-class integration via `@convex-dev/react-query` with SSR and live updates
+- **React Router v7**: Works with standard Convex React client
+- **Expo/React Native**: Official quickstart, same React client as web
+- **Astro**: Official starter template with `withConvexProvider` wrapper for React islands
 
 ### Deployment Platform Compatibility
 
@@ -279,6 +295,7 @@ openskills sync
 | **TanStack Start** | `react-best-practices`, `web-design-guidelines` (vercel-labs/agent-skills) |
 | **Expo** | `expo-app-design`, `expo-deployment`, `upgrading-expo` (expo/skills) |
 | **Supabase** | `supabase-operations` (FastMCP marketplace) |
+| **Convex** | `convex` (@ThijmenGThN/next-leaflet or community) - schema patterns, validation, auth integration |
 | **Drizzle** | `drizzle-orm-d1`, `drizzle`, `drizzle-migration` (community skills) |
 | **better-auth** | `better-auth` (@Microck/ordinary-claude-skills) |
 | **Clerk** | `clerk-pack` (24 skills from claude-code-plugins-plus) |

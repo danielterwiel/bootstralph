@@ -261,7 +261,9 @@
       "category": "database",
       "task": "Verify Convex compatibility with all frameworks",
       "check": "Convex is listed for Expo backend but is it compatible with Next.js/TanStack?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Convex is compatible with ALL frameworks mentioned in PLAN.md, not just Expo. Official documentation and integrations exist for: (1) Next.js - full App Router support with server rendering (beta) via convex/nextjs helpers, preloadQuery, fetchQuery, fetchMutation, fetchAction, (2) TanStack Start - first-class integration via @convex-dev/react-query and @tanstack/react-router-with-query with SSR support and live updates, (3) Expo/React Native - uses same convex React client, official quickstart available, (4) Astro - official starter template with withConvexProvider wrapper for React islands. Convex is a hosted backend with reactive database, automatic caching, and realtime useQuery hook. Server-side database queries automatically cache and subscribe to data. Convex Auth (beta) supports both web and React Native. Better Auth integration requires Convex 1.25.0+. The PLAN.md only lists Convex under Expo backend options but it should be added as a backend option for ALL frameworks.",
+      "action_required": "Update PLAN.md to add Convex as a backend/database option for Next.js, TanStack Start, React Router v7, and Astro framework sections (not just Expo). Add to Database/Backend Options table. Convex provides real-time sync, reactive queries, and works across all platforms."
     },
     {
       "id": "review-026",
