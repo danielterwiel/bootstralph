@@ -78,3 +78,27 @@
 - https://uniwind.dev/
 - https://docs.uniwind.dev/pro-version
 - https://www.reactnativecrossroads.com/posts/introducing-uniwind-the-fastest-tailwind-bindings-for-react-native/
+
+## 2026-01-17: review-005 completed
+
+**Task**: Verify oxfmt alpha stability
+**Check**: oxfmt is listed as alpha - is it stable enough for default recommendation?
+
+**Finding**:
+- Oxfmt is currently in alpha (announced December 1, 2025) with beta ETA Q1 2026
+- Current version is v0.24.0 (January 12, 2026) with active weekly releases
+- Passes 95% of Prettier's JavaScript and TypeScript tests
+- 30x faster than Prettier, 3x faster than Biome
+- Professionally maintained by VoidZero/Oxc team with frequent bug fixes
+- SST's opencode has added experimental oxfmt support, indicating real-world adoption
+- Will be integrated into Vite+ as `vite fmt` (public preview early 2026)
+- For CLI scaffolder targeting developers wanting cutting-edge tools, oxfmt is reasonable default
+
+**Action Required**: Consider adding Prettier as explicit fallback option for users who need 100% stability. Current PLAN.md recommendation is acceptable.
+
+**Sources**:
+- https://oxc.rs/blog/2025-12-01-oxfmt-alpha.html
+- https://voidzero.dev/posts/announcing-oxfmt-alpha
+- https://github.com/oxc-project/oxc/releases
+- https://github.com/sst/opencode/pull/5620
+- https://voidzero.dev/posts/announcing-vite-plus

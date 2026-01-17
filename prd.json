@@ -81,7 +81,9 @@
       "category": "compatibility-matrix",
       "task": "Verify oxfmt alpha stability",
       "check": "oxfmt is listed as alpha - is it stable enough for default recommendation?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Oxfmt is in alpha (announced Dec 1, 2025) with beta ETA Q1 2026. Currently at v0.24.0 with active weekly releases. Passes 95% of Prettier's JS/TS tests, 30x faster than Prettier. While alpha, it's professionally maintained by VoidZero/Oxc team with frequent bug fixes and real-world usage. SST's opencode has added experimental oxfmt support. For a CLI scaffolder targeting developers who want cutting-edge tools, oxfmt is a reasonable default with Prettier as fallback option. The PLAN.md correctly notes it as 'Alpha, 95%+ Prettier compatible'.",
+      "action_required": "Consider adding Prettier as explicit fallback option in wizard for users who need 100% stability. The current PLAN.md recommendation is acceptable for the target audience."
     },
     {
       "id": "review-006",
