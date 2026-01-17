@@ -364,3 +364,37 @@
 - https://code.claude.com/docs/en/devcontainer
 - https://github.com/RchGrav/claudebox
 - https://gofranz.com/blog/automate-testing-with-docker-compose-and-claude-code/
+
+## 2026-01-17: review-016 completed
+
+**Task**: Verify network_mode: none security
+**Check**: Commented out network isolation - should it be default? How does Ralph work without network?
+
+**Finding**:
+- `network_mode: none` is NOT viable for Claude Code
+- Claude Code's core architecture requires network connectivity for:
+  1. **API Communication**: Every Claude response requires calling `api.anthropic.com` - the AI doesn't run locally
+  2. **Package Installation**: `npm install` needs `registry.npmjs.org`
+  3. **Git Operations**: Cloning and pushing require `github.com`
+- Required minimum domains for whitelisting:
+  - `api.anthropic.com` - Core Claude API communication
+  - `claude.ai` - Platform services
+  - `registry.npmjs.org` - npm package installation
+  - `github.com` - Repository access, cloning
+- The correct approach is **domain whitelisting** using iptables-based filtering, not full network isolation
+- This provides defense-in-depth (prevents data exfiltration to arbitrary servers) while maintaining functionality
+- Anthropic's own sandboxing uses a proxy-based approach that restricts domains but doesn't fully isolate network
+
+**Action Required**: Updated PLAN.md with comprehensive "Network Isolation Strategy" section including:
+- Explanation of why `network_mode: none` doesn't work
+- Required domains table
+- iptables-based firewall script for domain whitelisting
+- Security trade-offs comparison table
+- Recommendation for domain whitelisting approach
+
+**Sources**:
+- https://code.claude.com/docs/en/sandboxing
+- https://www.anthropic.com/engineering/claude-code-sandboxing
+- https://docs.docker.com/ai/sandboxes/claude-code/
+- https://mfyz.com/ai-coding-agent-sandbox-container/
+- https://blog.arcade.dev/using-docker-sandboxes-with-claude-code

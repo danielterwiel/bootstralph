@@ -180,7 +180,9 @@
       "category": "docker",
       "task": "Verify network_mode: none security",
       "check": "Commented out network isolation - should it be default? How does Ralph work without network?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "`network_mode: none` is NOT viable for Claude Code. Claude Code requires network access for: (1) API communication - every Claude response requires calling api.anthropic.com (the AI doesn't run locally), (2) Package installation - npm install needs registry.npmjs.org, (3) Git operations - cloning and pushing require github.com. The correct approach is domain whitelisting using iptables-based filtering, not full network isolation. This provides defense-in-depth (prevents data exfiltration to arbitrary servers) while maintaining functionality. Required minimum domains: api.anthropic.com, claude.ai, registry.npmjs.org, github.com.",
+      "action_required": "Updated PLAN.md with comprehensive 'Network Isolation Strategy' section explaining why network_mode: none doesn't work, documenting required domains, providing iptables-based firewall script for domain whitelisting, and comparing security trade-offs between approaches."
     },
     {
       "id": "review-017",

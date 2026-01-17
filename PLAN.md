@@ -539,7 +539,85 @@ volumes:
 - API keys MUST be provided via `.env` file or host environment variables
 - Never commit `.env` files to version control (add to `.gitignore`)
 - Consider using Docker secrets for production environments
-- The `network_mode: none` option provides isolation but prevents package installation
+
+### Network Isolation Strategy
+
+**`network_mode: none` is NOT viable** - Claude Code requires network access to function:
+
+#### Required Domains (Minimum Whitelist)
+| Domain | Purpose |
+|--------|---------|
+| `api.anthropic.com` | Core Claude API communication |
+| `claude.ai` | Platform services |
+| `registry.npmjs.org` | npm package installation |
+| `github.com` | Repository access, cloning |
+
+#### Recommended Approach: Network Filtering (Not Full Isolation)
+
+Instead of `network_mode: none`, use iptables-based filtering for security:
+
+```dockerfile
+# Add to Dockerfile for network filtering capability
+RUN apt-get update && apt-get install -y iptables dnsutils
+```
+
+```yaml
+# In docker-compose.yml, add cap_add for iptables
+services:
+  claude-dev:
+    cap_add:
+      - NET_ADMIN
+```
+
+```bash
+# firewall-setup.sh - Run inside container at startup
+#!/bin/bash
+
+# Default deny policy
+iptables -P OUTPUT DROP
+iptables -A OUTPUT -o lo -j ACCEPT
+iptables -A OUTPUT -m state --state ESTABLISHED,RELATED -j ACCEPT
+
+# Allow DNS
+iptables -A OUTPUT -p udp --dport 53 -j ACCEPT
+iptables -A OUTPUT -p tcp --dport 53 -j ACCEPT
+
+# Whitelist required domains
+whitelist_domain() {
+    local domain=$1
+    for ip in $(dig +short $domain 2>/dev/null); do
+        iptables -A OUTPUT -d $ip -j ACCEPT
+    done
+}
+
+whitelist_domain "api.anthropic.com"
+whitelist_domain "claude.ai"
+whitelist_domain "registry.npmjs.org"
+whitelist_domain "github.com"
+# Add more as needed for your workflow
+```
+
+#### Security Trade-offs
+
+| Approach | Security | Functionality | Recommended For |
+|----------|----------|---------------|-----------------|
+| Full network access | Low | Full | Local development, trusted environments |
+| Domain whitelist (iptables) | Medium | Most features | Production CI/CD, security-conscious teams |
+| `network_mode: none` | High | ❌ Broken | NOT viable - Claude cannot reach API |
+
+#### Why Not `network_mode: none`?
+
+Claude Code's core architecture requires network connectivity:
+1. **API Communication**: Every Claude response requires calling `api.anthropic.com`
+2. **Package Installation**: `npm install` needs `registry.npmjs.org`
+3. **Git Operations**: Cloning and pushing require `github.com`
+
+Without network, Claude Code cannot:
+- Send prompts to Claude API (the AI doesn't run locally)
+- Install dependencies for scaffolded projects
+- Clone templates or push code
+
+**Recommendation**: Use domain whitelisting instead of full isolation. This provides defense-in-depth (prevents data exfiltration to arbitrary servers) while maintaining functionality
 
 ---
 
