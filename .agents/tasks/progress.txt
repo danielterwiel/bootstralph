@@ -722,3 +722,50 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 ### Tests: 114 passed
+
+## 2026-01-17 - impl-032: Write unit tests for filtering logic
+
+### Completed
+- Created `tests/filters.test.ts` with comprehensive unit tests (104 tests total)
+- Tests cover all filter functions in `src/compatibility/filters.ts`
+
+### Test Coverage
+- **getAvailableFrameworks()**: Framework filtering by platform, recommended flags
+- **getAvailableStyling()**: Platform/framework-aware styling filtering, web/mobile/universal distinctions
+- **getAvailableStateManagement()**: State management options by framework
+- **getAvailableORM()**: ORM options by framework (Drizzle, Prisma, none)
+- **getAvailableBackend()**: Backend options by framework (Supabase, Firebase, Convex, custom)
+- **getAvailableAuth()**: Auth provider options with framework-aware descriptions, Supabase recommendation
+- **getAvailableLinters()**: Linter options (oxlint, Biome, ESLint)
+- **shouldShowFormatterQuestion()**: Biome mutual exclusivity logic
+- **getAvailableFormatters()**: Formatter options based on linter selection
+- **getAvailableUnitTesting()**: Platform-aware unit testing frameworks (Vitest vs Jest)
+- **getAvailableE2ETesting()**: Platform-aware E2E testing frameworks (Playwright/Cypress vs Maestro/Detox)
+- **getAvailableDeployment()**: Framework-specific deployment targets
+- **filterOptions()**: Generic incompatibility filtering
+- **validateSelections()**: Full selection validation with error detection
+
+### Test Categories
+- Framework filters: 8 tests
+- Styling filters: 9 tests
+- State management filters: 6 tests
+- ORM filters: 6 tests
+- Backend filters: 6 tests
+- Auth filters: 9 tests
+- Linter filters: 3 tests
+- Formatter filters: 8 tests
+- Unit testing filters: 9 tests
+- E2E testing filters: 9 tests
+- Deployment filters: 10 tests
+- Generic filter options: 6 tests
+- Validate selections: 11 tests
+- Integration tests: 4 tests
+
+### Technical Details
+- Tests verify FilteredOption interface compliance (value, label, description, recommended)
+- Tests verify incompatibility rule enforcement (Biome+ESLint, Biome+Prettier, Expo+Vitest, etc.)
+- Tests verify platform-specific recommendations match DEFAULTS from matrix
+- Integration tests verify consistent options for SaaS (Next.js), Mobile (Expo), and API (Hono) presets
+
+### Type check: PASSED
+### Tests: 218 passed (114 compatibility + 104 filters)
