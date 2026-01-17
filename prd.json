@@ -366,7 +366,9 @@
       "category": "claude-hooks",
       "task": "Verify Ralph plugin installation command",
       "check": "Is '/plugin marketplace add anthropic/ralph-wiggum' the correct command?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The command '/plugin marketplace add anthropic/ralph-wiggum' is INCORRECT. The correct commands are: (1) Add marketplace: '/plugin marketplace add anthropics/claude-code' (note: 'anthropics' with 's', not 'anthropic'), (2) Install plugin: '/plugin install ralph-wiggum@claude-plugins-official'. The marketplace add command adds a catalog to browse available plugins, not install them. Ralph-wiggum is the official Claude Code plugin for autonomous development loops, maintained by Anthropic. It provides /ralph-loop and /cancel-ralph commands. Usage: /ralph-loop \"task description\" --max-iterations 30 --completion-promise \"DONE\".",
+      "action_required": "Add 'Ralph Wiggum Plugin Installation' section to PLAN.md documenting: (1) Correct marketplace add command syntax, (2) Correct plugin install command, (3) Basic usage of /ralph-loop and /cancel-ralph commands."
     },
     {
       "id": "review-035",

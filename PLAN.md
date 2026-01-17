@@ -851,8 +851,64 @@ PreToolUse hooks execute before a tool is used and can:
 
 ---
 
+## Ralph Wiggum Plugin Installation
+
+The Ralph Wiggum plugin enables autonomous development loops in Claude Code. It's the official Anthropic plugin for iterative, self-referential AI development.
+
+### Installation Commands
+
+```bash
+# Step 1: Add Anthropic's marketplace (note: 'anthropics' with 's')
+/plugin marketplace add anthropics/claude-code
+
+# Step 2: Install the ralph-wiggum plugin
+/plugin install ralph-wiggum@claude-plugins-official
+```
+
+**Important**: The marketplace add command adds a catalog to browse available plugins, not install them directly. You must use `/plugin install` to actually install plugins.
+
+### Basic Usage
+
+```bash
+# Start an autonomous loop with a task
+/ralph-loop "Implement user authentication with better-auth" --max-iterations 30
+
+# With completion promise (auto-stops when promise is found in output)
+/ralph-loop "Fix all type errors in the codebase" --max-iterations 20 --completion-promise "COMPLETE"
+
+# Cancel an active loop
+/cancel-ralph
+```
+
+### Key Options
+
+| Option | Description |
+|--------|-------------|
+| `--max-iterations` | Maximum number of iteration cycles (safety limit, recommended) |
+| `--completion-promise` | Exact string that signals completion (e.g., "DONE", "COMPLETE") |
+
+### How It Works
+
+1. You provide Claude a task and optional completion criteria
+2. Claude works on the task and attempts to exit when done
+3. The Stop Hook intercepts exit attempts, checking for the completion promise
+4. If promise not found, Claude sees its previous work and continues iterating
+5. Each iteration refines the approach based on what broke or what's left
+
+### Best Practices
+
+- **Always use `--max-iterations`** as your primary safety mechanism
+- Write prompts that converge toward correct solutions
+- Use specific, measurable completion criteria
+- The completion promise uses exact string matching (no regex)
+- For complex tasks, break them into smaller loops
+
+---
+
 ## Sources
 
+- [Ralph Wiggum Plugin](https://github.com/anthropics/claude-code/tree/main/plugins/ralph-wiggum) - Official Anthropic plugin for autonomous loops
+- [Claude Code Plugins](https://code.claude.com/docs/en/discover-plugins) - Plugin marketplace and installation
 - [openskills](https://github.com/numman-ali/openskills) - Universal skills loader
 - [Oxc (oxlint + oxfmt)](https://oxc.rs/) - High-performance JavaScript tools in Rust
 - [Uniwind](https://uniwind.dev/) - Fastest Tailwind bindings for React Native
