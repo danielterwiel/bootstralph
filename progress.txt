@@ -1622,3 +1622,35 @@ bootstralph add auth            # Add feature (placeholder)
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-007 completed
+
+**Task**: Create framework selection prompt with filtering
+**Files**: src/prompts/framework.ts
+
+**Changes Made**:
+1. Created `src/prompts/framework.ts` with:
+   - **FrameworkResult interface**: Return type containing the selected framework
+   - **promptFramework(platform)**: Main prompt function using @clack/prompts select
+     - Fetches available frameworks for the platform using `getAvailableFrameworks()` from filters.ts
+     - Auto-selects if only one framework is available for the platform
+     - Shows recommended frameworks with "(Recommended)" label suffix
+     - Uses framework description as hint text
+     - Sets initial value to recommended framework or first available
+     - Returns undefined if user cancels
+   - **getFrameworkInfo(framework)**: Get framework name, description, scaffoldCommand, and notes
+   - **getFrameworkDisplayName(framework)**: Get just the display name for a framework
+   - **isValidFrameworkForPlatform(framework, platform)**: Type guard to validate framework is available for platform
+   - **getRecommendedFramework(platform)**: Get the recommended framework for a platform
+   - **getFrameworkOptions(platform)**: Get full FilteredOption array for custom UI rendering
+
+2. Key implementation details:
+   - Uses filtering logic from `src/compatibility/filters.ts` to show only compatible frameworks
+   - Handles TypeScript's exactOptionalPropertyTypes by conditionally adding optional properties
+   - Follows same patterns as project-type.ts for consistency
+   - Auto-selects framework when only one is available (e.g., Universal platform only has Expo)
+   - Integrates with FRAMEWORKS config from matrix.ts for full metadata access
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
