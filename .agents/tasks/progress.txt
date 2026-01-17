@@ -975,3 +975,41 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 ### Build: PASSED
+
+## 2026-01-17 - impl-038: Create TUI state store with SolidJS signals
+
+### Completed
+- Created `src/tui/state/store.ts` with comprehensive reactive state management
+- Implemented SolidJS signals for all TUI state: logs, currentTask, isPaused, progress, inputHistory, currentPrd
+- Added derived state via createMemo: progressPercentage, hasPendingTasks, statusText, nextTask
+
+### State Signals
+- `logs` - Array of LogEntry with level, message, timestamp, optional source
+- `currentTask` - Current task being worked on (id, title, description, startedAt)
+- `isPaused` - Whether Ralph loop is paused
+- `progress` - { completed, total, iteration, maxIterations }
+- `inputHistory` - Command history for up/down arrow navigation
+- `currentPrd` - The loaded PRD object
+- `currentPrdFile` - Filename of the loaded PRD
+- `autoScroll` - Whether log pane auto-scrolls
+- `isRunning` - Whether TUI is running
+
+### Actions Implemented
+- Log management: addLog, addLogs, clearLogs (with 500 line limit)
+- Task management: startTask, completeTask, skipTask
+- Pause control: pause, resume, togglePause
+- Progress tracking: updateProgressFromPrd, incrementIteration, setMaxIterations, resetIteration
+- Input history: addToHistory, getHistoryCommand (100 entry limit)
+- PRD management: loadPrd, updatePrd, unloadPrd
+- TUI lifecycle: start, stop, reset
+
+### Technical Details
+- Uses SolidJS batch() for atomic multi-signal updates
+- Proper handling of exactOptionalPropertyTypes for optional fields
+- MAX_LOGS = 500 to prevent memory/CPU issues
+- MAX_INPUT_HISTORY = 100 for command recall
+- LogEntry levels: info, warn, error, success, debug, stdout, stderr
+- Store exported as const object for consistent API
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)

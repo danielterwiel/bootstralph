@@ -696,7 +696,8 @@
       "phase": 5,
       "task": "Create TUI state store with SolidJS signals",
       "files": ["src/tui/state/store.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Create reactive state using SolidJS signals: logs[], currentTask, isPaused, progress{completed,total}, inputHistory[], currentPrd."
     },
     {
