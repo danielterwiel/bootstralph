@@ -106,7 +106,7 @@ bundler: Metro (required)
 styling: Uniwind (recommended), NativeWind, Tamagui, Unistyles, StyleSheets
 state: Zustand (recommended), Jotai, TanStack Query
 orm: N/A (use backend)
-auth: Clerk (native support), better-auth (API)
+auth: Clerk (native SDK), better-auth (native SDK via @better-auth/expo)
 backend: Supabase, Firebase, Convex
 testing: Jest (unit), Maestro (e2e, recommended), Detox
 deploy: EAS (Expo Application Services)
@@ -177,7 +177,7 @@ Edge runtimes have significant limitations that affect ORM and driver choices:
 
 | Provider | Next.js | TanStack | Expo | React Native |
 |----------|---------|----------|------|--------------|
-| better-auth | ✅ | ✅ | ✅ (API) | ✅ (API) |
+| better-auth | ✅ | ✅ | ✅ Native | ✅ Native |
 | Clerk | ✅ | ✅ | ✅ Native | ✅ Native |
 | Supabase Auth | ✅ | ✅ | ✅ | ✅ |
 

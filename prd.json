@@ -243,7 +243,9 @@
       "category": "auth",
       "task": "Verify better-auth Expo support",
       "check": "Plan shows better-auth as API-only for Expo - is this the best approach?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The PLAN.md characterization of better-auth as 'API only' for Expo was INCORRECT. better-auth has an official @better-auth/expo package (v1.4.10) that provides full native mobile support: native session management via expo-secure-store (eliminates loading spinners on reload), deep linking integration for OAuth flows, social auth with native OAuth (Google, Apple, Facebook with ID token verification), useSession hook with SecureStore caching. Expo's official documentation lists better-auth among recommended authentication services alongside Clerk and Supabase. Both better-auth and Clerk now offer equivalent native SDK support for Expo.",
+      "action_required": "Updated PLAN.md: (1) Changed Expo auth line from 'Clerk (native support), better-auth (API)' to 'Clerk (native SDK), better-auth (native SDK via @better-auth/expo)'. (2) Updated Auth Provider Compatibility table to show better-auth as 'Native' for both Expo and React Native columns."
     },
     {
       "id": "review-024",

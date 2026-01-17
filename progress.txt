@@ -592,3 +592,32 @@ The SaaS preset now explicitly shows `styling: Tailwind CSS + shadcn/ui` to prev
 - https://github.com/shadcn-ui/ui/discussions/6465
 - https://dev.to/kirteshbansal/choosing-the-right-javascript-package-manager-in-2025-npm-vs-yarn-vs-pnpm-vs-bun-2jie
 - https://betterstack.com/community/guides/scaling-nodejs/pnpm-vs-bun-install-vs-yarn/
+
+## 2026-01-17: review-023 completed
+
+**Task**: Verify better-auth Expo support
+**Check**: Plan shows better-auth as API-only for Expo - is this the best approach?
+
+**Finding**:
+- The PLAN.md characterization of better-auth as "API only" for Expo was **INCORRECT**
+- better-auth has an official `@better-auth/expo` package (v1.4.10) that provides full native mobile support:
+  - **Native session management** via `expo-secure-store` (eliminates loading spinners on app reload)
+  - **Deep linking integration** for OAuth flows with automatic scheme conversion
+  - **Social auth** with native OAuth flows (Google, Apple, Facebook with ID token verification)
+  - **useSession hook** with SecureStore caching for persistent sessions
+  - Supports both Expo native and web apps
+- Expo's official documentation lists better-auth among recommended authentication services alongside Clerk and Supabase
+- TurboStarter offers an official "Expo + better-auth Mobile App Template" demonstrating production usage
+- Both better-auth and Clerk now offer **equivalent native SDK support** for Expo
+
+**Action Required**: Updated PLAN.md:
+1. Changed Expo auth line from `Clerk (native support), better-auth (API)` to `Clerk (native SDK), better-auth (native SDK via @better-auth/expo)`
+2. Updated Auth Provider Compatibility table to show better-auth as "Native" for both Expo and React Native columns
+
+**Sources**:
+- https://www.better-auth.com/docs/integrations/expo
+- https://www.npmjs.com/package/@better-auth/expo
+- https://docs.expo.dev/develop/authentication/
+- https://www.turbostarter.dev/stacks/expo-better-auth-mobile-app-template
+- https://labs.convex.dev/better-auth/framework-guides/expo
+
