@@ -705,7 +705,8 @@
       "phase": 5,
       "task": "Create LogPane component with virtualized scrolling",
       "files": ["src/tui/components/LogPane.tsx"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Scrollable log output using OpenTUI ScrollBox. Limit rendered lines to 500 to avoid CPU issues. Support ANSI colors. Auto-scroll with toggle."
     },
     {

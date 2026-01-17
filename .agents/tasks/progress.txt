@@ -1013,3 +1013,46 @@ npm publish --access public
 
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+
+## 2026-01-17 - impl-039: Create LogPane component with virtualized scrolling
+
+### Completed
+- Created `src/tui/components/LogPane.tsx` with full log pane implementation using OpenTUI
+- Uses OpenTUI ScrollBox for scrollable log output
+- Integrates with TUI state store for reactive updates
+
+### Features
+- **LogPane component**: Main scrollable log output pane
+  - Uses `@jsxImportSource @opentui/solid` pragma for OpenTUI JSX types
+  - Scrollbox with stickyScroll=true and stickyStart="bottom" for auto-scroll
+  - Viewport culling for performance
+  - Log entries limited to 500 (enforced by store)
+  - Auto-scroll indicator when scroll is paused
+
+- **LogEntryRow component**: Renders individual log entries
+  - Level-based color coding: error (red), warn (yellow), success (green), info (blue), debug (gray), stdout (white), stderr (light red)
+  - Optional timestamps display (HH:MM:SS format)
+  - Optional source display (e.g., [claude], [system], [user])
+  - Level prefix indicators: [ERR], [WRN], [OK], [INF], [DBG]
+
+- **LogPaneWithControls component**: LogPane with keyboard shortcut hints
+  - Shows [C]lear | [A]uto-scroll controls footer
+
+### Props Interface
+- `height?: number | \`${number}%\`` - Fixed height (defaults to flex: 1)
+- `showTimestamps?: boolean` - Show timestamps (default: true)
+- `showSource?: boolean` - Show log source (default: true)
+- `borderColor?: string` - Border color as hex string (default: "#444444")
+- `title?: string` - Pane title (default: "Logs")
+
+### Technical Details
+- Uses OpenTUI's ScrollBoxRenderable for programmatic scrollTo()
+- Colors as hex strings (e.g., "#ff5555") per OpenTUI RGBA/ColorInput types
+- Border set with border={true} and borderStyle="single" (not { all: "single" })
+- createEffect for auto-scroll when logs update
+- process.nextTick() ensures layout updates before scrolling
+- Proper TypeScript types with ScrollBoxRenderable ref
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+### Build: PASSED
