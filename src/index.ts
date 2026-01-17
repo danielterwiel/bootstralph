@@ -1,5 +1,7 @@
 import * as p from "@clack/prompts";
 import { setTimeout } from "node:timers/promises";
+import { handlePrd } from "./commands/prd.js";
+import { handleRalph } from "./commands/ralph.js";
 
 /**
  * CLI version - should match package.json
@@ -24,7 +26,7 @@ type Preset = (typeof VALID_PRESETS)[number];
  * Parsed CLI arguments
  */
 interface ParsedArgs {
-  command: "create" | "init" | "add" | "help" | "version";
+  command: "create" | "init" | "add" | "prd" | "ralph" | "help" | "version";
   projectName: string | undefined;
   preset: Preset | undefined;
   args: string[];
@@ -74,6 +76,10 @@ function parseArgs(argv: string[]): ParsedArgs {
       return { command: "init", projectName: undefined, preset: undefined, args: restArgs };
     case "add":
       return { command: "add", projectName: undefined, preset: undefined, args: restArgs };
+    case "prd":
+      return { command: "prd", projectName: undefined, preset: undefined, args: restArgs };
+    case "ralph":
+      return { command: "ralph", projectName: undefined, preset: undefined, args: restArgs };
     default:
       // Treat unknown command as project name for create
       if (command && !command.startsWith("-")) {
@@ -107,11 +113,15 @@ Usage:
   bootstralph create [project-name] [options]
   bootstralph init
   bootstralph add <feature> [options]
+  bootstralph prd <description>
+  bootstralph ralph [options]
 
 Commands:
-  create [name]    Create a new Ralph-powered project
-  init             Initialize Ralph in an existing project
-  add <feature>    Add features to an existing project
+  create [name]        Create a new Ralph-powered project
+  init                 Initialize Ralph in an existing project
+  add <feature>        Add features to an existing project
+  prd <description>    Generate a PRD for Ralph loop
+  ralph                Execute Ralph loop on a PRD
 
 Options:
   -p, --preset <preset>   Use a preset configuration
@@ -119,12 +129,26 @@ Options:
   -v, --version           Show version number
   -h, --help              Show this help message
 
+PRD Command Options:
+  --list, -l             List all PRDs and their status
+  --status, -s [file]    Show status for a specific PRD
+
+Ralph Command Options:
+  --prd, -p <file>       Use specific PRD file
+  --iterations, -i <n>   Max iterations (default: 10)
+  --afk, -a              Run in AFK mode (unattended)
+  --verbose              Enable verbose output
+
 Examples:
   bootstralph create my-app
   bootstralph create my-app --preset saas
-  bootstralph my-app                         # Shorthand for 'create my-app'
+  bootstralph my-app                              # Shorthand for 'create my-app'
   bootstralph init
   bootstralph add auth --provider better-auth
+  bootstralph prd "Add user authentication"       # Generate a PRD
+  bootstralph prd --list                          # List all PRDs
+  bootstralph ralph                               # Run Ralph (select PRD)
+  bootstralph ralph --afk --iterations 20         # AFK mode with 20 iterations
 
 Learn more: https://github.com/danterwiel/bootstralph
 `);
@@ -245,6 +269,12 @@ async function main(): Promise<void> {
       break;
     case "add":
       await handleAdd(parsed.args);
+      break;
+    case "prd":
+      await handlePrd(parsed.args);
+      break;
+    case "ralph":
+      await handleRalph(parsed.args);
       break;
   }
 }
