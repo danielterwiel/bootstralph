@@ -1231,3 +1231,39 @@ module.exports = {
 - https://www.jsdocs.io/package/execa
 - https://medium.com/@ehmicky/execa-9-release-d0d5daaa097f
 
+## 2026-01-17: review-037 completed
+
+**Task**: Verify directory structure completeness
+**Check**: Missing scaffolders for remix.ts, astro.ts, rn-cli.ts
+
+**Finding**:
+- The PLAN.md directory structure was **INCOMPLETE**
+- It only listed 4 scaffolder files (nextjs.ts, tanstack.ts, expo.ts, base.ts) but the Scaffolding Strategy table listed 8 frameworks
+- Missing scaffolder files that were added:
+  1. `react-router.ts` - For React Router v7 (note: Remix merged into React Router v7 per review-012)
+  2. `rn-cli.ts` - For React Native CLI (wraps `npx react-native init`)
+  3. `astro.ts` - For Astro (wraps `create astro`)
+  4. `api.ts` - For Hono/Elysia API templates
+
+**Changes Made**:
+1. Updated PLAN.md directory structure to include all 8 scaffolder files:
+   - nextjs.ts (wraps create-next-app)
+   - tanstack.ts (wraps @tanstack/create-start)
+   - react-router.ts (wraps create-react-router)
+   - expo.ts (wraps create-expo-stack)
+   - rn-cli.ts (wraps npx react-native init)
+   - astro.ts (wraps create astro)
+   - api.ts (own templates for Hono/Elysia)
+   - base.ts (minimal TypeScript template)
+
+2. Updated prd.json impl-015:
+   - Changed task from "Implement Remix scaffolder wrapper" to "Implement React Router v7 scaffolder wrapper"
+   - Changed file from "src/scaffolders/remix.ts" to "src/scaffolders/react-router.ts"
+
+**Action Required**: None - directory structure now matches scaffolding strategy
+
+**Sources**:
+- PLAN.md Scaffolding Strategy table (lines 391-399)
+- PLAN.md Directory Structure (lines 440-448)
+- review-012 finding (Remix merged into React Router v7)
+

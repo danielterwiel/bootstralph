@@ -439,9 +439,13 @@ bootstralph/
 │   │   └── validators.ts           # Validate combinations
 │   ├── scaffolders/
 │   │   ├── nextjs.ts               # Wraps create-next-app
-│   │   ├── tanstack.ts             # Wraps create-start
+│   │   ├── tanstack.ts             # Wraps @tanstack/create-start
+│   │   ├── react-router.ts         # Wraps create-react-router (React Router v7)
 │   │   ├── expo.ts                 # Wraps create-expo-stack
-│   │   └── base.ts                 # Minimal TypeScript
+│   │   ├── rn-cli.ts               # Wraps npx react-native init
+│   │   ├── astro.ts                # Wraps create astro
+│   │   ├── api.ts                  # Own templates for Hono/Elysia
+│   │   └── base.ts                 # Minimal TypeScript template
 │   ├── ralph/
 │   │   ├── setup.ts                # Ralph loop config
 │   │   ├── claudemd.ts             # Generate CLAUDE.md

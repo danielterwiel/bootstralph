@@ -393,7 +393,9 @@
       "category": "architecture",
       "task": "Verify directory structure completeness",
       "check": "Missing scaffolders for remix.ts, astro.ts, rn-cli.ts",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The PLAN.md directory structure was INCOMPLETE. It only listed 4 scaffolder files (nextjs.ts, tanstack.ts, expo.ts, base.ts) but the Scaffolding Strategy table listed 8 frameworks. Missing files: (1) react-router.ts for React Router v7 (note: Remix merged into React Router v7 per review-012), (2) rn-cli.ts for React Native CLI, (3) astro.ts for Astro, (4) api.ts for Hono/Elysia templates. Updated directory structure to include all 8 scaffolder files. Also updated impl-015 from 'Remix scaffolder' to 'React Router v7 scaffolder' with correct filename react-router.ts.",
+      "action_required": null
     },
     {
       "id": "review-038",
@@ -519,8 +521,8 @@
     {
       "id": "impl-015",
       "phase": 1,
-      "task": "Implement Remix scaffolder wrapper",
-      "files": ["src/scaffolders/remix.ts"],
+      "task": "Implement React Router v7 scaffolder wrapper",
+      "files": ["src/scaffolders/react-router.ts"],
       "status": "pending"
     },
     {
