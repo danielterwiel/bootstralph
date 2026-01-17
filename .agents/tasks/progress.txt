@@ -249,3 +249,41 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 - **Tailwind**: tailwind-v4-shadcn
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-021: Implement Lefthook configuration generator
+
+### Completed
+- Created `src/templates/lefthook.yml.ts` with comprehensive Lefthook YAML template generator
+- Created `src/ralph/hooks.ts` with full git hooks configuration management
+
+### Features - lefthook.yml.ts Template Generator
+- `generateLefthookYml(config)` - Main generator function
+- Framework-aware glob patterns (Astro support for .astro files, standard patterns for others)
+- Linter support: oxlint (with --fix), Biome (check --write), ESLint (--fix)
+- Formatter support: oxfmt, Biome (format --write), Prettier (with Astro plugin when needed)
+- TypeScript type checking command
+- Commitlint support for commit message validation
+- `stage_fixed: true` for auto-staging fixed files
+- Parallel execution enabled by default
+- Smart Biome handling: skips separate format step when Biome handles both linting and formatting
+- Framework-specific generators: generateNextjsLefthook, generateTanStackLefthook, generateReactRouterLefthook, generateAstroLefthook, generateExpoLefthook, generateRNCliLefthook, generateHonoLefthook, generateElysiaLefthook
+
+### Features - hooks.ts Configuration Manager
+- `writeHooksConfig(options)` - Write hooks configuration for any supported tool
+- `hasHooksInstalled(projectPath, tool)` - Check if hooks are installed
+- `getHooksConfigPath(projectPath, tool)` - Get config file path for a tool
+- `readHooksConfig(projectPath, tool)` - Read existing hooks configuration
+- Lefthook support: Generates lefthook.yml with lint/format/typecheck commands
+- Husky support: Creates .husky directory, pre-commit hook, lint-staged.config.js (ESM format), optional commit-msg hook with commitlint.config.cjs
+- prek support: Generates .pre-commit-config.yaml (pre-commit compatible format)
+- Optional hook installation via `installHooks` option
+- Proper error handling and overwrite control
+
+### Technical Details
+- Uses ESM format for lint-staged config (lint-staged.config.js with export default)
+- Uses CommonJS for commitlint config (commitlint.config.cjs) for ESM project compatibility
+- Husky pre-commit script sources husky.sh and runs npx lint-staged
+- prek warning about npm usage for Node.js hook environments
+- Manual steps returned for user guidance (lefthook install, husky install, prek install)
+
+### Type check: PASSED

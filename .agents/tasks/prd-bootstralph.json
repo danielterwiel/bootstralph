@@ -571,7 +571,7 @@
       "phase": 2,
       "task": "Implement Lefthook configuration generator",
       "files": ["src/ralph/hooks.ts", "src/templates/lefthook.yml.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-022",
