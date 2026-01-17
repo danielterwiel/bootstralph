@@ -86,3 +86,36 @@
 - Lefthook config includes stage_fixed: true for auto-staging fixed files
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-016: Implement Astro scaffolder wrapper
+
+### Completed
+- Created `src/scaffolders/astro.ts` with full Astro scaffolding support
+- Wraps `npm create astro@latest` CLI with bootstralph-specific configurations
+- Uses Vite for bundling (Astro's default)
+- File-based routing (Astro's built-in routing system)
+- Styling: Tailwind CSS (via `astro add tailwind`), vanilla CSS
+- React islands support via `astro add react` for interactive components
+- MDX support via `astro add mdx` for content-rich pages
+- Deployment adapters: Vercel, Netlify, Cloudflare (via `astro add`)
+- ORM support: Drizzle (edge-compatible with @libsql/client or @neondatabase/serverless), Prisma
+- Backend integrations: Supabase, Convex (via React islands with ConvexProvider), Firebase
+- Auth support: better-auth (native Astro integration with middleware), Clerk (@clerk/astro with server-side middleware), Supabase Auth
+- Testing: Vitest (unit with Astro's getViteConfig helper), Playwright (e2e)
+- Pre-commit hooks: Lefthook (YAML config), Husky (with lint-staged ESM config), prek
+- Linting: oxlint, Biome, ESLint support
+- Formatting: oxfmt, Biome, Prettier (with prettier-plugin-astro)
+- Environment template generation with PUBLIC_ prefix convention (Astro standard)
+
+### Technical Details
+- Uses `--template basics --yes --no-git --typescript strict` for non-interactive scaffold
+- Generates Vitest config using Astro's `getViteConfig` helper for proper integration
+- Playwright configured for port 4321 (Astro default dev server port)
+- Drizzle schema stored in src/db/ directory
+- Convex setup creates ConvexProvider in src/components/ for use in React islands
+- better-auth setup creates auth.ts in src/lib/ and API route at pages/api/auth/[...all].ts
+- Clerk setup creates middleware.ts for server-side auth protection
+- Content Collections support: generates config.ts with blog collection and example MDX post
+- Supabase client uses `import.meta.env` for environment variables
+
+### Type check: PASSED

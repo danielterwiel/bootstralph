@@ -536,7 +536,7 @@
       "phase": 1,
       "task": "Implement Astro scaffolder wrapper",
       "files": ["src/scaffolders/astro.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-017",
