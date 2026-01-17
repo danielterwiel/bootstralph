@@ -1008,3 +1008,83 @@ pre-commit:
 - https://dev.to/renanpaixao/how-to-set-up-lefthook-to-handle-git-hooks-in-react-applications-527i
 - https://dev.to/ramunarasinga-11/lefthookyml-in-n8n-codebase-5f4c
 
+## 2026-01-17: review-042 completed
+
+**Task**: Verify Husky setup for ESM projects
+**Check**: Does Husky work well with ESM-only TypeScript projects?
+
+**Finding**:
+- YES, Husky 9.x works well with ESM-only TypeScript projects but requires specific configuration
+- Current version is v9.1.7 (January 2026)
+- Key setup requirements:
+  1. Use `npx husky init` (not deprecated `husky install` or `npx husky add`)
+  2. package.json needs `"type": "module"` and `"prepare": "husky"` script
+  3. lint-staged supports ESM format in lint-staged.config.js with `export default {}` syntax
+  4. .husky/pre-commit file simply contains `npx lint-staged`
+
+**ESM-specific Configuration:**
+
+**package.json:**
+```json
+{
+  "type": "module",
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{ts,tsx,js,jsx}": ["eslint --fix", "prettier --write"],
+    "*.{css,md,json}": ["prettier --write"]
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^15.2.10"
+  }
+}
+```
+
+**lint-staged.config.js (ESM format):**
+```js
+export default {
+  '*.{js,jsx,ts,tsx}': ['eslint --fix', 'prettier --write'],
+  '*.{json,css,md}': ['prettier --write']
+};
+```
+
+**.husky/pre-commit:**
+```sh
+npx lint-staged
+```
+
+**CAVEAT - commitlint ESM issues:**
+- Tools like commitlint may error with "require() of ES modules is not supported" when `"type": "module"` is in package.json
+- Workaround: Rename `commitlint.config.js` to `commitlint.config.cjs` (CommonJS) or `commitlint.config.mjs` (ESM)
+- commitlint.config.cjs example:
+```js
+module.exports = {
+  extends: ['@commitlint/config-conventional']
+};
+```
+
+**CI Environment Considerations:**
+- If installing only dependencies (not devDependencies), the `"prepare": "husky"` script may fail
+- Workaround: Use `"prepare": "husky || true"` to prevent CI failures
+- Alternative: Check for environment variable like `CI` before running husky
+
+**Key Notes:**
+- Husky 9 is itself an ESM package (requires Node.js 18+)
+- Old commands `npx husky install` and `npx husky add` are deprecated in Husky 9.x
+- Use `npx husky init` to set up hooks automatically
+- lint-staged v15.x fully supports ESM configuration files
+
+**Action Required**: Add 'Husky ESM Configuration' subsection to PLAN.md documenting: (1) Required package.json settings for ESM projects, (2) lint-staged.config.js ESM format, (3) commitlint.config.cjs workaround for ESM projects, (4) CI environment considerations.
+
+**Sources**:
+- https://github.com/typicode/husky
+- https://typicode.github.io/husky/get-started.html
+- https://typicode.github.io/husky/how-to.html
+- https://github.com/typicode/husky/issues/727
+- https://github.com/lint-staged/lint-staged
+- https://betterstack.com/community/guides/scaling-nodejs/husky-and-lint-staged/
+- https://commitlint.js.org/reference/configuration.html
+- https://github.com/conventional-changelog/commitlint/issues/902
+
