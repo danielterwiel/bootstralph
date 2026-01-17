@@ -270,7 +270,9 @@
       "category": "database",
       "task": "Verify Firebase option completeness",
       "check": "Firebase is listed but no skills mentioned for it",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Firebase IS listed in PLAN.md as a backend option for Expo (line 116) and in Database/Backend Options table as 'NoSQL / Firebase-like'. However, NO Firebase skill was listed in the Skills by Stack table. Research found: (1) firebase-functions-templates skill EXISTS in community (@onesmartguy/next-level-real-estate) for Cloud Functions with TypeScript/Express, (2) firebase-mcp (gannonh/firebase-mcp) is an MCP server for Firestore/Storage/Auth operations but is NOT a skill, (3) NO comprehensive Firebase skill exists for general Firebase development patterns (Auth, Firestore security rules, real-time listeners). The PLAN.md should add the available Firebase skill to the Skills by Stack table with a note that comprehensive Firebase skills are limited.",
+      "action_required": "Update PLAN.md: Add 'Firebase' row to Skills by Stack table with 'firebase-functions-templates' (@onesmartguy/next-level-real-estate) skill. Add note that comprehensive Firebase development skills are limited - consider using firebase-mcp MCP server for Firestore/Auth operations instead."
     },
     {
       "id": "review-027",

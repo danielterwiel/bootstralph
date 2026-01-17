@@ -707,3 +707,34 @@ The PLAN.md only listed Convex under Expo backend options, but it should be a ba
 - https://www.bitdoze.com/astro-convex-realtime-app/
 - https://claude-plugins.dev/skills/@ThijmenGThN/next-leaflet/convex
 
+## 2026-01-17: review-026 completed
+
+**Task**: Verify Firebase option completeness
+**Check**: Firebase is listed but no skills mentioned for it
+
+**Finding**:
+- Firebase IS listed in PLAN.md as a backend option for Expo (line 116) and in Database/Backend Options table as "NoSQL / Firebase-like"
+- However, NO Firebase skill was listed in the Skills by Stack table
+- Research found available Firebase-related tools:
+  1. **firebase-functions-templates** skill EXISTS (@onesmartguy/next-level-real-estate)
+     - Creates production-ready Firebase Cloud Functions with TypeScript
+     - Includes Express integration, HTTP endpoints, background triggers, scheduled functions
+     - Provides service layer patterns for Firestore operations
+  2. **firebase-mcp** (gannonh/firebase-mcp) - MCP server (NOT a skill)
+     - Supports Firestore operations (add, list, get, update, delete documents)
+     - Storage file management (list, upload, retrieve URLs)
+     - Authentication user lookup by ID or email
+     - Installed via `npx @gannonh/firebase-mcp`
+  3. NO comprehensive Firebase skill exists for general Firebase development patterns (Auth flows, Firestore security rules, real-time listeners)
+- The official Claude plugins marketplace shows firebase/firebase-tools with 4,303 stars as "Official Claude plugin for Firebase"
+
+**Action Required**: Updated PLAN.md:
+1. Added Firebase row to Skills by Stack table with `firebase-functions-templates` skill
+2. Added note that comprehensive Firebase skills are limited - recommend using `firebase-mcp` MCP server for Firestore/Auth operations
+
+**Sources**:
+- https://claude-plugins.dev/skills/@onesmartguy/next-level-real-estate/firebase-functions-templates
+- https://github.com/gannonh/firebase-mcp
+- https://claudemarketplaces.com/plugins/firebase-firebase-tools
+- https://github.com/markhilton/mcp-firestore-server
+

@@ -297,6 +297,7 @@ openskills sync
 | **Supabase** | `supabase-operations` (FastMCP marketplace) |
 | **Convex** | `convex` (@ThijmenGThN/next-leaflet or community) - schema patterns, validation, auth integration |
 | **Drizzle** | `drizzle-orm-d1`, `drizzle`, `drizzle-migration` (community skills) |
+| **Firebase** | `firebase-functions-templates` (@onesmartguy/next-level-real-estate) - Cloud Functions with TypeScript/Express. Note: For Firestore/Auth operations, consider using `firebase-mcp` MCP server instead of skills |
 | **better-auth** | `better-auth` (@Microck/ordinary-claude-skills) |
 | **Clerk** | `clerk-pack` (24 skills from claude-code-plugins-plus) |
 | **Stripe** | Custom skills required - no official marketplace skill available |
