@@ -769,3 +769,62 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 ### Tests: 218 passed (114 compatibility + 104 filters)
+
+## 2026-01-17 - impl-033: Write integration tests for scaffolders
+
+### Completed
+- Created `tests/scaffolders.test.ts` with comprehensive integration tests (107 tests total)
+- Tests cover all 7 scaffolder modules without invoking external CLIs
+
+### Test Coverage
+
+#### Next.js Scaffolder (40 tests)
+- **buildCreateNextAppArgs**: Package manager flags, App/Pages Router, Tailwind options, turbopack, import alias
+- **collectAdditionalDependencies**: State management (Zustand, Jotai, TanStack Query), ORM (Drizzle, Prisma), backend (Supabase, Convex, Firebase), auth (Clerk, better-auth, Supabase Auth), testing (Vitest, Jest), E2E (Playwright, Cypress), linting (oxlint, Biome), formatting (Prettier, oxfmt), pre-commit hooks (Lefthook, Husky)
+- **buildNextSteps**: cd command, env setup, ORM push commands, Playwright install, pre-commit install
+
+#### TanStack Start Scaffolder (10 tests)
+- **buildCreateStartArgs**: Biome/ESLint toolchain, shadcn/TanStack Query add-ons, package manager support
+- **collectAdditionalDependencies**: State management, edge-compatible ORM deps, auth deps, testing deps
+- **buildNextSteps**: cd command, ORM setup steps
+
+#### React Router v7 Scaffolder (6 tests)
+- **buildCreateReactRouterArgs**: Basic args, template flag
+- **collectAdditionalDependencies**: Edge-compatible ORM deps for Cloudflare/Vercel
+- **buildNextSteps**: Dev command with package manager
+
+#### Expo Scaffolder (15 tests)
+- **buildCreateExpoStackArgs**: Expo Router/React Navigation, NativeWind/Tamagui/Uniwind styling, package manager (--yarn format)
+- **collectAdditionalDependencies**: Uniwind migration, Clerk/better-auth Expo SDKs, Supabase with AsyncStorage, Convex React Native, Firebase RN, testing-library deps, Detox E2E
+- **buildNextSteps**: EAS setup, expo start command
+
+#### React Native CLI Scaffolder (9 tests)
+- **checkPrerequisites**: hasXcode, hasAndroidStudio properties
+- **collectAdditionalDependencies**: Testing-library deps (always added), better-auth RN SDK, Clerk deps, state management, Detox E2E
+- **buildNextSteps**: Platform-specific run commands, Fastlane setup
+
+#### Astro Scaffolder (11 tests)
+- **buildCreateAstroArgs**: Template, TypeScript strict, --no-git, --yes flags
+- **collectAdditionalDependencies**: Clerk Astro SDK, better-auth, Prettier with Astro plugin, Drizzle, Vitest, backend deps
+- **buildNextSteps**: Astro dev command
+
+#### API (Hono/Elysia) Scaffolder (11 tests)
+- **getHonoTemplate**: Cloudflare Workers, Vercel, Netlify, Node.js templates
+- **collectAdditionalDependencies**: Drizzle with D1/Neon drivers, Prisma with edge adapter, better-auth, Vitest, wrangler
+- **buildNextSteps**: Framework-specific dev commands, wrangler info
+
+#### Cross-Scaffolder Integration (5 tests)
+- Consistent ScaffoldResult interface across all scaffolders
+- Common package manager support (bun, pnpm, npm, yarn)
+- Consistent ORM dependencies across web frameworks
+- Consistent auth dependencies across web frameworks
+- Platform-appropriate testing (Vitest for web, Jest/testing-library for mobile)
+
+### Technical Details
+- Tests use internal interfaces (CreateStartArgsOptions, CreateExpoStackArgsOptions, etc.) matching actual implementations
+- Verified styling deps handled by separate setup functions (not collectAdditionalDependencies) for RN CLI and Astro
+- Verified Jest comes with React Native/Expo presets, so scaffolders only add testing-library deps
+- Verified package manager flag formats differ by scaffolder (--use-bun vs --bun vs --yarn)
+
+### Type check: PASSED
+### Tests: 325 passed (114 compatibility + 104 filters + 107 scaffolders)

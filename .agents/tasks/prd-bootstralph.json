@@ -655,7 +655,8 @@
       "phase": 4,
       "task": "Write integration tests for scaffolders",
       "files": ["tests/scaffolders.test.ts"],
-      "status": "pending"
+      "status": "completed",
+      "passes": true
     },
     {
       "id": "impl-034",
