@@ -279,7 +279,9 @@
       "category": "deployment",
       "task": "Verify EAS auto-selection",
       "check": "Plan auto-selects EAS for Expo - should users have other options?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "YES, users should have other Expo deployment options beyond EAS. Valid alternatives include: (1) Local Builds via `eas build --local` - unlimited free builds using your own Xcode/Android Studio, (2) GitHub Actions + Fastlane - self-hosted CI/CD pipeline that can save $100s monthly vs EAS paid tiers, (3) Codemagic - third-party cloud CI/CD with pay-as-you-go pricing. Auto-selecting EAS ignores cost concerns (free tier limits, paid tiers for production), company policies restricting third-party CI/CD services, teams preferring self-hosted infrastructure, and users wanting faster local iteration. EAS Build should remain the recommended default (easiest, no local setup required) but alternatives should be offered.",
+      "action_required": "Updated PLAN.md: (1) Changed Expo deploy line to show all options: 'EAS Build (recommended), Local Builds (eas build --local), GitHub Actions + Fastlane, Codemagic'. (2) Added 'Expo Deployment Options' subsection explaining each option. (3) Updated Mobile Preset to show 'EAS Build (recommended, cloud) or Local Builds'."
     },
     {
       "id": "review-028",

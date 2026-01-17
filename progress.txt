@@ -738,3 +738,38 @@ The PLAN.md only listed Convex under Expo backend options, but it should be a ba
 - https://claudemarketplaces.com/plugins/firebase-firebase-tools
 - https://github.com/markhilton/mcp-firestore-server
 
+## 2026-01-17: review-027 completed
+
+**Task**: Verify EAS auto-selection
+**Check**: Plan auto-selects EAS for Expo - should users have other options?
+
+**Finding**:
+YES, users should have other Expo deployment options beyond auto-selecting EAS. Valid alternatives exist:
+
+1. **EAS Build (Cloud)** - Recommended default, no local Xcode/Android Studio required, automatic credential management
+2. **Local Builds (`eas build --local`)** - Unlimited free builds using your own hardware, faster iteration, full control
+3. **GitHub Actions + Fastlane** - Self-hosted CI/CD pipeline, can save $100s/month vs EAS paid tiers, full control over infrastructure
+4. **Codemagic** - Third-party cloud CI/CD with pay-as-you-go pricing, CodePush support at $99/month per 100k MAU
+
+Auto-selecting EAS ignores important use cases:
+- **Cost concerns**: EAS free tier has limits (shared queue, monthly build caps), paid tiers start at $19/month
+- **Company policies**: Some organizations restrict third-party CI/CD services
+- **Self-hosted preference**: Teams wanting full control and reproducible builds
+- **Local iteration**: `eas build --local` enables faster debugging without queue wait times
+
+EAS Build should remain the recommended default (easiest path, great for most users) but alternatives should be offered in the wizard.
+
+**Action Required**: Updated PLAN.md:
+1. Changed Expo deploy line from `EAS (Expo Application Services)` to `EAS Build (recommended), Local Builds (eas build --local), GitHub Actions + Fastlane, Codemagic`
+2. Added "Expo Deployment Options" subsection explaining each option
+3. Updated Mobile Preset deploy line to show both cloud and local options
+
+**Sources**:
+- https://docs.expo.dev/build-reference/local-builds/
+- https://docs.expo.dev/build/introduction/
+- https://expo.dev/pricing
+- https://github.com/TanayK07/expo-react-native-cicd
+- https://docs.codemagic.io/yaml-quick-start/building-a-react-native-app/
+- https://blog.logrocket.com/fastlane-build-test-ship-react-native-apps/
+- https://iamkhushbajwa.medium.com/releasing-apps-without-expos-eas-builds-5017f304b6be
+

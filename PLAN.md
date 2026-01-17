@@ -115,8 +115,14 @@ orm: N/A (use backend)
 auth: Clerk (native SDK), better-auth (native SDK via @better-auth/expo), Supabase Auth (native via @supabase/supabase-js)
 backend: Supabase, Firebase, Convex
 testing: Jest (unit), Maestro (e2e, recommended), Detox
-deploy: EAS (Expo Application Services)
+deploy: EAS Build (recommended), Local Builds (eas build --local), GitHub Actions + Fastlane, Codemagic
 ```
+
+**Expo Deployment Options:**
+- **EAS Build (Recommended)**: Cloud builds with automatic credential management, no local Xcode/Android Studio required
+- **Local Builds**: `eas build --local` for unlimited free builds on your own hardware (requires Xcode/Android Studio)
+- **GitHub Actions + Fastlane**: Self-hosted CI/CD for teams wanting full control and no per-build costs
+- **Codemagic**: Third-party cloud CI/CD with pay-as-you-go pricing
 
 #### React Native CLI (Mobile)
 ```yaml
@@ -428,7 +434,7 @@ backend: Supabase
 testing: Jest (unit), Maestro (e2e)
 linting: oxlint
 formatting: oxfmt
-deploy: EAS (Expo Application Services)
+deploy: EAS Build (recommended, cloud) or Local Builds (eas build --local)
 skills: planning-with-files, expo-app-design, expo-deployment, upgrading-expo
 ```
 
