@@ -1381,3 +1381,43 @@ YES, both presets were missing from PLAN.md:
 - https://www.arsturn.com/blog/how-to-run-claude-code-securely-in-a-docker-container
 - https://github.com/RchGrav/claudebox
 
+
+## 2026-01-17: impl-001 completed
+
+**Task**: Initialize project with bun and TypeScript
+**Files**: package.json, tsconfig.json, tsup.config.ts, src/index.ts
+
+**Changes Made**:
+1. Updated `package.json` with:
+   - Changed `type: "module"` for ESM support
+   - Added proper exports configuration (types first, then import, then require)
+   - Added bin entry for CLI execution
+   - Added dependencies: @clack/prompts ^0.11.0, detect-package-manager, execa ^9.0.0, fs-extra
+   - Added devDependencies: @types/fs-extra, @types/node, tsup, typescript, vitest
+   - Added scripts: dev, build, typecheck, test, lint, format
+   - Set engines.node >= 18.19.0 (required by execa v9)
+
+2. Created `tsconfig.json` with:
+   - ES2022 target with ESNext modules
+   - bundler moduleResolution for modern bundlers
+   - Strict TypeScript settings including verbatimModuleSyntax, noUncheckedIndexedAccess
+   - noEmit true (tsup handles compilation)
+
+3. Created `tsup.config.ts` with:
+   - ESM and CJS dual output
+   - Type declarations enabled
+   - Node 18 target
+   - Shebang banner for CLI execution
+   - Sourcemaps enabled
+
+4. Created basic `src/index.ts` entry point with:
+   - @clack/prompts import
+   - Basic main function with intro/outro
+   - Error handling
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
+- CLI executes correctly: `node dist/index.js` shows clack prompts
+
+**Note**: bun is not available in the environment, so npm was used for installation. The project is configured to work with bun (scripts use `bun run` for prepublishOnly) but falls back gracefully.

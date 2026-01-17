@@ -1,12 +1,67 @@
 {
   "name": "bootstralph",
-  "version": "1.0.0",
-  "description": "Initialize your entire Ralph project and just get started. Skills get automatically installed based on your chosen stack. Claude oriented at the moment",
+  "version": "0.1.0",
+  "description": "CLI for scaffolding Ralph-powered projects with intelligent skill installation and compatibility-aware option selection",
   "license": "MIT",
   "author": "Daniël Terwiel",
-  "type": "commonjs",
-  "main": "index.js",
+  "type": "module",
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "bin": {
+    "bootstralph": "./dist/index.js"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsup --watch",
+    "build": "tsup",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "oxlint .",
+    "format": "oxfmt .",
+    "format:check": "oxfmt --check .",
+    "prepublishOnly": "bun run build"
+  },
+  "dependencies": {
+    "@clack/prompts": "^0.11.0",
+    "detect-package-manager": "^3.0.2",
+    "execa": "^9.0.0",
+    "fs-extra": "^11.2.0"
+  },
+  "devDependencies": {
+    "@types/fs-extra": "^11.0.4",
+    "@types/node": "^22.10.7",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.3",
+    "vitest": "^4.0.0"
+  },
+  "engines": {
+    "node": ">=18.19.0"
+  },
+  "keywords": [
+    "cli",
+    "scaffolding",
+    "claude",
+    "ralph",
+    "ai",
+    "docker",
+    "typescript"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/danterwiel/bootstralph"
+  },
+  "bugs": {
+    "url": "https://github.com/danterwiel/bootstralph/issues"
   }
 }
