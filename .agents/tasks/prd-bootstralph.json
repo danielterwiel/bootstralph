@@ -606,7 +606,7 @@
       "phase": 3,
       "task": "Implement add command for post-scaffold features",
       "files": ["src/commands/add.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-027",

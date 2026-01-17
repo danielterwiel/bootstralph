@@ -3,6 +3,7 @@ import { handlePrd } from "./commands/prd.js";
 import { handleRalph } from "./commands/ralph.js";
 import { handleCreate, type Preset } from "./commands/create.js";
 import { handleInit } from "./commands/init.js";
+import { handleAdd } from "./commands/add.js";
 
 /**
  * CLI version - should match package.json
@@ -154,25 +155,6 @@ Learn more: https://github.com/danterwiel/bootstralph
 }
 
 
-/**
- * Handle the 'add' command - add features to existing project
- */
-async function handleAdd(args: string[]): Promise<void> {
-  p.intro("bootstralph add - Add features to your project");
-
-  const feature = args[0];
-  if (!feature) {
-    p.log.error("Please specify a feature to add");
-    p.log.info("Usage: bootstralph add <feature> [options]");
-    p.log.info("Available features: auth, payments, skill");
-    process.exit(1);
-  }
-
-  // TODO: Will be implemented in impl-026
-  p.log.warn(`Adding '${feature}' will be implemented in impl-026`);
-
-  p.outro("Coming soon!");
-}
 
 /**
  * Main CLI entry point

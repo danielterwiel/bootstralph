@@ -470,3 +470,54 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-026: Implement add command for post-scaffold features
+
+### Completed
+- Created `src/commands/add.ts` with comprehensive feature addition capabilities
+- Supports adding 12 different feature types to existing projects
+- Interactive feature selection menu when no feature is specified
+- Provider/tool selection prompts for each feature type
+
+### Addable Features
+1. **auth** - Add better-auth, Clerk, or Supabase Auth
+2. **orm** - Add Drizzle or Prisma ORM
+3. **backend** - Add Supabase, Convex, Firebase, or custom backend
+4. **state** - Add Zustand, Jotai, or TanStack Query
+5. **styling** - Add Tailwind, shadcn/ui, or mobile styling solutions
+6. **testing** - Add Vitest or Jest unit testing
+7. **e2e** - Add Playwright, Cypress, Maestro, or Detox E2E testing
+8. **linter** - Add oxlint, Biome, or ESLint
+9. **formatter** - Add oxfmt, Prettier, or Biome
+10. **hooks** - Add Lefthook, Husky, or prek pre-commit hooks
+11. **skill** - Install openskills skill by name or from list
+12. **ralph** - Full Ralph setup (CLAUDE.md, settings, skills)
+
+### Technical Details
+- Uses `detectProjectConfig()` from init.ts to analyze existing project
+- Validates framework compatibility before adding features
+- Framework-specific package selection (e.g., @clerk/nextjs vs @clerk/expo)
+- Generates configuration files based on framework conventions
+- Installs packages using project's detected package manager
+- Supports --force, --yes, and --provider flags for automation
+- Builds config objects conditionally to satisfy exactOptionalPropertyTypes
+- Integrates with Ralph setup components (writeClaudeMd, writeClaudeSettings, installSkills, writeHooksConfig)
+
+### File Generation
+- Auth: auth.ts config, middleware.ts (Clerk/Next.js), .env.example
+- ORM: drizzle.config.ts or prisma/schema.prisma, schema files, client files
+- Backend: Client configuration files, setup instructions
+- State: Example store/atoms files
+- Testing: vitest.config.ts or jest.config.js, setup files
+- E2E: playwright.config.ts, .maestro/, .detoxrc.js, example tests
+- Linter: .oxlintrc.json or biome.json
+- Formatter: .prettierrc
+- Hooks: lefthook.yml, .husky/, or .pre-commit-config.yaml
+
+### Exported Functions
+- `handleAdd(args)` - Main CLI command handler
+- `addFeature(feature, provider, options)` - Add feature to project
+- `promptFeatureSelection()` - Interactive feature menu
+- Individual handlers: addAuth, addORM, addBackend, addState, addStyling, addTesting, addE2E, addLinter, addFormatter, addHooks, addSkill, addRalph
+
+### Type check: PASSED
+
