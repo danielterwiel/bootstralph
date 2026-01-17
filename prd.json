@@ -508,7 +508,7 @@
       "phase": 1,
       "task": "Implement TanStack Start scaffolder wrapper",
       "files": ["src/scaffolders/tanstack.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-013",

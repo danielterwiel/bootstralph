@@ -1804,3 +1804,71 @@ When user selects edge platform (Cloudflare, Vercel Edge, Netlify Edge) with Pri
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-012 completed
+
+**Task**: Implement TanStack Start scaffolder wrapper
+**Files**: `src/scaffolders/tanstack.ts`
+
+**What was done**:
+1. Created `src/scaffolders/tanstack.ts` implementing the TanStack Start scaffolder wrapper that:
+   - Wraps `@tanstack/create-start` via package manager create commands (npm/pnpm/yarn/bun create @tanstack/start@latest)
+   - Supports CLI options: --package-manager, --toolchain (biome|eslint), --add-ons (shadcn, tanstack-query)
+   - Integrates Tailwind CSS and shadcn/ui setup
+
+2. Main `scaffoldTanStack()` function orchestrates 5 steps:
+   - **Step 1**: Run create-start with appropriate CLI arguments
+   - **Step 2**: Install additional dependencies (state, ORM, backend, auth, testing, etc.)
+   - **Step 3**: Generate configuration files (Vitest, Playwright, Drizzle, oxlint, Lefthook, Convex, .env)
+   - **Step 4**: Set up shadcn/ui (fallback if not added via CLI)
+   - **Step 5**: Build next steps list for the user
+
+3. Helper functions implemented:
+   - `buildCreateStartArgs()` - Constructs CLI arguments for create-start
+   - `runCreateStart()` - Executes create command with appropriate package manager
+   - `setupShadcnUI()` - Creates components.json and installs dependencies (fallback)
+   - `collectAdditionalDependencies()` - Gathers deps based on wizard selections
+   - `installDependencies()` - Installs deps using the selected package manager
+   - `generateConfigFiles()` - Orchestrates config file generation
+   - Individual config generators: `generateVitestConfig()`, `generatePlaywrightConfig()`, `generateDrizzleConfig()`, `generateOxlintConfig()`, `generateLefthookConfig()`, `generateConvexSetup()`, `generateEnvTemplate()`
+   - `buildNextSteps()` - Creates actionable post-scaffold steps
+
+4. Key features:
+   - **Package manager support**: npm, pnpm, yarn, bun - each using native create command
+   - **Toolchain options**: Biome (all-in-one) or ESLint/Prettier via --toolchain flag
+   - **Add-ons**: shadcn and tanstack-query via --add-ons flag
+   - **Styling**: tailwind-shadcn, tailwind, vanilla
+   - **State management**: zustand (TanStack Query typically added via CLI)
+   - **ORM**: Drizzle (recommended) with edge-specific drivers:
+     - Cloudflare D1: @libsql/client
+     - Vercel/generic edge: @neondatabase/serverless
+   - **Backends**: supabase, convex (with TanStack Query integration), firebase
+   - **Auth**: better-auth, @clerk/tanstack-start, supabase-auth
+   - **Testing**: Vitest (unit), Playwright (e2e)
+   - **Pre-commit**: prek, lefthook, husky
+   - **Convex integration**: Full setup with schema, functions, and TanStack Query provider
+
+5. Convex + TanStack Query integration:
+   - Creates convex directory with schema.ts and example tasks.ts
+   - Sets up ConvexClientProvider with @convex-dev/react-query integration
+   - Configures QueryClient with convexQueryClient for reactive queries
+
+6. Drizzle configuration:
+   - PostgreSQL with Neon driver for Vercel/Railway/Fly.io
+   - SQLite with D1 driver for Cloudflare Workers
+   - Generates appropriate schema and client based on deployment target
+
+7. Environment variables:
+   - Uses VITE_ prefix for client-side variables (Vite convention)
+   - Generates .env.example and .env with appropriate placeholders
+
+8. Return type `ScaffoldResult` includes:
+   - `success`: boolean indicating overall success
+   - `projectPath`: path to created project
+   - `errors`: array of error messages (optional)
+   - `warnings`: array of warning messages (optional)
+   - `nextSteps`: array of actionable steps for the user (optional)
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
