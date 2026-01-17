@@ -612,8 +612,8 @@
       "id": "impl-027",
       "phase": 3,
       "task": "Implement SaaS preset",
-      "files": ["src/presets/saas.ts"],
-      "status": "pending"
+      "files": ["src/presets/saas.ts", "src/presets/index.ts"],
+      "status": "completed"
     },
     {
       "id": "impl-028",

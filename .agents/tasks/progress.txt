@@ -521,3 +521,47 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-027: Implement SaaS preset
+
+### Completed
+- Created `src/presets/saas.ts` with comprehensive SaaS preset configuration
+- Created `src/presets/index.ts` with preset registry and exports
+
+### Features
+- Main `SAAS_PRESET` configuration optimized for production SaaS apps:
+  - Next.js with App Router
+  - Tailwind CSS + shadcn/ui for rapid UI development
+  - Drizzle ORM for type-safe database access
+  - Supabase for database, realtime, and storage
+  - better-auth for flexible authentication
+  - Vercel deployment
+  - Vitest + Playwright for testing
+  - oxlint + oxfmt + prek for fast tooling
+
+### Preset Variants
+- `SAAS_CLERK_PRESET` - Uses Clerk for enterprise auth (MFA, SSO, organizations)
+- `SAAS_PRISMA_PRESET` - Uses Prisma ORM instead of Drizzle
+- `SAAS_TANSTACK_PRESET` - Uses TanStack Start instead of Next.js
+- `SAAS_CONVEX_PRESET` - Uses Convex for real-time backend
+
+### Helper Functions
+- `getSaaSPreset()` - Get the default SaaS preset
+- `getSaaSVariant(variant)` - Get a specific variant by name
+- `getAllSaaSVariants()` - Get all SaaS preset variants
+- `presetToProjectConfig(preset)` - Convert preset to project config format
+- `formatPresetInfo(preset)` - Display preset information as formatted string
+
+### Preset Registry (index.ts)
+- `PRESETS` - Record of all presets by ID
+- `getPreset(id)` - Get preset by ID
+- `getAllPresets()` - Get all available presets
+- `isValidPreset(id)` - Check if preset ID exists
+
+### Technical Details
+- PresetConfig interface includes: id, name, description, platform, framework, styling, state, orm, backend, auth, deployment, linter, formatter, unitTesting, e2eTesting, preCommit, packageManager, features list, skills list
+- Each preset includes recommended skills from the SKILLS_MATRIX
+- Variants use spread operator to inherit base configuration
+- presetToProjectConfig handles optional properties correctly for exactOptionalPropertyTypes
+
+### Type check: PASSED
+
