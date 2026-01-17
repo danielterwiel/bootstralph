@@ -501,7 +501,7 @@
       "phase": 1,
       "task": "Implement Next.js scaffolder wrapper",
       "files": ["src/scaffolders/nextjs.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-012",

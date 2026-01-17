@@ -1,0 +1,942 @@
+/**
+ * Next.js scaffolder wrapper
+ * Wraps `create-next-app` with bootstralph-specific configurations
+ * Handles Turbopack/Webpack, App Router, Tailwind, TypeScript setup
+ */
+
+import * as p from "@clack/prompts";
+import { execa, type Options as ExecaOptions } from "execa";
+import path from "node:path";
+import fs from "fs-extra";
+import type {
+  Styling,
+  StateManagement,
+  ORM,
+  Backend,
+  AuthProvider,
+  DeploymentTarget,
+  Linter,
+  Formatter,
+  UnitTestFramework,
+  E2ETestFramework,
+  PreCommitTool,
+} from "../compatibility/matrix.js";
+
+// ============================================================================
+// Types
+// ============================================================================
+
+export interface NextjsScaffoldOptions {
+  /** Project name/directory */
+  projectName: string;
+  /** Target directory (defaults to cwd/projectName) */
+  targetDir?: string;
+  /** Use App Router (default: true) */
+  appRouter?: boolean;
+  /** Use Turbopack (default: true) */
+  turbopack?: boolean;
+  /** Styling choice from wizard */
+  styling?: Styling;
+  /** State management choices */
+  state?: StateManagement[];
+  /** ORM choice */
+  orm?: ORM;
+  /** Backend service choice */
+  backend?: Backend;
+  /** Auth provider choice */
+  auth?: AuthProvider;
+  /** Deployment target */
+  deployment?: DeploymentTarget;
+  /** Linter choice */
+  linter?: Linter;
+  /** Formatter choice */
+  formatter?: Formatter;
+  /** Unit test framework */
+  unitTesting?: UnitTestFramework;
+  /** E2E test framework */
+  e2eTesting?: E2ETestFramework;
+  /** Pre-commit tool */
+  preCommit?: PreCommitTool;
+  /** Package manager to use */
+  packageManager?: "bun" | "pnpm" | "npm" | "yarn";
+}
+
+export interface ScaffoldResult {
+  success: boolean;
+  projectPath: string;
+  errors?: string[];
+  warnings?: string[];
+  nextSteps?: string[];
+}
+
+// ============================================================================
+// Main Scaffold Function
+// ============================================================================
+
+/**
+ * Scaffold a new Next.js project using create-next-app
+ * Then applies bootstralph-specific configurations
+ */
+export async function scaffoldNextjs(
+  options: NextjsScaffoldOptions
+): Promise<ScaffoldResult> {
+  const {
+    projectName,
+    targetDir = process.cwd(),
+    appRouter = true,
+    turbopack = true,
+    styling = "tailwind-shadcn",
+    packageManager = "bun",
+  } = options;
+
+  const projectPath = path.join(targetDir, projectName);
+  const errors: string[] = [];
+  const warnings: string[] = [];
+  const nextSteps: string[] = [];
+
+  // ============================================================================
+  // Step 1: Run create-next-app
+  // ============================================================================
+
+  const spinner = p.spinner();
+  spinner.start("Creating Next.js project...");
+
+  try {
+    const createNextAppArgs = buildCreateNextAppArgs({
+      projectName,
+      appRouter,
+      turbopack,
+      styling,
+      packageManager,
+    });
+
+    await runCreateNextApp(createNextAppArgs, { cwd: targetDir });
+    spinner.stop("Next.js project created");
+  } catch (error) {
+    spinner.stop("Failed to create Next.js project");
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    errors.push(`create-next-app failed: ${errorMessage}`);
+    return { success: false, projectPath, errors };
+  }
+
+  // ============================================================================
+  // Step 2: Install shadcn/ui (if tailwind-shadcn selected)
+  // ============================================================================
+
+  if (styling === "tailwind-shadcn") {
+    spinner.start("Setting up shadcn/ui...");
+    try {
+      await setupShadcnUI(projectPath, packageManager);
+      spinner.stop("shadcn/ui configured");
+    } catch (error) {
+      spinner.stop("shadcn/ui setup had issues");
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      warnings.push(`shadcn/ui setup warning: ${errorMessage}`);
+      nextSteps.push("Run `npx shadcn@latest init` to complete shadcn/ui setup");
+    }
+  }
+
+  // ============================================================================
+  // Step 3: Install additional dependencies based on selections
+  // ============================================================================
+
+  const additionalDeps = collectAdditionalDependencies(options);
+
+  if (additionalDeps.dependencies.length > 0 || additionalDeps.devDependencies.length > 0) {
+    spinner.start("Installing additional dependencies...");
+    try {
+      await installDependencies(projectPath, additionalDeps, packageManager);
+      spinner.stop("Dependencies installed");
+    } catch (error) {
+      spinner.stop("Some dependencies may not have installed");
+      const errorMessage =
+        error instanceof Error ? error.message : String(error);
+      warnings.push(`Dependency installation warning: ${errorMessage}`);
+    }
+  }
+
+  // ============================================================================
+  // Step 4: Generate configuration files
+  // ============================================================================
+
+  spinner.start("Generating configuration files...");
+  try {
+    await generateConfigFiles(projectPath, options);
+    spinner.stop("Configuration files generated");
+  } catch (error) {
+    spinner.stop("Some config files may not have been generated");
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    warnings.push(`Config generation warning: ${errorMessage}`);
+  }
+
+  // ============================================================================
+  // Step 5: Build next steps list
+  // ============================================================================
+
+  nextSteps.push(...buildNextSteps(options));
+
+  // Build result object conditionally to satisfy exactOptionalPropertyTypes
+  const result: ScaffoldResult = {
+    success: errors.length === 0,
+    projectPath,
+  };
+
+  if (errors.length > 0) {
+    result.errors = errors;
+  }
+  if (warnings.length > 0) {
+    result.warnings = warnings;
+  }
+  if (nextSteps.length > 0) {
+    result.nextSteps = nextSteps;
+  }
+
+  return result;
+}
+
+// ============================================================================
+// create-next-app Arguments
+// ============================================================================
+
+interface CreateNextAppArgsOptions {
+  projectName: string;
+  appRouter: boolean;
+  turbopack: boolean;
+  styling: Styling;
+  packageManager: "bun" | "pnpm" | "npm" | "yarn";
+}
+
+/**
+ * Build arguments array for create-next-app
+ */
+function buildCreateNextAppArgs(options: CreateNextAppArgsOptions): string[] {
+  const {
+    projectName,
+    appRouter,
+    turbopack,
+    styling,
+    packageManager,
+  } = options;
+
+  const args: string[] = [
+    projectName,
+    "--typescript",
+    "--eslint", // We'll configure our own linter after, but this ensures base setup
+    "--src-dir",
+  ];
+
+  // App Router vs Pages Router
+  if (appRouter) {
+    args.push("--app");
+  } else {
+    args.push("--no-app");
+  }
+
+  // Tailwind CSS
+  if (styling === "tailwind-shadcn" || styling === "tailwind") {
+    args.push("--tailwind");
+  } else {
+    args.push("--no-tailwind");
+  }
+
+  // Turbopack
+  if (turbopack) {
+    args.push("--turbopack");
+  }
+
+  // Import alias (use @/ as standard)
+  args.push("--import-alias", "@/*");
+
+  // Skip git init (we'll handle this separately)
+  args.push("--skip-git");
+
+  // Use specified package manager
+  args.push("--use-" + packageManager);
+
+  return args;
+}
+
+/**
+ * Execute create-next-app with the given arguments
+ */
+async function runCreateNextApp(
+  args: string[],
+  execaOptions: ExecaOptions
+): Promise<void> {
+  // Use npx to run create-next-app
+  await execa("npx", ["create-next-app@latest", ...args], {
+    ...execaOptions,
+    stdio: "pipe", // Capture output
+  });
+}
+
+// ============================================================================
+// shadcn/ui Setup
+// ============================================================================
+
+/**
+ * Initialize shadcn/ui in the project
+ */
+async function setupShadcnUI(
+  projectPath: string,
+  packageManager: string
+): Promise<void> {
+  // Create components.json for shadcn/ui
+  const componentsConfig = {
+    $schema: "https://ui.shadcn.com/schema.json",
+    style: "new-york",
+    rsc: true,
+    tsx: true,
+    tailwind: {
+      config: "tailwind.config.ts",
+      css: "src/app/globals.css",
+      baseColor: "neutral",
+      cssVariables: true,
+      prefix: "",
+    },
+    aliases: {
+      components: "@/components",
+      utils: "@/lib/utils",
+      ui: "@/components/ui",
+      lib: "@/lib",
+      hooks: "@/hooks",
+    },
+    iconLibrary: "lucide",
+  };
+
+  await fs.writeJSON(path.join(projectPath, "components.json"), componentsConfig, {
+    spaces: 2,
+  });
+
+  // Create lib/utils.ts for cn() helper
+  const libDir = path.join(projectPath, "src", "lib");
+  await fs.ensureDir(libDir);
+
+  const utilsContent = `import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
+`;
+
+  await fs.writeFile(path.join(libDir, "utils.ts"), utilsContent);
+
+  // Install shadcn dependencies
+  const pmCommand = packageManager === "npm" ? "npm install" : `${packageManager} add`;
+  await execa(pmCommand.split(" ")[0]!, [...pmCommand.split(" ").slice(1), "clsx", "tailwind-merge", "class-variance-authority", "lucide-react"], {
+    cwd: projectPath,
+    stdio: "pipe",
+  });
+}
+
+// ============================================================================
+// Dependency Collection
+// ============================================================================
+
+interface DependencyList {
+  dependencies: string[];
+  devDependencies: string[];
+}
+
+/**
+ * Collect additional dependencies based on wizard selections
+ */
+function collectAdditionalDependencies(
+  options: NextjsScaffoldOptions
+): DependencyList {
+  const deps: string[] = [];
+  const devDeps: string[] = [];
+
+  // State management
+  if (options.state) {
+    for (const state of options.state) {
+      switch (state) {
+        case "zustand":
+          deps.push("zustand");
+          break;
+        case "jotai":
+          deps.push("jotai");
+          break;
+        case "tanstack-query":
+          deps.push("@tanstack/react-query");
+          devDeps.push("@tanstack/react-query-devtools");
+          break;
+      }
+    }
+  }
+
+  // ORM
+  if (options.orm && options.orm !== "none") {
+    switch (options.orm) {
+      case "drizzle":
+        deps.push("drizzle-orm");
+        devDeps.push("drizzle-kit");
+        // Add postgres driver as default (can be configured later)
+        deps.push("@neondatabase/serverless");
+        break;
+      case "prisma":
+        deps.push("@prisma/client");
+        devDeps.push("prisma");
+        break;
+    }
+  }
+
+  // Backend
+  if (options.backend) {
+    switch (options.backend) {
+      case "supabase":
+        deps.push("@supabase/supabase-js", "@supabase/ssr");
+        break;
+      case "convex":
+        deps.push("convex");
+        break;
+      case "firebase":
+        deps.push("firebase", "firebase-admin");
+        break;
+    }
+  }
+
+  // Auth
+  if (options.auth) {
+    switch (options.auth) {
+      case "better-auth":
+        deps.push("better-auth");
+        break;
+      case "clerk":
+        deps.push("@clerk/nextjs");
+        break;
+      case "supabase-auth":
+        // Already installed with supabase backend
+        if (!options.backend || options.backend !== "supabase") {
+          deps.push("@supabase/supabase-js", "@supabase/ssr");
+        }
+        break;
+    }
+  }
+
+  // Testing
+  if (options.unitTesting) {
+    switch (options.unitTesting) {
+      case "vitest":
+        devDeps.push("vitest", "@vitejs/plugin-react", "@testing-library/react", "@testing-library/jest-dom", "jsdom");
+        break;
+      case "jest":
+        devDeps.push("jest", "@types/jest", "ts-jest", "@testing-library/react", "@testing-library/jest-dom");
+        break;
+    }
+  }
+
+  if (options.e2eTesting) {
+    switch (options.e2eTesting) {
+      case "playwright":
+        devDeps.push("@playwright/test");
+        break;
+      case "cypress":
+        devDeps.push("cypress");
+        break;
+    }
+  }
+
+  // Linting (if not using default ESLint from create-next-app)
+  if (options.linter && options.linter !== "eslint") {
+    switch (options.linter) {
+      case "oxlint":
+        devDeps.push("oxlint");
+        break;
+      case "biome":
+        devDeps.push("@biomejs/biome");
+        break;
+    }
+  }
+
+  // Formatting
+  if (options.formatter && options.formatter !== "biome") {
+    switch (options.formatter) {
+      case "oxfmt":
+        devDeps.push("oxfmt");
+        break;
+      case "prettier":
+        devDeps.push("prettier");
+        break;
+    }
+  }
+
+  // Pre-commit
+  if (options.preCommit) {
+    switch (options.preCommit) {
+      case "lefthook":
+        devDeps.push("lefthook");
+        break;
+      case "husky":
+        devDeps.push("husky", "lint-staged");
+        break;
+      // prek is installed via cargo, not npm
+    }
+  }
+
+  return { dependencies: deps, devDependencies: devDeps };
+}
+
+/**
+ * Install dependencies in the project
+ */
+async function installDependencies(
+  projectPath: string,
+  deps: DependencyList,
+  packageManager: string
+): Promise<void> {
+  const addCmd = packageManager === "npm" ? "install" : "add";
+
+  if (deps.dependencies.length > 0) {
+    await execa(packageManager, [addCmd, ...deps.dependencies], {
+      cwd: projectPath,
+      stdio: "pipe",
+    });
+  }
+
+  if (deps.devDependencies.length > 0) {
+    const devFlag = packageManager === "npm" ? "--save-dev" : "-D";
+    await execa(packageManager, [addCmd, devFlag, ...deps.devDependencies], {
+      cwd: projectPath,
+      stdio: "pipe",
+    });
+  }
+}
+
+// ============================================================================
+// Configuration File Generation
+// ============================================================================
+
+/**
+ * Generate configuration files based on selections
+ */
+async function generateConfigFiles(
+  projectPath: string,
+  options: NextjsScaffoldOptions
+): Promise<void> {
+  const configGenerators: Array<() => Promise<void>> = [];
+
+  // Vitest config
+  if (options.unitTesting === "vitest") {
+    configGenerators.push(() => generateVitestConfig(projectPath));
+  }
+
+  // Jest config
+  if (options.unitTesting === "jest") {
+    configGenerators.push(() => generateJestConfig(projectPath));
+  }
+
+  // Playwright config
+  if (options.e2eTesting === "playwright") {
+    configGenerators.push(() => generatePlaywrightConfig(projectPath));
+  }
+
+  // Drizzle config
+  if (options.orm === "drizzle") {
+    configGenerators.push(() => generateDrizzleConfig(projectPath, options.deployment));
+  }
+
+  // oxlint config
+  if (options.linter === "oxlint") {
+    configGenerators.push(() => generateOxlintConfig(projectPath));
+  }
+
+  // Biome config
+  if (options.linter === "biome") {
+    configGenerators.push(() => generateBiomeConfig(projectPath));
+  }
+
+  // Lefthook config
+  if (options.preCommit === "lefthook") {
+    configGenerators.push(() => generateLefthookConfig(projectPath, options));
+  }
+
+  // Environment variables template
+  configGenerators.push(() => generateEnvTemplate(projectPath, options));
+
+  // Run all generators
+  await Promise.all(configGenerators.map((gen) => gen()));
+}
+
+async function generateVitestConfig(projectPath: string): Promise<void> {
+  const config = `import { defineConfig } from 'vitest/config';
+import react from '@vitejs/plugin-react';
+import path from 'path';
+
+export default defineConfig({
+  plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    globals: true,
+    setupFiles: ['./src/test/setup.ts'],
+    include: ['src/**/*.{test,spec}.{js,mjs,cjs,ts,mts,cts,jsx,tsx}'],
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+});
+`;
+
+  await fs.writeFile(path.join(projectPath, "vitest.config.ts"), config);
+
+  // Create test setup file
+  const setupDir = path.join(projectPath, "src", "test");
+  await fs.ensureDir(setupDir);
+
+  const setupContent = `import '@testing-library/jest-dom';
+`;
+
+  await fs.writeFile(path.join(setupDir, "setup.ts"), setupContent);
+}
+
+async function generateJestConfig(projectPath: string): Promise<void> {
+  const config = `/** @type {import('jest').Config} */
+const config = {
+  testEnvironment: 'jsdom',
+  setupFilesAfterEnv: ['<rootDir>/src/test/setup.ts'],
+  moduleNameMapper: {
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+  transform: {
+    '^.+\\.(ts|tsx)$': 'ts-jest',
+  },
+  testMatch: ['**/*.test.ts', '**/*.test.tsx'],
+};
+
+module.exports = config;
+`;
+
+  await fs.writeFile(path.join(projectPath, "jest.config.js"), config);
+
+  // Create test setup file
+  const setupDir = path.join(projectPath, "src", "test");
+  await fs.ensureDir(setupDir);
+
+  const setupContent = `import '@testing-library/jest-dom';
+`;
+
+  await fs.writeFile(path.join(setupDir, "setup.ts"), setupContent);
+}
+
+async function generatePlaywrightConfig(projectPath: string): Promise<void> {
+  const config = `import { defineConfig, devices } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './e2e',
+  fullyParallel: true,
+  forbidOnly: !!process.env.CI,
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  reporter: 'html',
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+  },
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] },
+    },
+  ],
+  webServer: {
+    command: 'npm run dev',
+    url: 'http://localhost:3000',
+    reuseExistingServer: !process.env.CI,
+  },
+});
+`;
+
+  await fs.writeFile(path.join(projectPath, "playwright.config.ts"), config);
+
+  // Create e2e directory
+  const e2eDir = path.join(projectPath, "e2e");
+  await fs.ensureDir(e2eDir);
+
+  const exampleTest = `import { test, expect } from '@playwright/test';
+
+test('has title', async ({ page }) => {
+  await page.goto('/');
+  await expect(page).toHaveTitle(/Next/);
+});
+`;
+
+  await fs.writeFile(path.join(e2eDir, "example.spec.ts"), exampleTest);
+}
+
+async function generateDrizzleConfig(
+  projectPath: string,
+  deployment?: DeploymentTarget
+): Promise<void> {
+  // Determine if we're targeting edge runtime
+  const isEdge = deployment === "cloudflare" || deployment === "vercel";
+
+  const config = `import { defineConfig } from 'drizzle-kit';
+
+export default defineConfig({
+  schema: './src/db/schema.ts',
+  out: './drizzle',
+  dialect: 'postgresql',
+  dbCredentials: {
+    url: process.env.DATABASE_URL!,
+  },
+});
+`;
+
+  await fs.writeFile(path.join(projectPath, "drizzle.config.ts"), config);
+
+  // Create db directory and schema file
+  const dbDir = path.join(projectPath, "src", "db");
+  await fs.ensureDir(dbDir);
+
+  const schemaContent = `import { pgTable, serial, text, timestamp } from 'drizzle-orm/pg-core';
+
+export const users = pgTable('users', {
+  id: serial('id').primaryKey(),
+  name: text('name'),
+  email: text('email').notNull().unique(),
+  createdAt: timestamp('created_at').defaultNow(),
+});
+`;
+
+  await fs.writeFile(path.join(dbDir, "schema.ts"), schemaContent);
+
+  // Create db client
+  const clientContent = isEdge
+    ? `import { neon } from '@neondatabase/serverless';
+import { drizzle } from 'drizzle-orm/neon-http';
+import * as schema from './schema';
+
+const sql = neon(process.env.DATABASE_URL!);
+export const db = drizzle(sql, { schema });
+`
+    : `import { drizzle } from 'drizzle-orm/postgres-js';
+import postgres from 'postgres';
+import * as schema from './schema';
+
+const client = postgres(process.env.DATABASE_URL!);
+export const db = drizzle(client, { schema });
+`;
+
+  await fs.writeFile(path.join(dbDir, "index.ts"), clientContent);
+}
+
+async function generateOxlintConfig(projectPath: string): Promise<void> {
+  const config = {
+    $schema: "https://raw.githubusercontent.com/oxc-project/oxc/main/crates/oxc_linter/src/schema.json",
+    plugins: ["typescript", "react", "react-hooks", "jsx-a11y"],
+    rules: {
+      "no-unused-vars": "warn",
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": "warn",
+    },
+    ignore: ["node_modules", ".next", "dist"],
+  };
+
+  await fs.writeJSON(path.join(projectPath, ".oxlintrc.json"), config, {
+    spaces: 2,
+  });
+}
+
+async function generateBiomeConfig(projectPath: string): Promise<void> {
+  const config = {
+    $schema: "https://biomejs.dev/schemas/1.9.4/schema.json",
+    organizeImports: {
+      enabled: true,
+    },
+    linter: {
+      enabled: true,
+      rules: {
+        recommended: true,
+      },
+    },
+    formatter: {
+      enabled: true,
+      indentStyle: "space",
+      indentWidth: 2,
+    },
+    javascript: {
+      formatter: {
+        quoteStyle: "single",
+        semicolons: "always",
+      },
+    },
+    files: {
+      ignore: ["node_modules", ".next", "dist"],
+    },
+  };
+
+  await fs.writeJSON(path.join(projectPath, "biome.json"), config, {
+    spaces: 2,
+  });
+}
+
+async function generateLefthookConfig(
+  projectPath: string,
+  options: NextjsScaffoldOptions
+): Promise<void> {
+  const lintCommand =
+    options.linter === "oxlint"
+      ? "npx oxlint {staged_files}"
+      : options.linter === "biome"
+        ? "npx biome check {staged_files}"
+        : "npx eslint {staged_files}";
+
+  const formatCommand =
+    options.formatter === "oxfmt"
+      ? "npx oxfmt {staged_files}"
+      : options.formatter === "biome"
+        ? "npx biome format --write {staged_files}"
+        : "npx prettier --write {staged_files}";
+
+  const config = `pre-commit:
+  parallel: true
+  commands:
+    lint:
+      glob: "*.{js,jsx,ts,tsx}"
+      run: ${lintCommand}
+    format:
+      glob: "*.{js,jsx,ts,tsx,json,css,md}"
+      run: ${formatCommand}
+      stage_fixed: true
+    typecheck:
+      run: npx tsc --noEmit
+`;
+
+  await fs.writeFile(path.join(projectPath, "lefthook.yml"), config);
+}
+
+async function generateEnvTemplate(
+  projectPath: string,
+  options: NextjsScaffoldOptions
+): Promise<void> {
+  const envLines: string[] = [
+    "# Environment Variables",
+    "# Copy this file to .env.local and fill in your values",
+    "",
+  ];
+
+  // Database
+  if (options.orm && options.orm !== "none") {
+    envLines.push("# Database");
+    envLines.push("DATABASE_URL=");
+    envLines.push("");
+  }
+
+  // Backend
+  if (options.backend === "supabase") {
+    envLines.push("# Supabase");
+    envLines.push("NEXT_PUBLIC_SUPABASE_URL=");
+    envLines.push("NEXT_PUBLIC_SUPABASE_ANON_KEY=");
+    envLines.push("SUPABASE_SERVICE_ROLE_KEY=");
+    envLines.push("");
+  }
+
+  if (options.backend === "convex") {
+    envLines.push("# Convex");
+    envLines.push("CONVEX_DEPLOYMENT=");
+    envLines.push("NEXT_PUBLIC_CONVEX_URL=");
+    envLines.push("");
+  }
+
+  if (options.backend === "firebase") {
+    envLines.push("# Firebase");
+    envLines.push("NEXT_PUBLIC_FIREBASE_API_KEY=");
+    envLines.push("NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=");
+    envLines.push("NEXT_PUBLIC_FIREBASE_PROJECT_ID=");
+    envLines.push("NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=");
+    envLines.push("NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=");
+    envLines.push("NEXT_PUBLIC_FIREBASE_APP_ID=");
+    envLines.push("");
+  }
+
+  // Auth
+  if (options.auth === "clerk") {
+    envLines.push("# Clerk");
+    envLines.push("NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=");
+    envLines.push("CLERK_SECRET_KEY=");
+    envLines.push("");
+  }
+
+  if (options.auth === "better-auth") {
+    envLines.push("# Better Auth");
+    envLines.push("BETTER_AUTH_SECRET=");
+    envLines.push("BETTER_AUTH_URL=http://localhost:3000");
+    envLines.push("");
+  }
+
+  await fs.writeFile(
+    path.join(projectPath, ".env.example"),
+    envLines.join("\n")
+  );
+
+  // Also create .env.local with empty values
+  await fs.writeFile(
+    path.join(projectPath, ".env.local"),
+    envLines.join("\n")
+  );
+}
+
+// ============================================================================
+// Next Steps Builder
+// ============================================================================
+
+/**
+ * Build list of next steps for the user
+ */
+function buildNextSteps(options: NextjsScaffoldOptions): string[] {
+  const steps: string[] = [];
+
+  steps.push(`cd ${options.projectName}`);
+
+  // Environment setup
+  if (options.orm || options.backend || options.auth) {
+    steps.push("Copy .env.example to .env.local and fill in your values");
+  }
+
+  // Database setup
+  if (options.orm === "drizzle") {
+    steps.push("Set up your database and run `npx drizzle-kit push`");
+  }
+  if (options.orm === "prisma") {
+    steps.push("Run `npx prisma init` to set up Prisma schema");
+    steps.push("Run `npx prisma db push` after configuring your schema");
+  }
+
+  // Playwright browsers
+  if (options.e2eTesting === "playwright") {
+    steps.push("Run `npx playwright install` to install browsers");
+  }
+
+  // prek installation
+  if (options.preCommit === "prek") {
+    steps.push(
+      "Install prek: `cargo install prek` or download from GitHub releases"
+    );
+  }
+
+  // Lefthook installation
+  if (options.preCommit === "lefthook") {
+    steps.push("Run `npx lefthook install` to set up git hooks");
+  }
+
+  // Husky installation
+  if (options.preCommit === "husky") {
+    steps.push("Run `npx husky install` to set up git hooks");
+  }
+
+  // Start dev server
+  const pm = options.packageManager ?? "bun";
+  steps.push(`Run \`${pm} run dev\` to start the development server`);
+
+  return steps;
+}
+
+// ============================================================================
+// Exports
+// ============================================================================
+
+export { buildCreateNextAppArgs, collectAdditionalDependencies, buildNextSteps };

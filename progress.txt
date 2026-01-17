@@ -1754,3 +1754,53 @@ When user selects edge platform (Cloudflare, Vercel Edge, Netlify Edge) with Pri
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-011 completed
+
+**Task**: Implement Next.js scaffolder wrapper
+**Files**: `src/scaffolders/nextjs.ts`
+
+**What was done**:
+1. Created `src/scaffolders/nextjs.ts` implementing the Next.js scaffolder wrapper that:
+   - Wraps `create-next-app@latest` with bootstralph-specific configurations
+   - Supports App Router (default) and Pages Router
+   - Supports Turbopack (default) and Webpack bundlers
+   - Integrates Tailwind CSS and shadcn/ui setup
+
+2. Main `scaffoldNextjs()` function orchestrates 5 steps:
+   - **Step 1**: Run create-next-app with appropriate flags
+   - **Step 2**: Set up shadcn/ui (if tailwind-shadcn styling selected)
+   - **Step 3**: Install additional dependencies (state, ORM, backend, auth, testing, etc.)
+   - **Step 4**: Generate configuration files (Vitest, Jest, Playwright, Drizzle, oxlint, Biome, Lefthook, .env)
+   - **Step 5**: Build next steps list for the user
+
+3. Helper functions implemented:
+   - `buildCreateNextAppArgs()` - Constructs CLI arguments for create-next-app
+   - `setupShadcnUI()` - Creates components.json and installs dependencies
+   - `collectAdditionalDependencies()` - Gathers deps based on wizard selections
+   - `installDependencies()` - Installs deps using the selected package manager
+   - `generateConfigFiles()` - Orchestrates config file generation
+   - Individual config generators: `generateVitestConfig()`, `generateJestConfig()`, `generatePlaywrightConfig()`, `generateDrizzleConfig()`, `generateOxlintConfig()`, `generateBiomeConfig()`, `generateLefthookConfig()`, `generateEnvTemplate()`
+   - `buildNextSteps()` - Creates actionable post-scaffold steps
+
+4. Key features:
+   - Supports all styling options: tailwind-shadcn, tailwind, vanilla
+   - Supports all state management: zustand, jotai, tanstack-query
+   - Supports all ORMs: drizzle (with Neon driver for edge), prisma
+   - Supports all backends: supabase, convex, firebase, custom
+   - Supports all auth: better-auth, clerk, supabase-auth
+   - Supports all testing: vitest, jest, playwright, cypress
+   - Supports all pre-commit: prek, lefthook, husky
+   - Generates .env.example and .env.local with appropriate variables
+   - Handles exactOptionalPropertyTypes for TypeScript strict mode
+
+5. Return type `ScaffoldResult` includes:
+   - `success`: boolean indicating overall success
+   - `projectPath`: path to created project
+   - `errors`: array of error messages (optional)
+   - `warnings`: array of warning messages (optional)
+   - `nextSteps`: array of actionable steps for the user (optional)
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
