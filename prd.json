@@ -19,7 +19,13 @@
       "After completing review tasks, update PLAN.md to reflect any necessary changes",
       "Only proceed to implementation_tasks once all critical review issues are resolved"
     ],
-    "status_values": ["pending", "in_progress", "completed", "failed", "blocked"],
+    "status_values": [
+      "pending",
+      "in_progress",
+      "completed",
+      "failed",
+      "blocked"
+    ],
     "example_completed_review": {
       "id": "review-XXX",
       "category": "example",
@@ -289,7 +295,7 @@
       "task": "Verify Railway compatibility",
       "check": "Railway is listed for Next.js but not for TanStack Start in detailed section",
       "status": "completed",
-      "finding": "The review premise was INCORRECT - Railway IS already listed for TanStack Start in PLAN.md (line 87: 'deploy: Any (Vercel, Cloudflare, Fly.io, Railway)'). Official TanStack Start documentation explicitly lists Railway as a supported deployment target. Railway has multiple community templates for TanStack Start: (1) TanStack Start Monorepo with Bun (Dec 2025, 100% success rate), (2) TanStack Start - Drizzle (Mar 2025), (3) TanStack Shopify App Template (Nov 2025). TanStack Start uses Nitro as its server runtime which supports the node-server preset that works natively with Railway. The only caveat is when using Bun: users must configure preset: 'bun' (not 'node-server') and run with 'bun run .output/server/index.mjs'.",
+      "finding": "The review premise was INCORRECT - Railway IS already listed for TanStack Start in PLAN.md. Line 87 shows 'deploy: Any (Vercel, Cloudflare, Fly.io, Railway)'. Official TanStack Start documentation explicitly lists Railway as a supported deployment target. Railway has multiple community templates for TanStack Start including TanStack Start Monorepo (Bun) with Better Auth + Drizzle + Supabase. TanStack Start uses Nitro with node-server preset that works natively with Railway.",
       "action_required": null
     },
     {
@@ -297,7 +303,9 @@
       "category": "testing",
       "task": "Verify Vitest 4 compatibility",
       "check": "Plan uses vitest ^4.0.0 - is v4 released and stable?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Vitest 4.0 IS released and production-ready. Released October 22, 2025, with current version v4.0.17 (January 12, 2026). Key features: (1) Browser Mode graduated to stable status, (2) Built-in visual regression testing via toMatchScreenshot, (3) Playwright Traces integration, (4) Enhanced debugging with VSCode extension support, (5) New matchers like expect.schemaMatching and toBeInViewport. Vitest 4 is maintained by VoidZero (same team behind Vite, oxc, Rolldown). Active development with v4.1.0-beta.1 already available. The PLAN.md recommendation of Vitest for web unit testing is correct and v4.x is stable for production use.",
+      "action_required": null
     },
     {
       "id": "review-030",

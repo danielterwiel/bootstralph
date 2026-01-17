@@ -799,3 +799,30 @@ EAS Build should remain the recommended default (easiest path, great for most us
 - https://station.railway.com/questions/tanstack-start-works-locally-but-not-dep-1b8e915a
 - https://nitro.build/deploy
 
+## 2026-01-17: review-029 completed
+
+**Task**: Verify Vitest 4 compatibility
+**Check**: Plan uses vitest ^4.0.0 - is v4 released and stable?
+
+**Finding**:
+- Vitest 4.0 IS released and production-ready
+- Released October 22, 2025, current version v4.0.17 (January 12, 2026)
+- Key features in v4.0:
+  1. **Browser Mode graduated to stable** - No longer experimental, with separate provider packages for Playwright, WebdriverIO, Preview
+  2. **Built-in visual regression testing** - New `toMatchScreenshot` assertion for UI component comparison
+  3. **Playwright Traces integration** - Generates browser traces for debugging
+  4. **Enhanced Locators** - Adds `frameLocator` API and `length` property on locators
+  5. **Improved Debugging** - VSCode extension supports "Debug Test" buttons for browser tests
+  6. **New Matchers** - `expect.schemaMatching` for schema validation, `toBeInViewport` for visibility checks
+- Maintained by VoidZero (same team behind Vite, oxc, Rolldown)
+- Active development: v4.1.0-beta.1 already available (January 14, 2026)
+- Breaking changes exist - migration guide available at vitest.dev
+
+**Action Required**: None - the PLAN.md recommendation of Vitest for web unit testing is correct and v4.x is stable for production use
+
+**Sources**:
+- https://vitest.dev/blog/vitest-4
+- https://voidzero.dev/posts/announcing-vitest-4
+- https://github.com/vitest-dev/vitest/releases
+- https://www.infoq.com/news/2025/12/vitest-4-browser-mode/
+
