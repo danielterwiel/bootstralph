@@ -1200,3 +1200,34 @@ module.exports = {
 - https://github.com/bombshell-dev/clack/releases
 - https://cloudsmith.com/navigator/npm/@clack/prompts
 
+## 2026-01-17: review-036 completed
+
+**Task**: Verify execa version
+**Check**: Is ^9.0.0 the correct version? Check for breaking changes
+
+**Finding**:
+- ^9.0.0 IS correct and will resolve to v9.6.1 (latest, January 2026)
+- Execa v9.0.0 was released May 8, 2024 with significant breaking changes from v8.x
+- Key breaking changes include:
+  1. **Node.js 18.19.0+ required** (dropped support for older versions)
+  2. **Buffer output**: Returns `Uint8Array` instead of `Buffer` when `encoding: 'buffer'`
+  3. **Encoding option values renamed**: `null` → `'buffer'`, `'utf-8'` → `'utf8'`, `'binary'` → `'latin1'`
+  4. **Pipe methods unified**: `pipeStdout()`, `pipeStderr()`, `pipeAll()` renamed to single `pipe()` method
+  5. **Option renames**: `signal` → `cancelSignal`, `execPath` → `nodePath`, `forceKillAfterTimeout` → `forceKillAfterDelay`
+  6. **Error property renamed**: `error.killed` → `error.isTerminated`
+  7. **subprocess.cancel() removed**: Use `subprocess.kill()` instead
+  8. **Verbose option changed**: Boolean → string enum (`false` → `'none'`, `true` → `'short'`)
+  9. **execaCommand() deprecated** (v9.2.0): Use `parseCommandString()` + `execa()` instead
+  10. **Default serialization**: Changed from `'json'` to `'advanced'`
+- The package receives 105M+ weekly downloads and is actively maintained
+- Execa is a "Key ecosystem project" in the npm registry
+
+**Action Required**: Added dependency version specifications to PLAN.md Tech Stack section including `execa: ^9.0.0` and documented key breaking changes in a new "Execa v9 Migration Notes" subsection.
+
+**Sources**:
+- https://github.com/sindresorhus/execa/releases/tag/v9.0.0
+- https://github.com/sindresorhus/execa/releases
+- https://www.npmjs.com/package/execa
+- https://www.jsdocs.io/package/execa
+- https://medium.com/@ehmicky/execa-9-release-d0d5daaa097f
+

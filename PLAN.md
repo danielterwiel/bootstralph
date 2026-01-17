@@ -367,13 +367,24 @@ openskills sync
 ## CLI Architecture
 
 ### Tech Stack
-- **CLI Framework**: `@clack/prompts` (used by create-t3-app, simpler than Ink)
+- **CLI Framework**: `@clack/prompts` ^0.11.0 (used by create-t3-app, simpler than Ink)
 - **Build**: `tsup` (ESM + CJS output)
 - **Package Manager Detection**: `detect-package-manager`
-- **Command Execution**: `execa`
+- **Command Execution**: `execa` ^9.0.0
 - **File Operations**: `fs-extra`
 - **Skills Management**: `openskills` CLI (via `execa` - no programmatic API available)
 - **No direct AI API calls**: We guide users to use Claude Code in Docker instead
+
+#### Execa v9 Migration Notes
+Execa v9.0.0+ introduces breaking changes from v8.x that affect usage patterns:
+- **Requires Node.js 18.19.0+** (dropped support for older versions)
+- **Pipe methods renamed**: `pipeStdout()`, `pipeStderr()`, `pipeAll()` → unified `pipe()` method
+- **Option renames**: `signal` → `cancelSignal`, `execPath` → `nodePath`, `forceKillAfterTimeout` → `forceKillAfterDelay`
+- **Error property renamed**: `error.killed` → `error.isTerminated`
+- **Encoding values renamed**: `null` → `'buffer'`, `'utf-8'` → `'utf8'`
+- **Buffer output**: Returns `Uint8Array` instead of `Buffer` when `encoding: 'buffer'`
+- **execaCommand() deprecated** (v9.2.0): Use `parseCommandString()` + `execa()` instead
+- **Verbose option**: Changed from boolean to string enum (`false` → `'none'`, `true` → `'short'`)
 
 ### Scaffolding Strategy (Hybrid)
 | Framework | Approach |
