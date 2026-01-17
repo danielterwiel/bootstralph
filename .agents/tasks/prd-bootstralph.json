@@ -564,7 +564,7 @@
       "phase": 2,
       "task": "Implement skills installation via openskills",
       "files": ["src/ralph/skills.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-021",

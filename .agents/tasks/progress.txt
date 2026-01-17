@@ -209,3 +209,43 @@
 - Auth patterns for better-auth, Clerk, Supabase Auth
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-020: Implement skills installation via openskills
+
+### Completed
+- Created `src/ralph/skills.ts` with full skills installation via openskills CLI
+- Uses `execa` to spawn openskills CLI commands (openskills has no programmatic API)
+- Integrates with existing `SKILLS_MATRIX` from `src/compatibility/matrix.ts`
+
+### Features
+- `isOpenskillsInstalled()` - Check if openskills CLI is available
+- `installOpenskills()` - Install openskills globally via npm
+- `installSkills(options)` - Install all skills for a project configuration
+- `installSingleSkill(projectPath, skillName, source)` - Install a single skill by name
+- `getSkillsToInstall(config)` - Get list of skills based on SkillsConfig
+- `getSkillsInfo(projectPath, config)` - Get skill info with installed status
+- `listInstalledSkills(projectPath)` - List skills installed in a project
+- `hasAgentsMd(projectPath)` - Check if AGENTS.md exists
+- `readAgentsMd(projectPath)` - Read AGENTS.md content
+
+### Technical Details
+- Marketplace management: Auto-adds known marketplaces (anthropics/skills, vercel-labs/agent-skills, obra/superpowers, expo/skills)
+- Source mapping: Converts skill sources to marketplace format (e.g., @jezweb/claude-skills → jezweb/claude-skills)
+- Handles "already installed" responses gracefully
+- Syncs AGENTS.md after skill installation via `openskills sync`
+- Properly handles execa v9 output types (string | Uint8Array | unknown[])
+- Respects exactOptionalPropertyTypes for SkillInfo interface
+
+### Skills Matrix Integration
+Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
+- **All projects**: planning-with-files, test-driven-development, systematic-debugging, verification-before-completion
+- **Next.js**: react-best-practices, vercel-deploy-claimable, web-design-guidelines
+- **TanStack Start/React Router**: react-best-practices, web-design-guidelines
+- **Expo/RN CLI**: expo-app-design, expo-deployment, upgrading-expo
+- **Supabase**: supabase-operations
+- **Drizzle**: drizzle-orm-d1, drizzle, drizzle-migration
+- **better-auth**: better-auth
+- **Clerk**: clerk-pack
+- **Tailwind**: tailwind-v4-shadcn
+
+### Type check: PASSED
