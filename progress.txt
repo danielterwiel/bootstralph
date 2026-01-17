@@ -1421,3 +1421,54 @@ YES, both presets were missing from PLAN.md:
 - CLI executes correctly: `node dist/index.js` shows clack prompts
 
 **Note**: bun is not available in the environment, so npm was used for installation. The project is configured to work with bun (scripts use `bun run` for prepublishOnly) but falls back gracefully.
+
+## 2026-01-17: impl-002 completed
+
+**Task**: Create CLI entry point with @clack/prompts
+**Files**: src/index.ts
+
+**Changes Made**:
+1. Implemented full CLI entry point with argument parsing:
+   - `parseArgs()` function to parse command-line arguments
+   - Supports `create`, `init`, `add`, `help`, and `version` commands
+   - Handles `--preset` / `-p` flag with validation against 6 valid presets
+   - Shorthand support: `bootstralph my-app` treated as `bootstralph create my-app`
+
+2. Command handlers implemented:
+   - `showVersion()`: Displays version from VERSION constant
+   - `showHelp()`: Comprehensive help text with usage examples
+   - `handleCreate()`: Main wizard entry point with project name prompt
+   - `handleInit()`: Placeholder for init command (impl-025)
+   - `handleAdd()`: Placeholder for add command (impl-026)
+
+3. Key features:
+   - Project name validation (alphanumeric, hyphens, underscores)
+   - Interactive prompt for project name if not provided
+   - Preset display when specified
+   - Spinner animation for initialization
+   - Informative placeholder showing upcoming implementation tasks
+   - Graceful error handling with clack's log.error
+
+4. Removed shebang from source file (tsup adds it via banner config)
+
+5. Fixed TypeScript strict type issues:
+   - Used explicit `string | undefined` and `Preset | undefined` types
+   - Added all required properties to return statements
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully (ESM, CJS, and DTS output)
+- `node dist/index.js --help` shows correct help text
+- `node dist/index.js --version` shows "bootstralph v0.1.0"
+- `node dist/index.js create test-app --preset saas` shows full wizard flow
+
+**CLI Command Examples**:
+```bash
+bootstralph --help              # Show help
+bootstralph --version           # Show version
+bootstralph create my-app       # Interactive create wizard
+bootstralph create my-app -p saas  # With preset
+bootstralph my-app              # Shorthand for create
+bootstralph init                # Init in existing project (placeholder)
+bootstralph add auth            # Add feature (placeholder)
+```
