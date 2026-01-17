@@ -663,7 +663,8 @@
       "phase": 4,
       "task": "Write E2E tests for full wizard flow",
       "files": ["tests/e2e.test.ts"],
-      "status": "pending"
+      "status": "completed",
+      "passes": true
     },
     {
       "id": "impl-035",
@@ -678,6 +679,166 @@
       "task": "Configure npm publishing",
       "files": ["package.json"],
       "status": "pending"
+    },
+    {
+      "id": "impl-037",
+      "phase": 5,
+      "task": "Add OpenTUI and SolidJS dependencies",
+      "files": ["package.json", "tsconfig.json", "tsup.config.ts"],
+      "status": "pending",
+      "description": "Install @opentui/core, @opentui/solid, solid-js. Configure TypeScript for SolidJS JSX compilation (jsxImportSource: solid-js). Update tsup.config.ts for SolidJS build."
+    },
+    {
+      "id": "impl-038",
+      "phase": 5,
+      "task": "Create TUI state store with SolidJS signals",
+      "files": ["src/tui/state/store.ts"],
+      "status": "pending",
+      "description": "Create reactive state using SolidJS signals: logs[], currentTask, isPaused, progress{completed,total}, inputHistory[], currentPrd."
+    },
+    {
+      "id": "impl-039",
+      "phase": 5,
+      "task": "Create LogPane component with virtualized scrolling",
+      "files": ["src/tui/components/LogPane.tsx"],
+      "status": "pending",
+      "description": "Scrollable log output using OpenTUI ScrollBox. Limit rendered lines to 500 to avoid CPU issues. Support ANSI colors. Auto-scroll with toggle."
+    },
+    {
+      "id": "impl-040",
+      "phase": 5,
+      "task": "Create StatusBar component",
+      "files": ["src/tui/components/StatusBar.tsx"],
+      "status": "pending",
+      "description": "Display current task ID/title, progress (X/Y completed), iteration count, paused/running state. Update reactively from store."
+    },
+    {
+      "id": "impl-041",
+      "phase": 5,
+      "task": "Create InputBar component with command input",
+      "files": ["src/tui/components/InputBar.tsx"],
+      "status": "pending",
+      "description": "Persistent text input using OpenTUI TextareaRenderable. Submit on Enter. History navigation with up/down arrows. Visual feedback for slash commands."
+    },
+    {
+      "id": "impl-042",
+      "phase": 5,
+      "task": "Create main TUI App component and entry point",
+      "files": ["src/tui/App.tsx", "src/tui/index.ts"],
+      "status": "pending",
+      "description": "Main layout with flexbox: LogPane (flex:1), StatusBar, InputBar. Mount OpenTUI app with SolidJS renderer. Handle terminal resize."
+    },
+    {
+      "id": "impl-043",
+      "phase": 5,
+      "task": "Implement slash command parser",
+      "files": ["src/tui/commands/parser.ts", "src/tui/commands/types.ts"],
+      "status": "pending",
+      "description": "Parse input starting with /. Extract command name and args. Support: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort."
+    },
+    {
+      "id": "impl-044",
+      "phase": 5,
+      "task": "Implement PRD manager for CRUD operations",
+      "files": ["src/ralph/prd-manager.ts"],
+      "status": "pending",
+      "description": "Class to load/save PRD, add issues (generate ID, set priority), update notes, change priority, mark complete/skip. Auto-save with 500ms debounce."
+    },
+    {
+      "id": "impl-045",
+      "phase": 5,
+      "task": "Implement /issue command handler",
+      "files": ["src/tui/commands/issue.ts"],
+      "status": "pending",
+      "description": "Parse description from args. Generate next ID (impl-XXX or US-XXX). Create UserStory with priority = max+1. Add to PRD via manager. Display confirmation."
+    },
+    {
+      "id": "impl-046",
+      "phase": 5,
+      "task": "Implement /pause and /resume command handlers",
+      "files": ["src/tui/commands/pause.ts"],
+      "status": "pending",
+      "description": "Set isPaused signal. Engine checks this between iterations. /resume clears the flag. Display status change in logs."
+    },
+    {
+      "id": "impl-047",
+      "phase": 5,
+      "task": "Implement /skip command handler",
+      "files": ["src/tui/commands/skip.ts"],
+      "status": "pending",
+      "description": "Mark current task as completed with note 'Skipped by user'. Move to next task. Useful when Claude is stuck."
+    },
+    {
+      "id": "impl-048",
+      "phase": 5,
+      "task": "Implement /status command handler",
+      "files": ["src/tui/commands/status.ts"],
+      "status": "pending",
+      "description": "Display formatted PRD progress: total tasks, completed, pending, current task details. No PRD modification."
+    },
+    {
+      "id": "impl-049",
+      "phase": 5,
+      "task": "Implement /note command handler",
+      "files": ["src/tui/commands/note.ts"],
+      "status": "pending",
+      "description": "Add note to current task's notes field. Useful for adding context while Claude works. Append with timestamp."
+    },
+    {
+      "id": "impl-050",
+      "phase": 5,
+      "task": "Implement /priority command handler",
+      "files": ["src/tui/commands/priority.ts"],
+      "status": "pending",
+      "description": "Change task priority: /priority <id> <number>. Lower number = higher priority. Reorder affects next task selection."
+    },
+    {
+      "id": "impl-051",
+      "phase": 5,
+      "task": "Implement Claude runner with output streaming",
+      "files": ["src/ralph/claude-runner.ts"],
+      "status": "pending",
+      "description": "Run 'docker sandbox run claude' via execa. Stream stdout/stderr to log pane in real-time. Handle process lifecycle. Detect completion promise."
+    },
+    {
+      "id": "impl-052",
+      "phase": 5,
+      "task": "Implement Ralph engine (port bash logic to TypeScript)",
+      "files": ["src/ralph/engine.ts"],
+      "status": "pending",
+      "description": "Core loop: get next task, run Claude iteration, check completion, update PRD. Respect pause flag. Emit events for UI updates. Handle max iterations."
+    },
+    {
+      "id": "impl-053",
+      "phase": 5,
+      "task": "Integrate TUI with ralph command",
+      "files": ["src/commands/ralph.ts"],
+      "status": "pending",
+      "description": "Add --tui flag (default: true). When TUI mode, import and start TUI app. Keep --no-tui for simple mode. Maintain backward compatibility with ralph.sh."
+    },
+    {
+      "id": "impl-054",
+      "phase": 5,
+      "task": "Write unit tests for command parser",
+      "files": ["tests/tui/parser.test.ts"],
+      "status": "pending",
+      "description": "Test parsing of all slash commands. Test edge cases: empty args, quoted strings, invalid commands."
+    },
+    {
+      "id": "impl-055",
+      "phase": 5,
+      "task": "Write unit tests for PRD manager",
+      "files": ["tests/tui/prd-manager.test.ts"],
+      "status": "pending",
+      "description": "Test addIssue, updateNote, updatePriority, markComplete. Test auto-save. Test ID generation."
+    },
+    {
+      "id": "impl-056",
+      "phase": 5,
+      "task": "Write integration tests for TUI components",
+      "files": ["tests/tui/components.test.ts"],
+      "status": "pending",
+      "description": "Test LogPane rendering, StatusBar updates, InputBar command handling. Mock OpenTUI primitives if needed."
     }
   ]
 }

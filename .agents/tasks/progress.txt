@@ -828,3 +828,57 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 ### Tests: 325 passed (114 compatibility + 104 filters + 107 scaffolders)
+
+## 2026-01-17 - impl-034: Write E2E tests for full wizard flow
+
+### Completed
+- Fixed existing `tests/e2e.test.ts` with 76 comprehensive E2E tests
+- Tests cover the complete flow from preset/config to scaffolder options
+- All tests pass without invoking external CLIs or interactive prompts
+
+### Test Coverage
+
+#### Preset Configurations (11 tests)
+- PRESET_CONFIGS validation (all presets defined, valid platforms, valid frameworks, compatibility)
+- applyPreset() for all 6 presets (saas, mobile, api, content, universal, fullstack)
+- Preset validation (all presets pass validateAllSelections)
+
+#### Preset Modules (18 tests)
+- Preset Registry (getAllPresets returns array, isValidPreset, getPreset by ID)
+- SaaS Preset (default, variants array, specific variant retrieval)
+- Mobile Preset (default, variants array, specific variant retrieval)
+- API Preset (default, variants array, specific variant retrieval)
+- Fullstack Preset (default, variants array, specific variant retrieval)
+
+#### Create Command Flow (6 tests)
+- Configuration building (valid web, mobile, API configs)
+- Invalid configuration detection (Expo+Vitest, Biome+ESLint, Expo+Playwright)
+
+#### Init Command Flow (23 tests)
+- Project detection (Next.js, Expo, TanStack Start, React Router v7, Astro, Hono, Elysia, RN CLI)
+- Feature detection (Drizzle, Prisma, Supabase, Firebase, Clerk, better-auth, Tailwind, shadcn, state libs)
+- Tooling detection (oxlint, Biome, ESLint, Vitest, Jest, Playwright, Lefthook, Husky)
+- Package manager detection (bun, pnpm, yarn, npm via lock files)
+
+#### Platform-Framework Compatibility (5 tests)
+- Valid frameworks for each platform (web, mobile, universal, api)
+- Consistent defaults for each platform
+
+#### End-to-End Config Flow (6 tests)
+- Valid scaffolder config production for all 6 presets (SaaS, Mobile, API, Content, Universal, Fullstack)
+
+#### Validation Edge Cases (4 tests)
+- Empty selections handling
+- Partial selections handling
+- Minimal valid configuration
+- Multiple incompatibility detection
+
+### Bug Fixes During Implementation
+- Fixed test expectations for `getAllPresets()` - returns array, not object
+- Fixed test expectations for `getAllSaaSVariants()`, `getAllMobileVariants()`, etc. - return arrays with preset IDs
+- Fixed Fullstack mobile variant feature check (look for "Expo mobile app" string)
+- Fixed DEFAULTS.e2eTesting.api expectation (is 'playwright', not undefined)
+- Fixed empty selections validation expectation (validator checks conflicts, not required fields)
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
