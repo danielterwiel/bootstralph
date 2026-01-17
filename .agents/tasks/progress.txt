@@ -603,3 +603,39 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-029: Implement API preset
+
+### Completed
+- Created `src/presets/api.ts` with comprehensive API preset configuration
+- Updated `src/presets/index.ts` to export and register the API preset
+
+### Features
+- Main `API_PRESET` configuration optimized for edge-first API development:
+  - Hono for edge-first, multi-runtime API development
+  - Drizzle ORM for type-safe database access (with D1/LibSQL)
+  - better-auth for API authentication (JWT, sessions)
+  - Cloudflare Workers for edge deployment
+  - Vitest for unit testing
+  - oxlint + oxfmt + prek for fast tooling
+
+### Preset Variants
+- `API_ELYSIA_PRESET` - Bun-native API with Elysia for maximum performance, Fly.io deployment
+- `API_PRISMA_PRESET` - Uses Prisma ORM with edge adapter
+- `API_VERCEL_PRESET` - Serverless API with Hono on Vercel
+- `API_NODE_PRESET` - Node.js API for traditional hosting (Railway/Render)
+- `API_SUPABASE_PRESET` - API with Supabase for database and auth
+- `API_FLY_PRESET` - Globally distributed API on Fly.io
+
+### Helper Functions
+- `getAPIPreset()` - Get the default API preset
+- `getAPIVariant(variant)` - Get a specific variant by name
+- `getAllAPIVariants()` - Get all API preset variants
+
+### Technical Details
+- Follows same pattern as SaaS and Mobile presets for consistency
+- Uses spread operator for variants to inherit base configuration
+- Includes appropriate skills from SKILLS_MATRIX for API development
+- Registered in PRESETS registry for use with `--preset api` flag
+- Uses `fly-io` deployment target (not `fly` - fixed type error)
+
+### Type check: PASSED

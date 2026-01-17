@@ -34,12 +34,27 @@ export {
   getAllMobileVariants,
 } from "./mobile.js";
 
+// Re-export API preset
+export {
+  API_PRESET,
+  API_ELYSIA_PRESET,
+  API_PRISMA_PRESET,
+  API_VERCEL_PRESET,
+  API_NODE_PRESET,
+  API_SUPABASE_PRESET,
+  API_FLY_PRESET,
+  getAPIPreset,
+  getAPIVariant,
+  getAllAPIVariants,
+} from "./api.js";
+
 // ============================================================================
 // Preset Registry
 // ============================================================================
 
 import { SAAS_PRESET, type PresetConfig } from "./saas.js";
 import { MOBILE_PRESET } from "./mobile.js";
+import { API_PRESET } from "./api.js";
 
 /**
  * All available presets by ID
@@ -47,6 +62,7 @@ import { MOBILE_PRESET } from "./mobile.js";
 export const PRESETS: Record<string, PresetConfig> = {
   saas: SAAS_PRESET,
   mobile: MOBILE_PRESET,
+  api: API_PRESET,
 };
 
 /**
