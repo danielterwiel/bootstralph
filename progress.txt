@@ -1505,3 +1505,53 @@ bootstralph add auth            # Add feature (placeholder)
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-004 completed
+
+**Task**: Implement option filtering logic
+**Files**: src/compatibility/filters.ts
+
+**Changes Made**:
+1. Created comprehensive `src/compatibility/filters.ts` with:
+   - **WizardSelections interface**: Type for tracking current wizard selections (platform, framework, styling, state, orm, backend, auth, linter, formatter, testing, deployment)
+   - **FilteredOption<T> interface**: Generic type for options with metadata (value, label, description, recommended, disabled, disabledReason)
+   - **Framework Filters**:
+     - `getAvailableFrameworks()` - Get frameworks for a platform with recommended flag
+     - `getRecommendedFramework()` - Internal helper for default framework per platform
+   - **Styling Filters**:
+     - `getAvailableStyling()` - Get styling options filtered by platform AND framework support
+     - Helper functions for styling labels and descriptions
+   - **State Management Filters**:
+     - `getAvailableStateManagement()` - Get state options based on framework
+   - **ORM Filters**:
+     - `getAvailableORM()` - Get ORM options based on framework (Drizzle recommended)
+   - **Backend Filters**:
+     - `getAvailableBackend()` - Get backend options based on framework
+   - **Auth Filters**:
+     - `getAvailableAuth()` - Get auth options with dynamic recommendations based on backend selection
+   - **Linter & Formatter Filters**:
+     - `getAvailableLinters()` - Get linter options with default recommendation
+     - `shouldShowFormatterQuestion()` - Returns false for Biome (handles both lint+format)
+     - `getAvailableFormatters()` - Get formatter options, auto-selects biome if biome linter chosen
+   - **Testing Filters**:
+     - `getAvailableUnitTesting()` - Get unit testing frameworks with incompatibility filtering
+     - `getAvailableE2ETesting()` - Get E2E testing frameworks with incompatibility filtering
+   - **Deployment Filters**:
+     - `getAvailableDeployment()` - Get deployment targets based on framework
+     - `getRecommendedDeployment()` - Internal helper for optimal deployment per framework
+   - **Generic Filtering**:
+     - `checkIncompatibility()` - Internal helper to check incompatibility rules
+     - `filterOptions()` - Generic filter function for any option list
+   - **Validation**:
+     - `validateSelections()` - Validate all selections are compatible, returns errors array
+
+2. Key implementation details:
+   - All filter functions return `FilteredOption<T>[]` with consistent metadata for UI display
+   - Biome linter automatically skips formatter question (implements review-010 finding)
+   - Auth recommendations change based on backend (Supabase Auth recommended when Supabase backend selected)
+   - Deployment recommendations are framework-specific (Vercel for Next.js, Cloudflare for Hono, EAS for Expo)
+   - Mobile frameworks (Expo, React Native CLI) filter out web-only testing tools (Vitest, Playwright, Cypress)
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
