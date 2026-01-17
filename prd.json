@@ -420,7 +420,9 @@
       "category": "ux",
       "task": "Verify Docker setup instructions clarity",
       "check": "Is the post-scaffold Docker setup flow clear enough for beginners?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The PLAN.md Docker Configuration section covers the technical approaches well but lacks a beginner-friendly post-scaffold flow. Key gaps: (1) No clear 'Quick Start' path prioritizing the simplest method (`docker sandbox run claude`), (2) Prerequisites are scattered rather than presented as a pre-scaffold checklist, (3) Missing post-scaffold instructions specific to what bootstralph generates, (4) No troubleshooting guidance for common first-time issues (Docker not running, API key problems, permission errors). Official Docker docs show simple 3-step flow: run `docker sandbox run claude`, enter API key on first run, credentials persist automatically. VS Code devcontainer flow requires 4 steps but is well-documented. The custom Dockerfile approach is most complex and should be marked as 'advanced'.",
+      "action_required": "Add 'Post-Scaffold Docker Quick Start' section to PLAN.md with: (1) Prerequisites checklist (Docker Desktop required, Node.js optional), (2) Beginner path using docker sandbox (3 steps), (3) VS Code path using devcontainer (4 steps), (4) Common troubleshooting tips. Update Implementation Strategy to generate appropriate instructions based on user's environment detection."
     }
   ],
   "implementation_tasks": [

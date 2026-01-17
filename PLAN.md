@@ -873,6 +873,146 @@ Without network, Claude Code cannot:
 
 ---
 
+## Post-Scaffold Docker Quick Start
+
+After scaffolding, bootstralph generates a `GETTING_STARTED.md` with Docker instructions tailored to the user's environment. This section documents what those instructions should contain.
+
+### Prerequisites Checklist
+
+Display this checklist before starting Docker setup:
+
+```
+✅ Prerequisites for Claude Code in Docker:
+
+REQUIRED:
+  □ Docker Desktop installed and running
+    → Download: https://www.docker.com/products/docker-desktop/
+    → Verify: docker --version
+
+RECOMMENDED (for VS Code users):
+  □ Visual Studio Code with Dev Containers extension
+    → Extension ID: ms-vscode-remote.remote-containers
+
+HAVE READY:
+  □ Anthropic API key (from console.anthropic.com)
+    → First-time users: Key will be prompted on first run
+    → Existing users: Credentials may already be stored
+```
+
+### Path A: Docker Desktop Sandbox (Recommended for Beginners)
+
+**Time to complete: ~2 minutes**
+
+This is the simplest path for users with Docker Desktop:
+
+```bash
+# Step 1: Navigate to your new project
+cd your-project-name
+
+# Step 2: Start Claude in a sandbox
+docker sandbox run claude
+
+# Step 3: Enter API key when prompted (first time only)
+# Credentials are stored automatically for future sessions
+
+# That's it! Claude is ready to use.
+```
+
+**Common Commands:**
+```bash
+# Start with a specific task
+docker sandbox run claude "Review this codebase and suggest improvements"
+
+# Continue previous conversation
+docker sandbox run claude -c
+
+# Use a different workspace
+docker sandbox run -w ~/other-project claude
+```
+
+### Path B: VS Code Dev Container (Recommended for VS Code Users)
+
+**Time to complete: ~5 minutes**
+
+For users who prefer VS Code integration:
+
+```
+Step 1: Open the project folder in VS Code
+        → File > Open Folder > select your-project-name
+
+Step 2: When prompted "Reopen in Container", click it
+        → Or: Cmd/Ctrl+Shift+P > "Dev Containers: Reopen in Container"
+
+Step 3: Wait for container build (first time takes 2-3 minutes)
+
+Step 4: Open terminal in VS Code and run:
+        claude --dangerously-skip-permissions
+```
+
+**Why `--dangerously-skip-permissions`?**: The devcontainer provides isolation via Docker and network firewall. This flag enables unattended operation within that secure environment.
+
+### Path C: Custom Dockerfile (Advanced)
+
+**Time to complete: ~10 minutes**
+
+For CI/CD pipelines or custom environments:
+
+```bash
+# Step 1: Build the container
+docker compose build
+
+# Step 2: Create .env file with API key
+echo "ANTHROPIC_API_KEY=your-key-here" > .env
+
+# Step 3: Start the container
+docker compose up -d
+
+# Step 4: Attach to the container
+docker compose exec claude-dev claude
+```
+
+### Troubleshooting Common Issues
+
+| Problem | Solution |
+|---------|----------|
+| `docker: command not found` | Install Docker Desktop from docker.com |
+| `docker sandbox: command not found` | Update Docker Desktop to latest version (sandbox requires Docker Desktop) |
+| `Cannot connect to Docker daemon` | Start Docker Desktop application |
+| `API key invalid` | Verify key at console.anthropic.com, check for extra whitespace |
+| `Permission denied` on Linux | Add user to docker group: `sudo usermod -aG docker $USER` then log out/in |
+| Container exits immediately | Run with `-it` flags: `docker run -it ...` |
+| Network errors in container | Check firewall rules, ensure api.anthropic.com is accessible |
+
+### Implementation Notes for bootstralph
+
+The CLI should detect the user's environment and recommend the appropriate path:
+
+```typescript
+// In src/ralph/sandbox.ts
+async function detectDockerEnvironment(): Promise<'sandbox' | 'compose' | 'devcontainer' | 'none'> {
+  // 1. Check if Docker is installed
+  const hasDocker = await commandExists('docker');
+  if (!hasDocker) return 'none';
+
+  // 2. Check if docker sandbox is available (Docker Desktop feature)
+  const hasSandbox = await checkDockerSandbox();
+
+  // 3. Check if VS Code is the likely environment
+  const hasVSCode = process.env.TERM_PROGRAM === 'vscode' || await commandExists('code');
+
+  if (hasSandbox) return 'sandbox';  // Simplest path
+  if (hasVSCode) return 'devcontainer';  // VS Code users
+  return 'compose';  // Fallback to custom Dockerfile
+}
+```
+
+Generated files based on detection:
+- **sandbox**: Shell script `start-claude.sh` with docker sandbox commands
+- **devcontainer**: `.devcontainer/devcontainer.json` + `Dockerfile`
+- **compose**: `docker-compose.yml` + `Dockerfile` + `.env.example`
+
+---
+
 ## Claude Code Settings Configuration
 
 ### Settings File Locations

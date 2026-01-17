@@ -1347,3 +1347,37 @@ YES, both presets were missing from PLAN.md:
 - https://getstream.io/blog/react-native-android-ios-setup/
 - https://github.com/anasyd/Install-RN-on-MacOS
 
+## 2026-01-17: review-040 completed
+
+**Task**: Verify Docker setup instructions clarity
+**Check**: Is the post-scaffold Docker setup flow clear enough for beginners?
+
+**Finding**:
+- The PLAN.md Docker Configuration section covers the technical approaches well (Docker Sandbox, Custom Dockerfile, DevContainer) but lacks a beginner-friendly post-scaffold flow
+- Key gaps identified:
+  1. No clear "Quick Start" path prioritizing the simplest method (`docker sandbox run claude`)
+  2. Prerequisites scattered rather than presented as a pre-scaffold checklist
+  3. Missing post-scaffold instructions specific to what bootstralph generates
+  4. No troubleshooting guidance for common first-time issues (Docker not running, API key problems, permission errors)
+- Official Docker docs show a simple 3-step flow: run `docker sandbox run claude`, enter API key on first run, credentials persist automatically
+- VS Code devcontainer flow requires 4 steps but is well-documented in official Anthropic docs
+- The custom Dockerfile approach is most complex and should be marked as "advanced"
+
+**Changes Made**:
+1. Added "Post-Scaffold Docker Quick Start" section to PLAN.md with:
+   - Prerequisites checklist (Docker Desktop required, VS Code optional)
+   - Path A: Docker Desktop Sandbox (2 minutes, recommended for beginners)
+   - Path B: VS Code Dev Container (5 minutes, recommended for VS Code users)
+   - Path C: Custom Dockerfile (10 minutes, advanced)
+   - Troubleshooting table for common issues
+   - Implementation notes for environment detection in `src/ralph/sandbox.ts`
+2. Added guidance for what files bootstralph should generate based on detected environment
+
+**Action Required**: None - section added with complete beginner-friendly documentation
+
+**Sources**:
+- https://docs.docker.com/ai/sandboxes/claude-code/
+- https://code.claude.com/docs/en/devcontainer
+- https://www.arsturn.com/blog/how-to-run-claude-code-securely-in-a-docker-container
+- https://github.com/RchGrav/claudebox
+
