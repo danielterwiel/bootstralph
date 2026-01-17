@@ -253,6 +253,11 @@ IF ESLint selected:
 | Lefthook | Go | Fast | Simple config, good Turborepo integration |
 | Husky | JavaScript | Moderate | Most popular, npm ecosystem native |
 
+**prek + bun Note**: Prek uses `npm install .` for Node.js hook dependencies regardless of the project's package manager. This is intentional - prek manages isolated hook environments separate from the project. A bun-based project works perfectly with prek because:
+1. Hook environments are isolated (prek uses its own npm-based Node.js environments)
+2. prek itself is a standalone Rust binary with no JavaScript runtime dependency
+3. Project development uses bun, while hooks run in prek's managed environments
+
 ### E2E Testing Compatibility
 
 | Framework | Web | Expo | React Native | Best For |

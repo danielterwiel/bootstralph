@@ -330,7 +330,9 @@
       "category": "pre-commit-hooks",
       "task": "Verify prek + bun compatibility",
       "check": "Does prek work well with bun as package manager and runtime?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Prek does NOT natively support Bun as a package manager or runtime for Node.js hooks. Prek's Node.js language type uses `npm install .` to install hook dependencies - there is no option to use bun instead. However, this is a non-issue for bootstralph because: (1) prek manages its OWN isolated environments for hooks separate from the project's package manager, (2) the project can still use bun as its package manager while prek uses npm for hook environments, (3) prek is installed as a standalone binary (Rust) with no runtime dependencies. The key insight is that prek's hook environments are isolated - they don't interfere with or depend on the project's chosen package manager. Bun support as a hook runtime is not on prek's roadmap (no GitHub issue exists for it).",
+      "action_required": "Add clarifying note to PLAN.md Pre-Commit Hook Compatibility section explaining that prek uses npm for Node.js hook environments regardless of project package manager, but this is isolated and doesn't affect project development."
     },
     {
       "id": "review-041",

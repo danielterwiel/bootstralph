@@ -918,3 +918,35 @@ EAS Build should remain the recommended default (easiest path, great for most us
 - https://github.com/fastapi/fastapi/pull/14572
 - https://hugovk.dev/blog/2025/ready-prek-go/
 
+## 2026-01-17: review-032 completed
+
+**Task**: Verify prek + bun compatibility
+**Check**: Does prek work well with bun as package manager and runtime?
+
+**Finding**:
+- Prek does NOT natively support Bun as a package manager or runtime for Node.js hooks
+- Prek's Node.js language type uses `npm install .` to install hook dependencies - no bun option exists
+- No GitHub issue requesting Bun support was found in the prek repository
+- However, this is a **non-issue** for bootstralph projects because:
+
+**Why prek + bun works fine in practice:**
+1. **Isolated environments**: prek manages its OWN isolated environments for hooks, completely separate from the project's package manager
+2. **No interference**: A project using bun for development doesn't conflict with prek's npm-based hook environments
+3. **Standalone binary**: prek is a Rust binary with no JavaScript runtime dependency - it manages Node.js toolchains internally
+4. **Supported languages**: prek supports Python, Node.js, Go, Rust, Ruby, Lua, Docker, System, Script, Pygrep, Fail
+5. **Deno**: Only experimental/WIP support, no Bun support planned
+
+**How prek handles Node.js hooks:**
+- Downloads Node.js toolchain if needed (supports semver ranges like `^18.12` or `lts`)
+- Expects `package.json` in hook repo
+- Runs `npm install .` to install dependencies
+- Executes binaries exposed via package `bin` field
+
+**Action Required**: Added clarifying note to PLAN.md Pre-Commit Hook Compatibility section explaining that prek uses npm for Node.js hook environments regardless of project package manager.
+
+**Sources**:
+- https://github.com/j178/prek
+- https://prek.j178.dev/languages/
+- https://github.com/j178/prek/issues (no bun-related issues found)
+- https://hugovk.dev/blog/2025/ready-prek-go/
+
