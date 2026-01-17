@@ -1694,3 +1694,26 @@ bootstralph add auth            # Add feature (placeholder)
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-009 completed
+
+**Task**: Create deployment selection prompt
+**Files**: `src/prompts/deployment.ts`
+
+**What was done**:
+- Created `promptDeployment()` function that prompts user to select a deployment target
+- Uses `getAvailableDeployment()` from filters.ts to show only compatible options based on framework
+- Implements edge runtime ORM validation with `checkEdgeORMCompatibility()` to warn about Prisma/Drizzle limitations on edge platforms
+- Auto-selects if only one deployment option available
+- Includes helper functions:
+  - `getDeploymentSummary()` - for display
+  - `isEdgePlatform()` - checks if deployment is edge (cloudflare, vercel, netlify)
+  - `isMobileDeployment()` - checks if deployment is mobile (eas, local-builds, fastlane, codemagic)
+  - `getDeploymentRequirements()` - returns list of requirements for each platform (accounts, CLI tools, etc.)
+  - `getDeploymentScaffoldAdditions()` - returns additional files needed for deployment target
+
+**Edge Runtime Validation**:
+When user selects edge platform (Cloudflare, Vercel Edge, Netlify Edge) with Prisma ORM, displays warning about requiring Prisma Accelerate or suggests switching to Drizzle with edge-compatible drivers.
+
+**Verification**:
+- `npm run typecheck` passes
