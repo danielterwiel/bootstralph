@@ -585,7 +585,7 @@
       "phase": 2,
       "task": "Implement Docker sandbox configuration",
       "files": ["src/ralph/sandbox.ts", "src/templates/docker-compose.yml.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-024",

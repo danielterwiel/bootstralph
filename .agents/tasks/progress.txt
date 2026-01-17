@@ -328,3 +328,57 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-023: Implement Docker sandbox configuration
+
+### Completed
+- Created `src/templates/docker-compose.yml.ts` with Docker configuration template generators
+- Created `src/ralph/sandbox.ts` with sandbox configuration manager
+
+### Features - docker-compose.yml.ts Template Generators
+- `generateDockerComposeYml(config)` - Generate docker-compose.yml for custom container approach
+- `generateDockerfile(config)` - Generate Dockerfile for Claude Code container (node:20 base)
+- `generateEnvExample(config)` - Generate .env.example with API key placeholders
+- `generateDevcontainerJson(config)` - Generate VS Code devcontainer.json
+- `generateMinimalDevcontainerJson()` - Generate minimal devcontainer (features-only)
+- `generateStartClaudeScript(config)` - Generate start-claude.sh for docker sandbox approach
+- `generateFirewallScript()` - Generate firewall-setup.sh for domain whitelisting (iptables)
+- `generateDockerignore()` - Generate .dockerignore for container builds
+
+### Features - sandbox.ts Configuration Manager
+- `detectDockerEnvironment()` - Auto-detect Docker environment (sandbox, devcontainer, compose, none)
+- `writeSandboxConfig(options)` - Write sandbox configuration based on detected environment
+- `writeAllSandboxConfigs(options)` - Write all three approaches (sandbox, devcontainer, compose)
+- `hasSandboxConfig(projectPath)` - Check what Docker configs exist in a project
+- `getRecommendedDockerSetup()` - Get recommended Docker setup with commands
+
+### Environment Detection
+- Checks for Docker installation (`docker --version`)
+- Checks if Docker daemon is running (`docker info`)
+- Checks for Docker Desktop sandbox feature (`docker sandbox --help`)
+- Detects VS Code environment (TERM_PROGRAM or `code` command)
+- Returns recommendations based on detected environment
+
+### Docker Approaches Supported
+1. **Docker Desktop Sandbox** (simplest): `docker sandbox run claude`
+   - Uses `docker/sandbox-templates:claude-code` image
+   - Automatic credential management
+   - Generates: start-claude.sh script
+
+2. **DevContainer** (VS Code): `.devcontainer/devcontainer.json`
+   - Uses `ghcr.io/anthropics/devcontainer-features/claude-code:1` feature
+   - Seamless VS Code integration
+   - Generates: .devcontainer/devcontainer.json
+
+3. **Custom Dockerfile** (CI/CD): `docker-compose.yml` + `Dockerfile`
+   - Full control over container environment
+   - Optional network filtering with iptables
+   - Generates: docker-compose.yml, Dockerfile, .env.example, .dockerignore, firewall-setup.sh
+
+### Security Features
+- Network filtering capability via cap_add: NET_ADMIN
+- Domain whitelisting script (api.anthropic.com, registry.npmjs.org, github.com)
+- .env file exclusion from git
+- API keys via environment variables, never hardcoded
+
+### Type check: PASSED
+
