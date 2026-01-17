@@ -683,3 +683,42 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 - Registered in PRESETS registry for use with `--preset fullstack` flag
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-031: Write unit tests for compatibility matrix
+
+### Completed
+- Created `vitest.config.ts` with test configuration for the project
+- Created `tests/compatibility.test.ts` with comprehensive unit tests (114 tests total)
+
+### Test Coverage
+- **PLATFORMS**: Platform configuration, framework availability per platform
+- **FRAMEWORKS**: All 8 framework configurations, bundler/routing/styling/testing options
+- **INCOMPATIBILITY_RULES**: Rule structure validation, unique IDs
+- **areSelectionsCompatible()**: Compatibility checking including:
+  - Framework + routing conflicts (Next.js + TanStack Router, etc.)
+  - Biome + ESLint/Prettier mutual exclusivity
+  - Expo + Vitest/Playwright incompatibility
+  - ORM and auth provider mutual exclusivity
+  - Deployment target mutual exclusivity
+- **getIncompatibleOptions()**: Returns all incompatible options for a selection
+- **EDGE_COMPATIBILITY**: Edge runtime ORM support verification
+- **checkEdgeORMCompatibility()**: Cloudflare/Vercel/Railway/Fly.io ORM requirements
+- **STYLING_COMPATIBILITY**: Platform-specific styling options
+- **getStylingForPlatform()**: Web/mobile/universal styling filtering
+- **getRecommendedStyling()**: Default styling per platform
+- **TESTING_COMPATIBILITY**: Unit and E2E testing framework options
+- **LINTERS & FORMATTERS**: Configuration structure, speed, stability
+- **DEFAULTS**: Default recommendations for all platforms
+- **getFrameworksForPlatform()**: Platform to framework mapping
+- **getFrameworkConfig()**: Framework configuration retrieval
+- **SKILLS_MATRIX**: Skill definitions and conditions
+- **getSkillsForConfig()**: Config-based skill selection with deduplication
+
+### Technical Details
+- Vitest configured with v8 coverage provider
+- Tests use .js extension in imports for ESM compatibility
+- Test file located in tests/ directory (outside src/)
+- All 114 tests passing
+
+### Type check: PASSED
+### Tests: 114 passed

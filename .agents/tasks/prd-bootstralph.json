@@ -641,7 +641,7 @@
       "phase": 4,
       "task": "Write unit tests for compatibility matrix",
       "files": ["tests/compatibility.test.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-032",
