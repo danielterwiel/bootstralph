@@ -381,6 +381,73 @@ bootstralph/
 
 ---
 
+## Preset Configurations
+
+Presets provide opinionated configurations for common project types.
+
+### SaaS Preset (`--preset saas`)
+```yaml
+platform: Web
+framework: Next.js (App Router)
+styling: Tailwind CSS + shadcn/ui
+auth: better-auth (or Clerk)
+database: Drizzle + Postgres (Neon/Supabase)
+payments: Stripe
+testing: Vitest (unit), Playwright (e2e)
+linting: oxlint
+formatting: oxfmt
+deploy: Vercel
+skills: planning-with-files, react-best-practices, vercel-deploy-claimable, webapp-testing, tailwind-v4-shadcn
+```
+
+### Mobile Preset (`--preset mobile`)
+```yaml
+platform: Mobile
+framework: Expo (managed workflow)
+styling: Uniwind (recommended)
+auth: Clerk (native SDK)
+backend: Supabase
+testing: Jest (unit), Maestro (e2e)
+linting: oxlint
+formatting: oxfmt
+deploy: EAS (Expo Application Services)
+skills: planning-with-files, expo-app-design, expo-deployment, upgrading-expo
+```
+
+### API Preset (`--preset api`)
+```yaml
+platform: API Only
+framework: Hono (or Elysia)
+database: Drizzle + Postgres (or Turso for edge)
+auth: better-auth
+testing: Vitest
+linting: oxlint
+formatting: oxfmt
+deploy: Cloudflare Workers (or Fly.io)
+skills: planning-with-files, drizzle-orm-d1
+```
+
+### Fullstack/Monorepo Preset (`--preset fullstack`)
+```yaml
+platform: Web + API (monorepo)
+structure: Turborepo
+apps:
+  - web: Next.js + Tailwind + shadcn/ui
+  - api: Hono + Drizzle
+packages:
+  - ui: Shared components
+  - db: Drizzle schema
+  - config: Shared ESLint/TS config
+auth: better-auth (shared)
+testing: Vitest (unit), Playwright (e2e)
+linting: Biome (monorepo-wide)
+formatting: Biome
+deploy: Vercel (web) + Fly.io (api)
+skills: planning-with-files, turborepo, monorepo-management, react-best-practices
+```
+
+---
+
 ## Key Decisions Summary
 
 | Decision | Choice | Rationale |

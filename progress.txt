@@ -508,3 +508,34 @@ This was also verified during review-018.
 - https://claude-plugins.dev/skills/@Dexploarer/hyper-forge/drizzle-migration
 - https://mcpmarket.com/tools/skills/drizzle-orm-development
 - https://skillsmp.com/skills/jezweb-claude-skills-skills-drizzle-orm-d1-skill-md
+
+## 2026-01-17: review-020 completed
+
+**Task**: Check SaaS preset completeness
+**Check**: SaaS preset uses NativeWind but it's for mobile - should be Tailwind + shadcn
+
+**Finding**:
+- The review premise was INCORRECT - the PLAN.md never specified NativeWind for the SaaS preset
+- The directory structure showed `saas.ts # Next.js + auth + payments` and all Next.js sections consistently specify `Tailwind + shadcn/ui` as the styling choice (lines 65, 78, 92)
+- However, the PLAN.md lacked explicit preset configurations, which could cause confusion
+- Verified via industry standards:
+  - Vercel's official Next.js SaaS Starter uses Tailwind + shadcn/ui
+  - ixartz/SaaS-Boilerplate uses Tailwind + shadcn/ui
+  - Encore.ts SaaS Starter uses Tailwind + shadcn/ui
+  - All major SaaS starters use Tailwind + shadcn/ui (NOT NativeWind)
+- NativeWind is for mobile (Expo/React Native), not web projects
+
+**Action Required**: Added explicit "Preset Configurations" section to PLAN.md documenting full configuration for each preset:
+1. **SaaS Preset**: Next.js + Tailwind CSS + shadcn/ui + better-auth + Drizzle + Stripe + Vercel
+2. **Mobile Preset**: Expo + Uniwind + Clerk + Supabase + EAS
+3. **API Preset**: Hono + Drizzle + better-auth + Cloudflare Workers
+4. **Fullstack Preset**: Turborepo + Next.js + Hono + Biome
+
+The SaaS preset now explicitly shows `styling: Tailwind CSS + shadcn/ui` to prevent any future confusion.
+
+**Sources**:
+- https://vercel.com/templates/next.js/next-js-saas-starter
+- https://github.com/ixartz/SaaS-Boilerplate
+- https://encore.dev/templates/saas-starter
+- https://www.shadcn.io/template/nextjs-saas-starter
+- https://indie-starter.dev/blog/shadcn-templates
