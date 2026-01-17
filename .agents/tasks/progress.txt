@@ -56,3 +56,33 @@
 - Tamagui setup includes tamagui.config.ts and react-native-reanimated plugin
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-015: Implement React Router v7 scaffolder wrapper
+
+### Completed
+- Created `src/scaffolders/react-router.ts` with full React Router v7 (Framework Mode) scaffolding support
+- Wraps `npx create-react-router@latest` (successor to Remix v2) with bootstralph-specific configurations
+- Uses Vite for bundling (built-in to React Router v7)
+- Tailwind CSS setup with @tailwindcss/vite plugin and tailwind.config.ts
+- shadcn/ui setup with components.json and cn() utility helper
+- State management: Zustand, Jotai, TanStack Query support
+- ORM support: Drizzle (edge-compatible with @libsql/client or @neondatabase/serverless), Prisma
+- Backend integrations: Supabase (@supabase/ssr), Convex, Firebase
+- Auth support: better-auth, Clerk (@clerk/react-router), Supabase Auth
+- Testing: Vitest (unit) with vite-tsconfig-paths, Playwright (e2e)
+- Pre-commit hooks: Lefthook (YAML config), Husky (with lint-staged ESM config)
+- Linting: oxlint, Biome, ESLint support
+- Formatting: oxfmt, Biome, Prettier support
+- Environment template generation with VITE_ prefix convention
+
+### Technical Details
+- Uses `~/` alias convention for imports (React Router v7 standard)
+- Generates Vitest config at project root with app/** test inclusion
+- Playwright configured for port 5173 (Vite default)
+- Drizzle schema stored in app/db/ directory
+- Supabase client provides both browser and server client helpers for loaders/actions
+- Convex provider created in app/providers/ directory
+- Husky config creates ESM lint-staged.config.js (not .cjs) for ESM projects
+- Lefthook config includes stage_fixed: true for auto-staging fixed files
+
+### Type check: PASSED

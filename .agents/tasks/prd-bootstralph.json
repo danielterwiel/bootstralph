@@ -529,7 +529,7 @@
       "phase": 1,
       "task": "Implement React Router v7 scaffolder wrapper",
       "files": ["src/scaffolders/react-router.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-016",
