@@ -1,0 +1,38 @@
+## 2026-01-17: review-001 completed
+
+**Task**: Verify Next.js incompatibility rules are complete
+**Check**: Can Next.js actually use React Router? Are there edge cases where TanStack Router works with Next.js?
+
+**Finding**:
+- React Router CAN technically be used in Next.js but loses SSR/SEO benefits and is not recommended
+- TanStack Router conflicts with Next.js History API - workarounds exist (memory history, route groups, patching) but you lose SSR benefits
+- The incompatibility rules in PLAN.md are correct: Next.js should not use TanStack Router or React Router as primary routing
+
+**Action Required**: None - the PLAN.md incompatibility rules are accurate
+
+**Sources**:
+- https://github.com/TanStack/router/discussions/346
+- https://thenewstack.io/next-js-react-router-tanstack-when-to-use-each/
+- https://tanstack.com/start/latest/docs/framework/react/comparison
+- https://medium.com/@cubode/client-side-routing-in-nextjs-15-tanstack-router-integration-d2e3ce1c6f56
+
+## 2026-01-17: review-002 completed
+
+**Task**: Verify TanStack Start + RSC compatibility status
+**Check**: Is RSC support still 'coming soon' or has it shipped? Check TanStack changelog
+
+**Finding**:
+- RSC support is still "coming soon" as of January 2026
+- TanStack Start v1 is in Release Candidate stage (feature-complete, API stable)
+- Official docs state: "we are actively working on integration and expect to support them in the near future"
+- RSC will land as a non-breaking v1.x addition
+- TanStack is taking a measured approach to ensure RSC integration aligns with type-safety and flexibility principles
+- Server Functions already support returning JSX/elements from createServerFn
+
+**Action Required**: None - the PLAN.md statement "rsc: Not yet supported (coming soon)" is accurate
+
+**Sources**:
+- https://tanstack.com/start/latest/docs/framework/react/overview
+- https://tanstack.com/blog/announcing-tanstack-start-v1
+- https://github.com/TanStack/router/discussions/802
+- https://strapi.io/blog/building-better-apps-with-tan-stack-start-and-tanner-linsley

@@ -1,0 +1,596 @@
+{
+  "name": "bootstralph",
+  "version": "0.1.0",
+  "description": "CLI for scaffolding Ralph-powered projects with intelligent skill installation and compatibility-aware option selection",
+  "status": "planning",
+  "specs": {
+    "core_philosophy": {
+      "docker_first": "Claude Code MUST always run in Docker sandbox",
+      "interactive_claude": "No direct API calls - guide users to interactive Claude in container",
+      "easy_setup": "Make container instantiation as frictionless as possible"
+    }
+  },
+  "workflow": {
+    "instructions": [
+      "Work through review_tasks BEFORE starting implementation_tasks",
+      "Update task status to 'in_progress' when starting, 'completed' or 'failed' when done",
+      "Add 'finding' field to review tasks with what you discovered",
+      "If a review task reveals an issue, add 'action_required' field describing the fix needed",
+      "After completing review tasks, update PLAN.md to reflect any necessary changes",
+      "Only proceed to implementation_tasks once all critical review issues are resolved"
+    ],
+    "status_values": ["pending", "in_progress", "completed", "failed", "blocked"],
+    "example_completed_review": {
+      "id": "review-XXX",
+      "category": "example",
+      "task": "Verify something works",
+      "check": "Does X work with Y?",
+      "status": "completed",
+      "finding": "X works with Y as of v2.0, confirmed via official docs",
+      "action_required": null
+    },
+    "example_failed_review": {
+      "id": "review-YYY",
+      "category": "example",
+      "task": "Verify something else",
+      "check": "Is Z stable?",
+      "status": "failed",
+      "finding": "Z is deprecated, replaced by W in January 2025",
+      "action_required": "Update PLAN.md to use W instead of Z"
+    }
+  },
+  "review_tasks": [
+    {
+      "id": "review-001",
+      "category": "compatibility-matrix",
+      "task": "Verify Next.js incompatibility rules are complete",
+      "check": "Can Next.js actually use React Router? Are there edge cases where TanStack Router works with Next.js?",
+      "status": "completed",
+      "finding": "React Router CAN technically be used in Next.js but loses SSR/SEO benefits and is not recommended. TanStack Router conflicts with Next.js History API - workarounds exist (memory history, route groups, patching) but you lose SSR benefits. The incompatibility rules in PLAN.md are correct: Next.js should not use TanStack Router or React Router as primary routing.",
+      "action_required": null
+    },
+    {
+      "id": "review-002",
+      "category": "compatibility-matrix",
+      "task": "Verify TanStack Start + RSC compatibility status",
+      "check": "Is RSC support still 'coming soon' or has it shipped? Check TanStack changelog",
+      "status": "completed",
+      "finding": "RSC support is still 'coming soon' as of January 2026. TanStack Start v1 is in Release Candidate stage. Official docs state 'we are actively working on integration and expect to support them in the near future.' RSC will land as a non-breaking v1.x addition. The PLAN.md statement 'rsc: Not yet supported (coming soon)' is accurate.",
+      "action_required": null
+    },
+    {
+      "id": "review-003",
+      "category": "compatibility-matrix",
+      "task": "Verify Expo + Vitest incompatibility",
+      "check": "Is vitest-react-native mature enough now? Check latest status",
+      "status": "pending"
+    },
+    {
+      "id": "review-004",
+      "category": "compatibility-matrix",
+      "task": "Verify Uniwind stability",
+      "check": "Is Uniwind production-ready or still in beta? Check release status",
+      "status": "pending"
+    },
+    {
+      "id": "review-005",
+      "category": "compatibility-matrix",
+      "task": "Verify oxfmt alpha stability",
+      "check": "oxfmt is listed as alpha - is it stable enough for default recommendation?",
+      "status": "pending"
+    },
+    {
+      "id": "review-006",
+      "category": "wizard-flow",
+      "task": "Check Universal platform flow logic",
+      "check": "If user selects Universal, we auto-select Expo + Tamagui. But should we ask about styling?",
+      "status": "pending"
+    },
+    {
+      "id": "review-007",
+      "category": "wizard-flow",
+      "task": "Check Astro + Auth flow",
+      "check": "Astro uses React islands for auth - is the UX clear that auth only works in islands?",
+      "status": "pending"
+    },
+    {
+      "id": "review-008",
+      "category": "wizard-flow",
+      "task": "Check feature selection order",
+      "check": "Features are selected before deployment. Should deployment affect available features (e.g., edge functions)?",
+      "status": "pending"
+    },
+    {
+      "id": "review-009",
+      "category": "wizard-flow",
+      "task": "Check mobile E2E testing in recommended toolset",
+      "check": "Recommended toolset says 'Playwright/Maestro' but should show only Maestro for mobile",
+      "status": "pending"
+    },
+    {
+      "id": "review-010",
+      "category": "wizard-flow",
+      "task": "Check Biome mutual exclusivity logic",
+      "check": "If Biome selected for linting, formatting question should be skipped. Is this clear in the flow?",
+      "status": "pending"
+    },
+    {
+      "id": "review-011",
+      "category": "scaffolders",
+      "task": "Verify create-start CLI exists",
+      "check": "Plan says 'Wrap create-start' but TanStack Start CLI might have different name",
+      "status": "pending"
+    },
+    {
+      "id": "review-012",
+      "category": "scaffolders",
+      "task": "Verify Remix scaffolder approach",
+      "check": "Should we use create-remix or React Router v7's scaffolder? They've merged",
+      "status": "pending"
+    },
+    {
+      "id": "review-013",
+      "category": "scaffolders",
+      "task": "Verify Astro scaffolder integration",
+      "check": "Does create astro support all the integrations we want to offer?",
+      "status": "pending"
+    },
+    {
+      "id": "review-014",
+      "category": "docker",
+      "task": "Verify Claude Code Docker image exists",
+      "check": "Plan references ghcr.io/anthropics/claude-code:latest - does this image exist?",
+      "status": "pending"
+    },
+    {
+      "id": "review-015",
+      "category": "docker",
+      "task": "Verify Docker compose syntax",
+      "check": "Is the docker-compose.yml syntax correct? Check volume mounts for API key",
+      "status": "pending"
+    },
+    {
+      "id": "review-016",
+      "category": "docker",
+      "task": "Verify network_mode: none security",
+      "check": "Commented out network isolation - should it be default? How does Ralph work without network?",
+      "status": "pending"
+    },
+    {
+      "id": "review-017",
+      "category": "skills",
+      "task": "Verify openskills programmatic API",
+      "check": "Plan uses execSync for openskills - is there a proper Node.js API?",
+      "status": "pending"
+    },
+    {
+      "id": "review-018",
+      "category": "skills",
+      "task": "Verify all skill names are correct",
+      "check": "Check that skill names like 'supabase-operations' exist in marketplaces",
+      "status": "pending"
+    },
+    {
+      "id": "review-019",
+      "category": "skills",
+      "task": "Verify Drizzle patterns skill exists",
+      "check": "Plan says 'Drizzle patterns (community)' - is there an actual skill?",
+      "status": "pending"
+    },
+    {
+      "id": "review-020",
+      "category": "presets",
+      "task": "Check SaaS preset completeness",
+      "check": "SaaS preset uses NativeWind but it's for mobile - should be Tailwind + shadcn",
+      "status": "pending"
+    },
+    {
+      "id": "review-021",
+      "category": "presets",
+      "task": "Check Mobile preset styling",
+      "check": "Mobile preset uses NativeWind but Uniwind is now recommended",
+      "status": "pending"
+    },
+    {
+      "id": "review-022",
+      "category": "presets",
+      "task": "Check Monorepo preset package manager",
+      "check": "Monorepo preset uses pnpm workspaces but bun is default - inconsistent?",
+      "status": "pending"
+    },
+    {
+      "id": "review-023",
+      "category": "auth",
+      "task": "Verify better-auth Expo support",
+      "check": "Plan shows better-auth as API-only for Expo - is this the best approach?",
+      "status": "pending"
+    },
+    {
+      "id": "review-024",
+      "category": "auth",
+      "task": "Verify Supabase Auth as option",
+      "check": "Supabase Auth is in compatibility table but not in wizard options",
+      "status": "pending"
+    },
+    {
+      "id": "review-025",
+      "category": "database",
+      "task": "Verify Convex compatibility with all frameworks",
+      "check": "Convex is listed for Expo backend but is it compatible with Next.js/TanStack?",
+      "status": "pending"
+    },
+    {
+      "id": "review-026",
+      "category": "database",
+      "task": "Verify Firebase option completeness",
+      "check": "Firebase is listed but no skills mentioned for it",
+      "status": "pending"
+    },
+    {
+      "id": "review-027",
+      "category": "deployment",
+      "task": "Verify EAS auto-selection",
+      "check": "Plan auto-selects EAS for Expo - should users have other options?",
+      "status": "pending"
+    },
+    {
+      "id": "review-028",
+      "category": "deployment",
+      "task": "Verify Railway compatibility",
+      "check": "Railway is listed for Next.js but not for TanStack Start in detailed section",
+      "status": "pending"
+    },
+    {
+      "id": "review-029",
+      "category": "testing",
+      "task": "Verify Vitest 4 compatibility",
+      "check": "Plan uses vitest ^4.0.0 - is v4 released and stable?",
+      "status": "pending"
+    },
+    {
+      "id": "review-030",
+      "category": "testing",
+      "task": "Verify Jest + oxlint combination",
+      "check": "Does oxlint work well with Jest for React Native projects?",
+      "status": "pending"
+    },
+    {
+      "id": "review-031",
+      "category": "pre-commit-hooks",
+      "task": "Verify prek stability and adoption",
+      "check": "Is prek production-ready? Check v0.2.x stability, adoption by Apache Airflow, FastAPI",
+      "status": "pending"
+    },
+    {
+      "id": "review-032",
+      "category": "pre-commit-hooks",
+      "task": "Verify prek + bun compatibility",
+      "check": "Does prek work well with bun as package manager and runtime?",
+      "status": "pending"
+    },
+    {
+      "id": "review-041",
+      "category": "pre-commit-hooks",
+      "task": "Verify Lefthook config format for oxlint/oxfmt",
+      "check": "Is the Lefthook config syntax correct for oxlint and oxfmt commands?",
+      "status": "pending"
+    },
+    {
+      "id": "review-042",
+      "category": "pre-commit-hooks",
+      "task": "Verify Husky setup for ESM projects",
+      "check": "Does Husky work well with ESM-only TypeScript projects?",
+      "status": "pending"
+    },
+    {
+      "id": "review-033",
+      "category": "claude-hooks",
+      "task": "Verify Claude Code settings.json format",
+      "check": "Is the permissions.deny format correct for Claude Code?",
+      "status": "pending"
+    },
+    {
+      "id": "review-034",
+      "category": "claude-hooks",
+      "task": "Verify Ralph plugin installation command",
+      "check": "Is '/plugin marketplace add anthropic/ralph-wiggum' the correct command?",
+      "status": "pending"
+    },
+    {
+      "id": "review-035",
+      "category": "dependencies",
+      "task": "Verify @clack/prompts version",
+      "check": "Is ^0.8.0 the latest stable version of @clack/prompts?",
+      "status": "pending"
+    },
+    {
+      "id": "review-036",
+      "category": "dependencies",
+      "task": "Verify execa version",
+      "check": "Is ^9.0.0 the correct version? Check for breaking changes",
+      "status": "pending"
+    },
+    {
+      "id": "review-037",
+      "category": "architecture",
+      "task": "Verify directory structure completeness",
+      "check": "Missing scaffolders for remix.ts, astro.ts, rn-cli.ts",
+      "status": "pending"
+    },
+    {
+      "id": "review-038",
+      "category": "architecture",
+      "task": "Verify presets completeness",
+      "check": "Missing presets for content (Astro) and universal (Expo + Tamagui)",
+      "status": "pending"
+    },
+    {
+      "id": "review-039",
+      "category": "ux",
+      "task": "Verify React Native CLI warning is helpful",
+      "check": "Warning about Xcode/Android Studio - should we offer to install prerequisites?",
+      "status": "pending"
+    },
+    {
+      "id": "review-040",
+      "category": "ux",
+      "task": "Verify Docker setup instructions clarity",
+      "check": "Is the post-scaffold Docker setup flow clear enough for beginners?",
+      "status": "pending"
+    }
+  ],
+  "implementation_tasks": [
+    {
+      "id": "impl-001",
+      "phase": 1,
+      "task": "Initialize project with bun and TypeScript",
+      "files": ["package.json", "tsconfig.json", "tsup.config.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-002",
+      "phase": 1,
+      "task": "Create CLI entry point with @clack/prompts",
+      "files": ["src/index.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-003",
+      "phase": 1,
+      "task": "Implement compatibility matrix data structure",
+      "files": ["src/compatibility/matrix.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-004",
+      "phase": 1,
+      "task": "Implement option filtering logic",
+      "files": ["src/compatibility/filters.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-005",
+      "phase": 1,
+      "task": "Implement combination validators",
+      "files": ["src/compatibility/validators.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-006",
+      "phase": 1,
+      "task": "Create project type prompt",
+      "files": ["src/prompts/project-type.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-007",
+      "phase": 1,
+      "task": "Create framework selection prompt with filtering",
+      "files": ["src/prompts/framework.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-008",
+      "phase": 1,
+      "task": "Create features selection prompt with filtering",
+      "files": ["src/prompts/features.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-009",
+      "phase": 1,
+      "task": "Create deployment selection prompt",
+      "files": ["src/prompts/deployment.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-010",
+      "phase": 1,
+      "task": "Create tooling selection prompt (recommended vs customize)",
+      "files": ["src/prompts/tooling.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-011",
+      "phase": 1,
+      "task": "Implement Next.js scaffolder wrapper",
+      "files": ["src/scaffolders/nextjs.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-012",
+      "phase": 1,
+      "task": "Implement TanStack Start scaffolder wrapper",
+      "files": ["src/scaffolders/tanstack.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-013",
+      "phase": 1,
+      "task": "Implement Expo scaffolder wrapper",
+      "files": ["src/scaffolders/expo.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-014",
+      "phase": 1,
+      "task": "Implement React Native CLI scaffolder wrapper",
+      "files": ["src/scaffolders/rn-cli.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-015",
+      "phase": 1,
+      "task": "Implement Remix scaffolder wrapper",
+      "files": ["src/scaffolders/remix.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-016",
+      "phase": 1,
+      "task": "Implement Astro scaffolder wrapper",
+      "files": ["src/scaffolders/astro.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-017",
+      "phase": 1,
+      "task": "Implement Hono/Elysia API template",
+      "files": ["src/scaffolders/api.ts", "src/templates/api/"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-018",
+      "phase": 1,
+      "task": "Implement create command orchestration",
+      "files": ["src/commands/create.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-019",
+      "phase": 2,
+      "task": "Implement CLAUDE.md template generator",
+      "files": ["src/ralph/claudemd.ts", "src/templates/CLAUDE.md.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-020",
+      "phase": 2,
+      "task": "Implement skills installation via openskills",
+      "files": ["src/ralph/skills.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-021",
+      "phase": 2,
+      "task": "Implement Lefthook configuration generator",
+      "files": ["src/ralph/hooks.ts", "src/templates/lefthook.yml.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-022",
+      "phase": 2,
+      "task": "Implement Claude Code hooks setup",
+      "files": ["src/templates/.claude/settings.json.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-023",
+      "phase": 2,
+      "task": "Implement Docker sandbox configuration",
+      "files": ["src/ralph/sandbox.ts", "src/templates/docker-compose.yml.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-024",
+      "phase": 2,
+      "task": "Implement Ralph setup orchestration",
+      "files": ["src/ralph/setup.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-025",
+      "phase": 3,
+      "task": "Implement init command for existing projects",
+      "files": ["src/commands/init.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-026",
+      "phase": 3,
+      "task": "Implement add command for post-scaffold features",
+      "files": ["src/commands/add.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-027",
+      "phase": 3,
+      "task": "Implement SaaS preset",
+      "files": ["src/presets/saas.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-028",
+      "phase": 3,
+      "task": "Implement Mobile preset",
+      "files": ["src/presets/mobile.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-029",
+      "phase": 3,
+      "task": "Implement API preset",
+      "files": ["src/presets/api.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-030",
+      "phase": 3,
+      "task": "Implement Monorepo preset",
+      "files": ["src/presets/fullstack.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-031",
+      "phase": 4,
+      "task": "Write unit tests for compatibility matrix",
+      "files": ["tests/compatibility.test.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-032",
+      "phase": 4,
+      "task": "Write unit tests for filtering logic",
+      "files": ["tests/filters.test.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-033",
+      "phase": 4,
+      "task": "Write integration tests for scaffolders",
+      "files": ["tests/scaffolders.test.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-034",
+      "phase": 4,
+      "task": "Write E2E tests for full wizard flow",
+      "files": ["tests/e2e.test.ts"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-035",
+      "phase": 4,
+      "task": "Create README documentation",
+      "files": ["README.md"],
+      "status": "pending"
+    },
+    {
+      "id": "impl-036",
+      "phase": 4,
+      "task": "Configure npm publishing",
+      "files": ["package.json"],
+      "status": "pending"
+    }
+  ]
+}
