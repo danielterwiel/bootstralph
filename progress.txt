@@ -1555,3 +1555,44 @@ bootstralph add auth            # Add feature (placeholder)
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-005 completed
+
+**Task**: Implement combination validators
+**Files**: src/compatibility/validators.ts
+
+**Changes Made**:
+1. Created comprehensive `src/compatibility/validators.ts` with:
+   - **ValidationResult interface**: Standardized return type with valid, warnings, and errors arrays
+   - **ValidationWarning/ValidationError interfaces**: Structured types with code, message, suggestion, and affectedFields
+   - **Edge Runtime Validators**:
+     - `isEdgeDeployment()` - Check if deployment target is edge (Cloudflare, Vercel, Netlify)
+     - `validateEdgeORMCompatibility()` - Validates ORM + edge deployment combinations, warns about Prisma Accelerate requirements
+   - **Linter + Formatter Validators**:
+     - `validateLinterFormatterCombination()` - Ensures Biome users don't also select a separate formatter
+   - **Auth + Backend Validators**:
+     - `validateAuthBackendCombination()` - Warns when using Supabase Auth without Supabase backend or vice versa
+   - **Framework + Platform Validators**:
+     - `validateFrameworkPlatform()` - Ensures framework is compatible with selected platform
+   - **Mobile E2E Testing Validators**:
+     - `validateMobileE2ETesting()` - Ensures mobile frameworks don't use web E2E tools (Playwright/Cypress)
+   - **React Native Prerequisites**:
+     - `checkReactNativePrerequisites()` - Template for runtime checks of Xcode, Android SDK, CocoaPods
+   - **Complete Validation**:
+     - `validateAllSelections()` - Runs all validators on complete wizard selections
+     - `validateIncompatibilityRules()` - Checks all INCOMPATIBILITY_RULES against selections
+   - **Post-Selection Warnings**:
+     - `generatePostSelectionWarnings()` - Generates informational warnings for display (oxfmt alpha, RSC not supported, RN CLI prerequisites, EAS build tips, Prisma edge)
+   - **Skill Validation**:
+     - `validateSkillAvailability()` - Validates recommended skills are being installed
+
+2. Key implementation details:
+   - Validators return structured results with codes, messages, and suggestions
+   - Edge deployment validation implements review-008 findings (Prisma + Cloudflare/Vercel Edge requires Accelerate)
+   - All validators are composable and can be run individually or together via `validateAllSelections()`
+   - Post-selection warnings provide helpful tips without blocking the wizard
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
+

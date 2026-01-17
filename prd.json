@@ -459,7 +459,7 @@
       "phase": 1,
       "task": "Implement combination validators",
       "files": ["src/compatibility/validators.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-006",
