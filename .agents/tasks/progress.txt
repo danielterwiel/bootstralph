@@ -25,3 +25,34 @@
 - Uniwind migration swaps nativewind for uniwind post-scaffold
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-014: Implement React Native CLI scaffolder wrapper
+
+### Completed
+- Created `src/scaffolders/rn-cli.ts` with full React Native CLI scaffolding support
+- Wraps `npx @react-native-community/cli init` with bootstralph-specific configurations
+- Prerequisite checking: Detects Xcode (macOS) and Android SDK installation
+- Displays prerequisite warning with option to switch to Expo if tools missing
+- React Navigation setup: @react-navigation/native + @react-navigation/native-stack
+- Creates navigation structure with RootNavigator and example HomeScreen
+- Styling support: Uniwind, NativeWind, Tamagui, StyleSheets
+- Integrates with mobile backends: Supabase (with AsyncStorage), Convex (convex-react-native), Firebase (@react-native-firebase)
+- Auth support: Clerk, better-auth (@better-auth/react-native), Supabase Auth
+- E2E testing: Maestro (with flow setup) and Detox (with config and example tests)
+- Deployment: Fastlane configuration generation with iOS/Android lanes
+- Pre-commit hooks: Lefthook, Husky, prek support
+- Linting/Formatting: oxlint, Biome, ESLint, oxfmt, Prettier
+- Environment template generation
+
+### Technical Details
+- Uses Jest preset for unit testing (react-native preset)
+- Creates test setup with @testing-library/react-native
+- Generates Maestro flows in `.maestro/` directory
+- Generates Detox configuration in `.detoxrc.js` with project-specific paths
+- Fastlane Fastfile with build_dev, build_prod, and beta lanes for iOS/Android
+- Supabase client uses AsyncStorage for session persistence
+- Uniwind setup includes tailwind.config.js and babel.config.js updates
+- NativeWind v4 setup includes metro.config.js with withNativeWind wrapper
+- Tamagui setup includes tamagui.config.ts and react-native-reanimated plugin
+
+### Type check: PASSED

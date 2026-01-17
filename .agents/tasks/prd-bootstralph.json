@@ -522,7 +522,7 @@
       "phase": 1,
       "task": "Implement React Native CLI scaffolder wrapper",
       "files": ["src/scaffolders/rn-cli.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-015",
