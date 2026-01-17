@@ -1088,3 +1088,50 @@ module.exports = {
 - https://commitlint.js.org/reference/configuration.html
 - https://github.com/conventional-changelog/commitlint/issues/902
 
+## 2026-01-17: review-033 completed
+
+**Task**: Verify Claude Code settings.json format
+**Check**: Is the permissions.deny format correct for Claude Code?
+
+**Finding**:
+- The permissions.deny format uses `Tool(pattern)` syntax in Claude Code settings.json
+- Correct syntax examples:
+  - **Read**: Gitignore-style file patterns - `Read(**/.env)`, `Read(**/*.key)`, `Read(**/secrets/**)`
+  - **Edit/Write**: Same gitignore-style patterns - `Edit(**/.env)`, `Write(**/config/*)`
+  - **Bash**: Command patterns with `command:args` format - `Bash(sudo:*)`, `Bash(rm:-rf:*)`, `Bash(curl:*)`
+  - **WebFetch**: Domain specification - `WebFetch(domain:example.com)` (wildcards NOT supported)
+- Settings file hierarchy (highest to lowest precedence):
+  1. `.claude/settings.local.json` - Project settings (not tracked in git)
+  2. `.claude/settings.json` - Project settings (tracked in git, shared with team)
+  3. `~/.claude/settings.json` - User settings (applies to all projects)
+  4. Managed settings (system-level for enterprise policies)
+
+**CRITICAL ISSUE - Known Enforcement Bugs**:
+- Multiple GitHub issues report that `permissions.deny` rules are NOT being enforced for Read, Write, and Edit tools as of late 2025:
+  - Issue #6631: Permission deny configuration not enforced for Read/Write tools
+  - Issue #6699: Critical security bug - deny permissions in settings.json not enforced
+  - Issue #4467: Permission deny patterns not working for Read/Write tools
+  - Issue #15921: VSCode Extension permissions not respected for Bash/Write/Edit operations
+- Bash tool deny rules appear to work, but file-based tool (Read/Write/Edit) deny rules are unreliable
+
+**Workaround - PreToolUse Hooks**:
+- Until deny rules are reliably enforced, use PreToolUse hooks for reliable security enforcement
+- PreToolUse hooks execute before a tool is used and can block tool calls by exiting with code 2
+- Example: Block reads of sensitive files using a command hook that greps the tool input
+
+**Action Required**: Added "Claude Code Settings Configuration" section to PLAN.md documenting:
+1. Settings file locations and hierarchy
+2. Correct permissions syntax with Tool(pattern) examples
+3. Tool pattern reference table for Read, Edit, Write, Bash, WebFetch
+4. Warning about known enforcement issues with deny rules
+5. PreToolUse hook workaround example for reliable security enforcement
+
+**Sources**:
+- https://code.claude.com/docs/en/settings
+- https://managed-settings.com/
+- https://www.petefreitag.com/blog/claude-code-permissions/
+- https://github.com/anthropics/claude-code/issues/6631
+- https://github.com/anthropics/claude-code/issues/6699
+- https://github.com/anthropics/claude-code/issues/4467
+- https://github.com/anthropics/claude-code/issues/15921
+

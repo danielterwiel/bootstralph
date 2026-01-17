@@ -768,6 +768,89 @@ Without network, Claude Code cannot:
 
 ---
 
+## Claude Code Settings Configuration
+
+### Settings File Locations
+
+Claude Code uses hierarchical settings with the following precedence (highest to lowest):
+
+| Location | Purpose | Git Tracked |
+|----------|---------|-------------|
+| `.claude/settings.local.json` | Project settings (private) | No |
+| `.claude/settings.json` | Project settings (shared) | Yes |
+| `~/.claude/settings.json` | User settings (all projects) | N/A |
+| Managed settings (system-level) | Enterprise policies | N/A |
+
+### Permissions Syntax
+
+The `permissions` object supports `allow`, `deny`, and `ask` arrays using `Tool(pattern)` syntax:
+
+```json
+{
+  "permissions": {
+    "deny": [
+      "Read(**/.env)",
+      "Read(**/*.key)",
+      "Read(**/secrets/**)",
+      "Bash(sudo:*)",
+      "Bash(rm:-rf:*)",
+      "Bash(curl:*)",
+      "WebFetch(domain:example.com)"
+    ],
+    "allow": [
+      "Bash(npm run test:*)",
+      "Bash(git commit:*)"
+    ]
+  }
+}
+```
+
+### Tool Pattern Reference
+
+| Tool | Pattern Syntax | Examples |
+|------|----------------|----------|
+| **Read** | Gitignore-style file patterns | `Read(**/.env)`, `Read(**/*.key)`, `Read(**/node_modules/**)` |
+| **Edit** | Gitignore-style file patterns | `Edit(**/.env)`, `Edit(**/secrets/*)` |
+| **Write** | Gitignore-style file patterns | `Write(**/.env)`, `Write(**/config/*)` |
+| **Bash** | Command patterns with `command:args` | `Bash(sudo:*)`, `Bash(rm:-rf:*)`, `Bash(curl:*)` |
+| **WebFetch** | Domain specification | `WebFetch(domain:example.com)` (wildcards not supported) |
+
+### Known Enforcement Issues (As of Late 2025)
+
+**WARNING**: Multiple GitHub issues report that `permissions.deny` rules are NOT being enforced for Read, Write, and Edit tools:
+- Issue #6631: Permission deny configuration not enforced for Read/Write tools
+- Issue #6699: Critical security bug - deny permissions in settings.json not enforced
+- Issue #4467: Permission deny patterns not working for Read/Write tools
+
+**Workaround - PreToolUse Hooks**: For reliable security enforcement, use PreToolUse hooks instead of deny rules:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Read",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if echo \"$CLAUDE_TOOL_INPUT\" | grep -qE '\\.env|\\.key|secrets'; then exit 2; fi"
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
+PreToolUse hooks execute before a tool is used and can:
+- Exit 0: Allow the tool call to proceed
+- Exit 2: Block the tool call completely
+- Output JSON to modify tool input
+
+**Recommendation**: Until deny rules are reliably enforced, use PreToolUse hooks for protecting sensitive files in production environments.
+
+---
+
 ## Sources
 
 - [openskills](https://github.com/numman-ali/openskills) - Universal skills loader

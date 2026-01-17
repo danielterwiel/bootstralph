@@ -357,7 +357,9 @@
       "category": "claude-hooks",
       "task": "Verify Claude Code settings.json format",
       "check": "Is the permissions.deny format correct for Claude Code?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The permissions.deny format uses Tool(pattern) syntax. Correct syntax: Read(**/.env) for file patterns using gitignore syntax, Bash(command:*) for command patterns (e.g., Bash(sudo:*), Bash(rm:*)), Edit/Write support same gitignore file patterns as Read, WebFetch(domain:example.com) for domain restrictions. CRITICAL ISSUE: Multiple GitHub issues report permissions.deny is NOT being enforced for Read/Write/Edit tools as of late 2025 (issues #6631, #6699, #4467). The workaround is using PreToolUse hooks for reliable enforcement. Settings file locations: ~/.claude/settings.json (user), .claude/settings.json (project, tracked), .claude/settings.local.json (project, not tracked).",
+      "action_required": "Add 'Claude Code Settings Configuration' section to PLAN.md documenting: (1) Correct permissions.deny syntax with Tool(pattern) examples for Read, Bash, Edit, Write, WebFetch, (2) Warning about known enforcement issues with deny rules, (3) PreToolUse hook workaround for reliable security enforcement, (4) Settings file hierarchy and locations."
     },
     {
       "id": "review-034",
