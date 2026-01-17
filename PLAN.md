@@ -431,6 +431,7 @@ skills: planning-with-files, drizzle-orm-d1
 ```yaml
 platform: Web + API (monorepo)
 structure: Turborepo
+package_manager: bun (with bun workspaces)
 apps:
   - web: Next.js + Tailwind + shadcn/ui
   - api: Hono + Drizzle
@@ -445,6 +446,12 @@ formatting: Biome
 deploy: Vercel (web) + Fly.io (api)
 skills: planning-with-files, turborepo, monorepo-management, react-best-practices
 ```
+
+**Monorepo Package Manager Notes:**
+- Turborepo 2.6 (December 2025) moved Bun support from beta to **stable**
+- Configure via `"packageManager": "bun@1.x.x"` and `"workspaces": ["apps/*", "packages/*"]` in root package.json
+- Use `--cwd` flag for workspace-specific installs: `bun add <package> --cwd apps/web` (not `--filter`)
+- Bun is ~4x faster than pnpm for clean installs in monorepos
 
 ---
 

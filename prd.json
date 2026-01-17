@@ -234,7 +234,9 @@
       "category": "presets",
       "task": "Check Monorepo preset package manager",
       "check": "Monorepo preset uses pnpm workspaces but bun is default - inconsistent?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The review premise was INCORRECT - the PLAN.md does NOT specify pnpm workspaces for the Monorepo preset. The Fullstack/Monorepo Preset (lines 430-447) only specifies 'structure: Turborepo' without mentioning a specific package manager. The Key Decisions Summary (line 466) correctly states 'bun' as the default package manager. As of December 2025, Turborepo 2.6 moved Bun package manager support from beta to STABLE. Turborepo 2.5 (October 2025) added Bun pruning support. Bun workspaces work well with Turborepo using `workspaces: ['apps/*', 'packages/*']` in package.json with `packageManager: 'bun@1.x.x'`. The only caveat is using `--cwd` flag instead of `--filter` for workspace-specific installs. Bun is ~4x faster than pnpm for clean installs in monorepos. The PLAN.md is CONSISTENT - bun should be used for Turborepo monorepos.",
+      "action_required": "Add explicit package manager specification to Fullstack/Monorepo Preset section in PLAN.md to clarify that bun workspaces are used with Turborepo (not pnpm). Add note about using `--cwd` flag for workspace installs."
     },
     {
       "id": "review-023",

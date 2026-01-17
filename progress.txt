@@ -565,3 +565,30 @@ The SaaS preset now explicitly shows `styling: Tailwind CSS + shadcn/ui` to prev
 - https://nativelaunch.dev/articles/uniwind
 - https://github.com/efstathiosntonas/react-native-style-libraries-benchmark
 - https://blog.logrocket.com/best-react-native-ui-component-libraries/
+
+## 2026-01-17: review-022 completed
+
+**Task**: Check Monorepo preset package manager
+**Check**: Monorepo preset uses pnpm workspaces but bun is default - inconsistent?
+
+**Finding**:
+- The review premise was INCORRECT - the PLAN.md did NOT specify pnpm workspaces for the Monorepo preset
+- The Fullstack/Monorepo Preset only specified `structure: Turborepo` without mentioning a specific package manager
+- The Key Decisions Summary correctly states `bun` as the default package manager
+- As of December 2025, Turborepo 2.6 moved Bun package manager support from beta to **STABLE**
+- Turborepo 2.5 (October 2025) added Bun pruning support
+- Bun workspaces work well with Turborepo using `workspaces: ["apps/*", "packages/*"]` in package.json
+- Configuration requires `"packageManager": "bun@1.x.x"` in root package.json
+- Key caveat: Use `--cwd` flag for workspace-specific installs (`bun add <pkg> --cwd apps/web`) instead of `--filter`
+- Bun is approximately 4x faster than pnpm for clean installs in monorepos
+- The PLAN.md is CONSISTENT - bun should be used for Turborepo monorepos
+
+**Action Required**: Added explicit package manager specification (`package_manager: bun (with bun workspaces)`) to Fullstack/Monorepo Preset section. Added "Monorepo Package Manager Notes" subsection with usage details.
+
+**Sources**:
+- https://turborepo.dev/blog/turbo-2-6
+- https://github.com/vercel/turborepo/discussions/7456
+- https://www.fgbyte.com/blog/02-bun-turborepo-hell
+- https://github.com/shadcn-ui/ui/discussions/6465
+- https://dev.to/kirteshbansal/choosing-the-right-javascript-package-manager-in-2025-npm-vs-yarn-vs-pnpm-vs-bun-2jie
+- https://betterstack.com/community/guides/scaling-nodejs/pnpm-vs-bun-install-vs-yarn/
