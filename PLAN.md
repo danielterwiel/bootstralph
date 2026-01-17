@@ -299,7 +299,7 @@ openskills sync
 - **Package Manager Detection**: `detect-package-manager`
 - **Command Execution**: `execa`
 - **File Operations**: `fs-extra`
-- **Skills Management**: `openskills` (programmatic API)
+- **Skills Management**: `openskills` CLI (via `execa` - no programmatic API available)
 - **No direct AI API calls**: We guide users to use Claude Code in Docker instead
 
 ### Scaffolding Strategy (Hybrid)

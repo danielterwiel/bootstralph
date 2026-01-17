@@ -398,3 +398,24 @@
 - https://docs.docker.com/ai/sandboxes/claude-code/
 - https://mfyz.com/ai-coding-agent-sandbox-container/
 - https://blog.arcade.dev/using-docker-sandboxes-with-claude-code
+
+## 2026-01-17: review-017 completed
+
+**Task**: Verify openskills programmatic API
+**Check**: Plan uses execSync for openskills - is there a proper Node.js API?
+
+**Finding**:
+- openskills (v1.3.2 by numman-ali) is **CLI-only with NO programmatic Node.js API**
+- The package.json has `main: './dist/cli.js'` with no `exports` field - it's designed as a command-line tool, not a library
+- AI agents invoke it via shell commands (`openskills install`, `openskills sync`) rather than JavaScript imports
+- This is the intended usage pattern - openskills treats skills as static markdown files and uses CLI invocation for universal compatibility across Claude Code, Cursor, Windsurf, Aider, and other AI agents
+- OpenSkills uses a CLI-based approach rather than MCP to enable universal compatibility with any AI agent that has shell access
+- The correct approach for bootstralph is using `execa` to spawn openskills CLI commands
+
+**Action Required**: Updated PLAN.md Tech Stack section to clarify openskills is CLI-only (via execa), not a programmatic API. The implementation in src/ralph/skills.ts should use execa to run openskills commands.
+
+**Sources**:
+- https://github.com/numman-ali/openskills
+- https://www.npmjs.com/package/openskills
+- https://deepwiki.com/numman-ali/openskills/2-getting-started
+- https://github.com/numman-ali/openskills/blob/main/package.json

@@ -189,7 +189,9 @@
       "category": "skills",
       "task": "Verify openskills programmatic API",
       "check": "Plan uses execSync for openskills - is there a proper Node.js API?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "openskills (v1.3.2) is CLI-only with NO programmatic Node.js API. The package.json has main: './dist/cli.js' with no exports field - it's designed as a command-line tool, not a library. AI agents invoke it via shell commands (openskills install, openskills sync) rather than JavaScript imports. For bootstralph, the correct approach is using execa to spawn openskills CLI commands. This is the intended usage pattern - openskills treats skills as static markdown files and uses CLI invocation for universal compatibility across Claude Code, Cursor, Windsurf, Aider, and other AI agents.",
+      "action_required": "Updated PLAN.md Tech Stack section to clarify openskills is CLI-only (via execa), not a programmatic API. The implementation in src/ralph/skills.ts should use execa to run openskills commands."
     },
     {
       "id": "review-018",
