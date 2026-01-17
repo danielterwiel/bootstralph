@@ -1596,3 +1596,29 @@ bootstralph add auth            # Add feature (placeholder)
 - `npm run typecheck` passes
 - `npm run build` completes successfully
 
+
+## 2026-01-17: impl-006 completed
+
+**Task**: Create project type prompt
+**Files**: src/prompts/project-type.ts
+
+**Changes Made**:
+1. Created `src/prompts/project-type.ts` with:
+   - **ProjectTypeResult interface**: Return type containing the selected platform
+   - **PLATFORM_DISPLAY config**: Display labels and hints for each platform (Web, Mobile, Universal, API Only)
+   - **promptProjectType()**: Main prompt function using @clack/prompts select
+     - Shows all 4 platform options with hints describing each
+     - Returns undefined if user cancels
+     - Default selection is "web"
+   - **getPlatformInfo()**: Helper to get platform name, description, and available frameworks
+   - **isValidPlatform()**: Type guard to validate platform string values
+
+2. Key implementation details:
+   - Uses `p.select<Platform>()` from @clack/prompts for interactive selection
+   - Integrates with PLATFORMS configuration from matrix.ts
+   - Options show labels (Web, Mobile, etc.) with hint text (SSR/SSG/SPA, iOS and Android, etc.)
+   - Handles cancellation gracefully by returning undefined
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
