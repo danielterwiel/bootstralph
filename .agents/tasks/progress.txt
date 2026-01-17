@@ -119,3 +119,32 @@
 - Supabase client uses `import.meta.env` for environment variables
 
 ### Type check: PASSED
+
+## 2026-01-17 - impl-017: Implement Hono/Elysia API template
+
+### Completed
+- Created `src/scaffolders/api.ts` with full API scaffolding support for both Hono and Elysia
+- Wraps `npm create hono@latest` and `bun create elysia` with bootstralph-specific configurations
+- Framework choice: Hono (edge-first, multi-runtime) or Elysia (Bun-native, TypeScript-first)
+- Hono template selection based on deployment target: cloudflare-workers, vercel, netlify, nodejs, bun
+- ORM support: Drizzle (with edge-compatible drivers), Prisma (with adapter for Cloudflare)
+- Auth support: better-auth with framework-specific handler setup (Hono routes, Elysia plugin)
+- Testing: Vitest with framework-appropriate test examples (Hono request API, Elysia Eden client)
+- Deployment: Cloudflare Workers, Vercel, Netlify, Fly.io, Railway, Render
+- Pre-commit hooks: Lefthook (YAML config), Husky (with lint-staged ESM config)
+- Linting: oxlint, Biome, ESLint support
+- Formatting: oxfmt, Biome, Prettier support
+- Environment template generation with deployment-specific variables
+
+### Technical Details
+- Hono scaffolding uses `npm create hono@latest` with template selection based on deployment
+- Elysia scaffolding always uses `bun create elysia` (Bun-native framework)
+- Drizzle setup: SQLite/D1 for Cloudflare, PostgreSQL via Neon for other deployments
+- Prisma setup: Uses @prisma/adapter-libsql for Cloudflare edge compatibility
+- better-auth integration: Creates auth config with database adapter + framework-specific handler
+- Hono handler mounts better-auth at /api/auth/* routes
+- Elysia handler creates plugin with prefix '/api/auth'
+- Vitest configured for Node.js environment with coverage via v8 provider
+- Cloudflare deployments include wrangler as dev dependency for local dev and deployment
+
+### Type check: PASSED

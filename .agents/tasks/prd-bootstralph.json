@@ -542,8 +542,8 @@
       "id": "impl-017",
       "phase": 1,
       "task": "Implement Hono/Elysia API template",
-      "files": ["src/scaffolders/api.ts", "src/templates/api/"],
-      "status": "pending"
+      "files": ["src/scaffolders/api.ts"],
+      "status": "completed"
     },
     {
       "id": "impl-018",
