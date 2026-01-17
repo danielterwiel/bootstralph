@@ -20,17 +20,33 @@ export {
   formatPresetInfo,
 } from "./saas.js";
 
+// Re-export Mobile preset
+export {
+  MOBILE_PRESET,
+  MOBILE_BETTER_AUTH_PRESET,
+  MOBILE_NATIVEWIND_PRESET,
+  MOBILE_TAMAGUI_PRESET,
+  MOBILE_CONVEX_PRESET,
+  MOBILE_FIREBASE_PRESET,
+  MOBILE_DETOX_PRESET,
+  getMobilePreset,
+  getMobileVariant,
+  getAllMobileVariants,
+} from "./mobile.js";
+
 // ============================================================================
 // Preset Registry
 // ============================================================================
 
 import { SAAS_PRESET, type PresetConfig } from "./saas.js";
+import { MOBILE_PRESET } from "./mobile.js";
 
 /**
  * All available presets by ID
  */
 export const PRESETS: Record<string, PresetConfig> = {
   saas: SAAS_PRESET,
+  mobile: MOBILE_PRESET,
 };
 
 /**

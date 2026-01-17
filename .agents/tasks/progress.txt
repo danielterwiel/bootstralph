@@ -565,3 +565,41 @@ Based on SkillsConfig (framework, backend, orm, auth, styling), installs:
 
 ### Type check: PASSED
 
+## 2026-01-17 - impl-028: Implement Mobile preset
+
+### Completed
+- Created `src/presets/mobile.ts` with comprehensive Mobile preset configuration
+- Updated `src/presets/index.ts` to export and register the Mobile preset
+
+### Features
+- Main `MOBILE_PRESET` configuration optimized for cross-platform mobile apps:
+  - Expo (managed workflow) for cross-platform development
+  - Uniwind for Tailwind-style styling (2.5x faster than NativeWind)
+  - Expo Router for file-based navigation
+  - Clerk for native mobile authentication
+  - Supabase for backend services (database, storage, realtime)
+  - EAS Build for cloud builds and deployment
+  - Jest + Maestro for testing
+  - oxlint + oxfmt + prek for fast tooling
+
+### Preset Variants
+- `MOBILE_BETTER_AUTH_PRESET` - Uses better-auth with @better-auth/expo for self-hosted auth
+- `MOBILE_NATIVEWIND_PRESET` - Uses established NativeWind ecosystem
+- `MOBILE_TAMAGUI_PRESET` - Uses Tamagui design system with optimizing compiler
+- `MOBILE_CONVEX_PRESET` - Uses Convex for real-time backend
+- `MOBILE_FIREBASE_PRESET` - Uses Firebase services (Firestore, Storage, Cloud Functions)
+- `MOBILE_DETOX_PRESET` - Uses Detox for deterministic E2E testing
+
+### Helper Functions
+- `getMobilePreset()` - Get the default Mobile preset
+- `getMobileVariant(variant)` - Get a specific variant by name
+- `getAllMobileVariants()` - Get all Mobile preset variants
+
+### Technical Details
+- Follows same pattern as SaaS preset for consistency
+- Uses spread operator for variants to inherit base configuration
+- Includes appropriate skills from SKILLS_MATRIX for mobile development
+- Registered in PRESETS registry for use with `--preset mobile` flag
+
+### Type check: PASSED
+
