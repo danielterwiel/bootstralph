@@ -339,7 +339,9 @@
       "category": "pre-commit-hooks",
       "task": "Verify Lefthook config format for oxlint/oxfmt",
       "check": "Is the Lefthook config syntax correct for oxlint and oxfmt commands?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The Lefthook configuration syntax for oxlint and oxfmt is straightforward but PLAN.md lacks concrete examples. Verified correct Lefthook YAML syntax: (1) For oxlint: `run: npx oxlint {staged_files}` or `run: npx oxlint --fix {staged_files}` with `stage_fixed: true`, glob patterns like `glob: '*.{js,ts,jsx,tsx}'`. (2) For oxfmt: `run: npx oxfmt {staged_files}` (default behavior writes in place) or `run: npx oxfmt --check {staged_files}` for CI. Key options: `--fix` for oxlint auto-fixes, `--check` for oxfmt CI mode, `stage_fixed: true` to auto-stage fixed files, `{staged_files}` template for pre-commit hooks. Lefthook v1.10.10+ supports multiple glob patterns as a list.",
+      "action_required": "Add 'Lefthook Configuration Examples' subsection to PLAN.md showing correct YAML syntax for oxlint and oxfmt pre-commit hooks with glob patterns and stage_fixed option."
     },
     {
       "id": "review-042",

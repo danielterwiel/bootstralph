@@ -950,3 +950,61 @@ EAS Build should remain the recommended default (easiest path, great for most us
 - https://github.com/j178/prek/issues (no bun-related issues found)
 - https://hugovk.dev/blog/2025/ready-prek-go/
 
+## 2026-01-17: review-041 completed
+
+**Task**: Verify Lefthook config format for oxlint/oxfmt
+**Check**: Is the Lefthook config syntax correct for oxlint and oxfmt commands?
+
+**Finding**:
+- The Lefthook configuration syntax for oxlint and oxfmt is straightforward
+- PLAN.md lacked concrete configuration examples, which has been addressed
+- Verified correct Lefthook YAML syntax for both tools:
+
+**For oxlint:**
+- Basic: `run: npx oxlint {staged_files}`
+- With auto-fix: `run: npx oxlint --fix {staged_files}` with `stage_fixed: true`
+- Glob pattern: `glob: "*.{js,ts,jsx,tsx}"`
+- Additional fix options: `--fix-suggestions` (may change behavior), `--fix-dangerously` (aggressive)
+
+**For oxfmt:**
+- Basic (writes in place): `run: npx oxfmt {staged_files}`
+- CI mode (check only): `run: npx oxfmt --check {staged_files}`
+- Default behavior is equivalent to `prettier --write` (formats and writes)
+
+**Key Lefthook Configuration Options:**
+- `{staged_files}` - Template for files in staging area (pre-commit hook)
+- `{push_files}` - Template for committed but unpushed files (pre-push hook)
+- `{all_files}` - Template for all git-tracked files
+- `stage_fixed: true` - Automatically `git add` files modified by fix operations
+- `glob` - Filter files by pattern (supports multiple patterns as list in v1.10.10+)
+- `parallel: true` - Run commands concurrently for speed
+- `skip: [merge, rebase]` - Skip hooks during merge/rebase operations
+- `root` - Run command in subdirectory (useful for monorepos)
+
+**Example Configuration Added to PLAN.md:**
+```yaml
+pre-commit:
+  parallel: true
+  commands:
+    oxlint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npx oxlint --fix {staged_files}
+      stage_fixed: true
+    oxfmt:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npx oxfmt {staged_files}
+      stage_fixed: true
+```
+
+**Action Required**: Added "Lefthook Configuration Examples" subsection to PLAN.md with complete YAML syntax examples.
+
+**Sources**:
+- https://lefthook.dev/configuration/
+- https://lefthook.dev/configuration/run.html
+- https://lefthook.dev/configuration/glob.html
+- https://github.com/evilmartians/lefthook
+- https://oxc.rs/docs/guide/usage/formatter/cli.html
+- https://oxc.rs/docs/guide/usage/linter/automatic-fixes
+- https://dev.to/renanpaixao/how-to-set-up-lefthook-to-handle-git-hooks-in-react-applications-527i
+- https://dev.to/ramunarasinga-11/lefthookyml-in-n8n-codebase-5f4c
+

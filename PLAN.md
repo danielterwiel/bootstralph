@@ -258,6 +258,50 @@ IF ESLint selected:
 2. prek itself is a standalone Rust binary with no JavaScript runtime dependency
 3. Project development uses bun, while hooks run in prek's managed environments
 
+### Lefthook Configuration Examples
+
+Example `lefthook.yml` for oxlint and oxfmt:
+
+```yaml
+# lefthook.yml
+pre-commit:
+  parallel: true
+  commands:
+    oxlint:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npx oxlint --fix {staged_files}
+      stage_fixed: true
+      skip:
+        - merge
+        - rebase
+
+    oxfmt:
+      glob: "*.{js,ts,jsx,tsx}"
+      run: npx oxfmt {staged_files}
+      stage_fixed: true
+      skip:
+        - merge
+        - rebase
+
+pre-push:
+  parallel: true
+  commands:
+    typecheck:
+      glob: "*.{ts,tsx}"
+      run: npx tsc --noEmit
+```
+
+**Key Configuration Options:**
+- `{staged_files}` - Template for files in staging area (pre-commit) or unpushed files (pre-push)
+- `stage_fixed: true` - Automatically `git add` files modified by `--fix` flags
+- `glob` - Filter files by pattern (supports multiple patterns as list in v1.10.10+)
+- `parallel: true` - Run commands concurrently for speed
+- `skip: [merge, rebase]` - Skip hooks during merge/rebase operations
+
+**Command Reference:**
+- **oxlint**: `npx oxlint --fix {staged_files}` applies safe auto-fixes; use `--fix-suggestions` for behavior-changing fixes
+- **oxfmt**: `npx oxfmt {staged_files}` writes formatted output in place (default); use `--check` for CI verification only
+
 ### E2E Testing Compatibility
 
 | Framework | Web | Expo | React Native | Best For |
