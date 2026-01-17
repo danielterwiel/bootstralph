@@ -99,7 +99,9 @@
       "category": "wizard-flow",
       "task": "Check Astro + Auth flow",
       "check": "Astro uses React islands for auth - is the UX clear that auth only works in islands?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The premise of this review was INCORRECT. Astro authentication does NOT only work in React islands. Both Clerk (@clerk/astro) and better-auth have native Astro integrations with server-side middleware, route protection, and Astro components. React islands are optional for interactive UI only. The current PLAN.md line 'auth: better-auth, Clerk (via React islands)' is misleading - both providers work server-side without requiring React.",
+      "action_required": "Update PLAN.md Astro section: Change 'auth: better-auth, Clerk (via React islands)' to 'auth: better-auth, Clerk (native Astro SDKs available)'. Remove misleading 'via React islands' since both providers have first-class server-side Astro support."
     },
     {
       "id": "review-008",

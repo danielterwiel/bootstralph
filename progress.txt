@@ -129,3 +129,26 @@
 - https://blog.logrocket.com/unistyles-vs-tamagui-cross-platform-react-native-styles/
 - https://tamagui.dev/
 - https://www.producthunt.com/products/tamagui/alternatives
+
+## 2026-01-17: review-007 completed
+
+**Task**: Check Astro + Auth flow
+**Check**: Astro uses React islands for auth - is the UX clear that auth only works in islands?
+
+**Finding**:
+- The premise of this review was INCORRECT - Astro authentication does NOT only work in React islands
+- **Clerk** has a native Astro SDK (`@clerk/astro`) with server-side middleware, route protection, and Astro components
+- **better-auth** also supports server-side authentication in Astro without requiring React islands
+- Both providers use `clerkMiddleware()` / auth middleware for route protection that runs server-side
+- React islands are optional - primarily for interactive UI components (login buttons, user menus)
+- The PLAN.md line "auth: better-auth, Clerk (via React islands)" was misleading
+
+**Action Required**: Updated PLAN.md Astro section to clarify:
+- Changed "auth: better-auth, Clerk (via React islands)" to "auth: better-auth, Clerk (native Astro SDKs with server-side middleware)"
+- Updated note to "Use React islands for interactive UI; auth works server-side via middleware"
+
+**Sources**:
+- https://docs.astro.build/en/guides/authentication/
+- https://clerk.com/docs/quickstarts/astro
+- https://dev.to/isnan__h/authenticating-users-in-astro-react-apps-with-better-auth-3loe
+- https://www.better-auth.com/docs/reference/resources
