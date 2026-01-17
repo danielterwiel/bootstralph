@@ -144,7 +144,9 @@
       "category": "scaffolders",
       "task": "Verify Remix scaffolder approach",
       "check": "Should we use create-remix or React Router v7's scaffolder? They've merged",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Remix has been MERGED into React Router v7 (announced December 2024). The official scaffolder is now `create-react-router` (v7.12.0 as of January 2026), invoked via `npx create-react-router@latest`. This creates a Vite-based project with React Router v7's 'framework mode' which includes all Remix features (loaders, actions, server rendering). The `create-remix` package should NOT be used for new projects - React Router v7 IS the successor to Remix v2. Templates available via `--template remix-run/react-router-templates/<name>`. Remix v3 exists as a separate React-less rewrite (Preact fork) but has no official docs and is not recommended for production.",
+      "action_required": "Update PLAN.md: (1) Change scaffolding table from 'Wrap `create-remix`' to 'Wrap `create-react-router` (`npx create-react-router@latest`)'. (2) Update section title from 'Remix / React Router v7' to 'React Router v7 (Framework Mode)' to reflect the official naming. (3) Update bundler from 'Vite (via Remix Vite plugin)' to 'Vite (built-in)'."
     },
     {
       "id": "review-013",

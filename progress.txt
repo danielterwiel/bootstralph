@@ -252,3 +252,32 @@
 - https://www.npmjs.com/package/@tanstack/create-start
 - https://tanstack.com/start/latest/docs/framework/react/quick-start
 - https://github.com/TanStack/create-tsrouter-app/blob/main/cli/create-start-app/README.md
+
+## 2026-01-17: review-012 completed
+
+**Task**: Verify Remix scaffolder approach
+**Check**: Should we use create-remix or React Router v7's scaffolder? They've merged
+
+**Finding**:
+- Remix has been MERGED into React Router v7 (announced December 2024, released December 2024)
+- The official scaffolder is now `create-react-router` (v7.12.0 as of January 2026)
+- Invocation: `npx create-react-router@latest my-app`
+- React Router v7's "framework mode" includes all Remix features: loaders, actions, server rendering
+- The `create-remix` package should NOT be used for new projects
+- React Router v7 IS the successor to Remix v2 - same team, same philosophy
+- Templates available via `--template remix-run/react-router-templates/<name>`
+- Remix v3 exists as a separate React-less rewrite (Preact fork) but has no official docs and is not recommended
+
+**Action Required**: Updated PLAN.md:
+1. Changed scaffolding table from 'Wrap `create-remix`' to 'Wrap `create-react-router` (`npx create-react-router@latest`)'
+2. Updated section title from 'Remix / React Router v7' to 'React Router v7 - Framework Mode'
+3. Updated bundler from 'Vite (via Remix Vite plugin)' to 'Vite (built-in)'
+4. Updated web frameworks references from 'Remix' to 'React Router v7'
+
+**Sources**:
+- https://reactrouter.com/upgrading/remix
+- https://remix.run/blog/react-router-v7
+- https://remix.run/blog/merging-remix-and-react-router
+- https://www.npmjs.com/package/create-react-router
+- https://reactrouter.com/start/framework/installation
+- https://developers.cloudflare.com/workers/framework-guides/web-apps/react-router/

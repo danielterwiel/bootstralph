@@ -21,7 +21,7 @@ A CLI tool to scaffold projects configured for the Ralph Wiggum autonomous devel
 ```
 PLATFORM
 ├── Web
-│   ├── React Meta-Frameworks: Next.js, TanStack Start, Remix/React Router v7
+│   ├── React Meta-Frameworks: Next.js, TanStack Start, React Router v7
 │   ├── Content-First: Astro (supports React islands)
 │   ├── Routing: Built-in (framework-specific)
 │   └── Styling: Tailwind + shadcn/ui, vanilla
@@ -85,10 +85,10 @@ deploy: Any (Vercel, Cloudflare, Fly.io, Railway)
 rsc: Not yet supported (coming soon)
 ```
 
-#### Remix / React Router v7 (Web)
+#### React Router v7 - Framework Mode (Web)
 ```yaml
 routing: React Router (built-in)
-bundler: Vite (via Remix Vite plugin)
+bundler: Vite (built-in)
 styling: Tailwind + shadcn/ui
 state: Zustand, Jotai, TanStack Query
 orm: Drizzle, Prisma
@@ -310,7 +310,7 @@ openskills sync
 | Expo | Wrap `create-expo-stack` |
 | React Native CLI | Wrap `npx react-native init` |
 | Astro | Wrap `create astro` |
-| Remix | Wrap `create-remix` |
+| React Router v7 | Wrap `create-react-router` (`npx create-react-router@latest`) |
 | API (Hono/Elysia) | Own templates (simple) |
 | Minimal TypeScript | Own templates (simple) |
 
@@ -388,7 +388,7 @@ bootstralph/
 | Claude Code execution | Docker container ONLY | Security, isolation, best practice |
 | AI prefill | Via Claude Code in container | No direct API calls, uses interactive Claude |
 | Scaffolding | Hybrid | Wrap existing CLIs, own templates for simple setups |
-| Web frameworks | Next.js, TanStack, Remix, Astro | Cover all major use cases |
+| Web frameworks | Next.js, TanStack, React Router v7, Astro | Cover all major use cases |
 | Mobile frameworks | Expo + React Native CLI | Support both managed and bare workflows |
 | Mobile styling (default) | Uniwind | Fastest Tailwind for RN, from Unistyles creators |
 | Linting (default) | oxlint | 50-100x faster than ESLint, 660+ rules |
