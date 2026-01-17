@@ -252,7 +252,9 @@
       "category": "auth",
       "task": "Verify Supabase Auth as option",
       "check": "Supabase Auth is in compatibility table but not in wizard options",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The review premise was CORRECT - Supabase Auth was in the Auth Provider Compatibility table but NOT listed in the framework-specific wizard options. Supabase Auth is a fully production-ready auth solution with: (1) @supabase/ssr package for Next.js App Router with SSR, middleware, and cookie-based sessions, (2) Official TanStack Start quickstart with supabase-js and @supabase/ssr integration (TanStack Start still in beta), (3) Native React Native/Expo support via @supabase/supabase-js with AsyncStorage for session persistence. Supabase Auth offers the most generous free tier (50,000 MAU vs 10,000 MAU competitors) and Row Level Security (RLS) integration for database-level authorization. It should be offered alongside better-auth and Clerk as a first-class auth option.",
+      "action_required": "Updated PLAN.md: Added Supabase Auth to wizard options for all frameworks - Next.js, TanStack Start, React Router v7, Expo (noted native SDK), React Native CLI, and Astro. Supabase Auth now appears as a third auth option alongside better-auth and Clerk in each framework section."
     },
     {
       "id": "review-025",

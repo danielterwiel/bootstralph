@@ -621,3 +621,35 @@ The SaaS preset now explicitly shows `styling: Tailwind CSS + shadcn/ui` to prev
 - https://www.turbostarter.dev/stacks/expo-better-auth-mobile-app-template
 - https://labs.convex.dev/better-auth/framework-guides/expo
 
+## 2026-01-17: review-024 completed
+
+**Task**: Verify Supabase Auth as option
+**Check**: Supabase Auth is in compatibility table but not in wizard options
+
+**Finding**:
+- The review premise was CORRECT - Supabase Auth was in the Auth Provider Compatibility table but NOT listed in the framework-specific wizard options
+- Supabase Auth is a fully production-ready authentication solution:
+  - **Next.js**: `@supabase/ssr` package provides SSR support with App Router, middleware integration, and cookie-based sessions
+  - **TanStack Start**: Official quickstart available using supabase-js and @supabase/ssr (TanStack Start still in beta, integration working but expect changes)
+  - **React Native/Expo**: Native support via `@supabase/supabase-js` with `@react-native-async-storage/async-storage` for session persistence
+  - **Astro**: Works with API routes and server endpoints
+- Supabase Auth offers the most generous free tier: 50,000 MAU compared to 10,000 MAU from competitors
+- Row Level Security (RLS) integration provides database-level authorization impossible with other solutions
+- Note: `@supabase/auth-helpers` package is deprecated - use `@supabase/ssr` instead
+
+**Action Required**: Updated PLAN.md to add Supabase Auth to wizard options:
+1. Next.js: `auth: better-auth, Clerk, Supabase Auth`
+2. TanStack Start: `auth: better-auth, Clerk, Supabase Auth`
+3. React Router v7: `auth: better-auth, Clerk, Supabase Auth`
+4. Expo: `auth: Clerk (native SDK), better-auth (native SDK via @better-auth/expo), Supabase Auth (native via @supabase/supabase-js)`
+5. React Native CLI: `auth: Clerk, better-auth, Supabase Auth`
+6. Astro: `auth: better-auth, Clerk, Supabase Auth`
+
+**Sources**:
+- https://supabase.com/docs/guides/auth/quickstarts/react-native
+- https://supabase.com/docs/guides/auth/quickstarts/nextjs
+- https://supabase.com/docs/guides/auth/server-side/nextjs
+- https://supabase.com/docs/guides/getting-started/quickstarts/tanstack
+- https://tanstack.com/start/latest/docs/framework/react/examples/start-supabase-basic
+- https://docs.expo.dev/guides/using-supabase/
+

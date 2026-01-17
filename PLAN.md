@@ -65,7 +65,7 @@ bundler: Turbopack (default) or Webpack
 styling: Tailwind + shadcn/ui
 state: Zustand, Jotai, TanStack Query
 orm: Drizzle (edge-compatible), Prisma
-auth: better-auth, Clerk
+auth: better-auth, Clerk, Supabase Auth
 api: tRPC, Server Actions, Route Handlers
 testing: Vitest (unit), Playwright (e2e)
 deploy: Vercel (optimal), Netlify, Cloudflare, Railway
@@ -78,7 +78,7 @@ bundler: Vite (required)
 styling: Tailwind + shadcn/ui
 state: TanStack Query (built-in), Zustand
 orm: Drizzle (recommended for edge)
-auth: better-auth, Clerk
+auth: better-auth, Clerk, Supabase Auth
 api: Server Functions, tRPC, Hono
 testing: Vitest (unit), Playwright (e2e)
 deploy: Any (Vercel, Cloudflare, Fly.io, Railway)
@@ -92,7 +92,7 @@ bundler: Vite (built-in)
 styling: Tailwind + shadcn/ui
 state: Zustand, Jotai, TanStack Query
 orm: Drizzle, Prisma
-auth: better-auth, Clerk
+auth: better-auth, Clerk, Supabase Auth
 api: Loaders/Actions (built-in)
 testing: Vitest (unit), Playwright (e2e)
 deploy: Any (Cloudflare Workers optimal)
@@ -106,7 +106,7 @@ bundler: Metro (required)
 styling: Uniwind (recommended), NativeWind, Tamagui, Unistyles, StyleSheets
 state: Zustand (recommended), Jotai, TanStack Query
 orm: N/A (use backend)
-auth: Clerk (native SDK), better-auth (native SDK via @better-auth/expo)
+auth: Clerk (native SDK), better-auth (native SDK via @better-auth/expo), Supabase Auth (native via @supabase/supabase-js)
 backend: Supabase, Firebase, Convex
 testing: Jest (unit), Maestro (e2e, recommended), Detox
 deploy: EAS (Expo Application Services)
@@ -118,7 +118,7 @@ routing: React Navigation
 bundler: Metro
 styling: Uniwind (recommended), NativeWind, Tamagui, StyleSheets
 state: Zustand, Jotai, TanStack Query
-auth: Clerk, better-auth
+auth: Clerk, better-auth, Supabase Auth
 testing: Jest (unit), Maestro/Detox (e2e)
 deploy: Manual (Xcode/Android Studio), Fastlane
 ```
@@ -130,7 +130,7 @@ bundler: Vite
 styling: Tailwind, vanilla CSS
 state: Minimal (islands architecture)
 orm: Drizzle, Prisma (for API routes)
-auth: better-auth, Clerk (native Astro SDKs with server-side middleware)
+auth: better-auth, Clerk, Supabase Auth (native Astro SDKs with server-side middleware)
 api: API Routes, Server Endpoints
 testing: Vitest (unit), Playwright (e2e)
 deploy: Vercel, Netlify, Cloudflare
