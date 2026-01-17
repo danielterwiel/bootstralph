@@ -135,7 +135,9 @@
       "category": "scaffolders",
       "task": "Verify create-start CLI exists",
       "check": "Plan says 'Wrap create-start' but TanStack Start CLI might have different name",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The TanStack Start CLI EXISTS and is actively maintained. The official package is `@tanstack/create-start` (v0.47.0 as of January 2026). It's invoked via `npm create @tanstack/start@latest` or `pnpm create @tanstack/start@latest`. The CLI creates Vite-based applications with TanStack Router and supports: multiple package managers (npm, yarn, pnpm, bun, deno), toolchain options (Biome or ESLint/Prettier), add-ons (shadcn, tanstack-query), and MCP support for AI-assisted development. The PLAN.md reference to 'create-start' is technically a shorthand - the actual invocation uses npm/pnpm create syntax rather than a standalone 'create-start' command.",
+      "action_required": "Update PLAN.md scaffolding table: Change 'Wrap `create-start` (TanStack CLI)' to 'Wrap `@tanstack/create-start` via `npm create @tanstack/start@latest`' for clarity."
     },
     {
       "id": "review-012",

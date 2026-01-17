@@ -229,3 +229,26 @@
 - https://medium.com/@pouria.r.1990/biome-js-the-unified-linter-and-formatter-replacing-eslint-and-prettier-2a752d8f357c
 - https://betterstack.com/community/guides/scaling-nodejs/biome-eslint/
 - https://dev.to/saswatapal/why-i-chose-biome-over-eslintprettier-20x-faster-linting-one-tool-to-rule-them-all-10kf
+
+## 2026-01-17: review-011 completed
+
+**Task**: Verify create-start CLI exists
+**Check**: Plan says 'Wrap create-start' but TanStack Start CLI might have different name
+
+**Finding**:
+- The TanStack Start CLI EXISTS and is actively maintained
+- Official package: `@tanstack/create-start` (v0.47.0 as of January 2026)
+- Invocation: `npm create @tanstack/start@latest` or `pnpm create @tanstack/start@latest`
+- Creates Vite-based applications with TanStack Router
+- Supports multiple package managers: npm, yarn, pnpm, bun, deno
+- Toolchain options: Biome or ESLint/Prettier
+- Add-ons support: shadcn, tanstack-query, etc.
+- MCP support for AI-assisted development
+- The PLAN.md reference to 'create-start' was a shorthand - clarified to use actual npm create syntax
+
+**Action Required**: Updated PLAN.md scaffolding table to clarify the exact command
+
+**Sources**:
+- https://www.npmjs.com/package/@tanstack/create-start
+- https://tanstack.com/start/latest/docs/framework/react/quick-start
+- https://github.com/TanStack/create-tsrouter-app/blob/main/cli/create-start-app/README.md

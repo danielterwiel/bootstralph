@@ -306,7 +306,7 @@ openskills sync
 | Framework | Approach |
 |-----------|----------|
 | Next.js | Wrap `create-next-app` |
-| TanStack Start | Wrap `create-start` (TanStack CLI) |
+| TanStack Start | Wrap `@tanstack/create-start` (`npm create @tanstack/start@latest`) |
 | Expo | Wrap `create-expo-stack` |
 | React Native CLI | Wrap `npx react-native init` |
 | Astro | Wrap `create astro` |
