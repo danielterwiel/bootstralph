@@ -1654,3 +1654,43 @@ bootstralph add auth            # Add feature (placeholder)
 **Verification**:
 - `npm run typecheck` passes
 - `npm run build` completes successfully
+
+## 2026-01-17: impl-008 completed
+
+**Task**: Create features selection prompt with filtering
+**Files**: src/prompts/features.ts
+
+**Changes Made**:
+1. Created comprehensive `src/prompts/features.ts` with:
+   - **FeaturesResult interface**: Return type containing styling, state, orm, backend, and auth selections
+   - **FeaturesPromptContext interface**: Context containing platform and framework for filtering
+   - **promptFeatures()**: Main orchestrator function that runs all feature prompts in sequence:
+     1. Styling selection (skipped for API platform)
+     2. State management selection (multi-select, skipped for content-focused frameworks like Astro)
+     3. ORM selection (skipped for mobile frameworks using backend services)
+     4. Backend selection (skipped if only "custom" available)
+     5. Auth provider selection (recommends Supabase Auth if Supabase backend selected)
+   - **Individual feature prompts**:
+     - `promptStyling()` - Single select with auto-select when only one option
+     - `promptStateManagement()` - Multi-select with Zustand + TanStack Query pre-selected
+     - `promptORM()` - Single select, skipped when only "none" available
+     - `promptBackend()` - Single select for Supabase/Firebase/Convex/Custom
+     - `promptAuth()` - Single select, recommendation changes based on backend choice
+   - **Helper functions**:
+     - `buildSelectOptions<T>()` - Builds properly typed options for @clack/prompts
+     - `getFeaturessSummary()` - Returns array of display strings for selected features
+     - `getStylingDisplayName()`, `getStateDisplayName()`, etc. - Display name mappers
+     - `hasFeature()` - Check if a feature was selected (handles arrays and "none" values)
+     - `getFeaturesRequiringSetup()` - Returns list of features needing env vars/config
+
+2. Key implementation details:
+   - Uses filtering logic from `src/compatibility/filters.ts` to show only compatible options
+   - Handles `exactOptionalPropertyTypes` by conditionally building objects with optional properties
+   - Returns `null` for cancellation vs `undefined` for "not applicable" 
+   - Auto-selects when only one option available to reduce prompts
+   - Pre-selects common state management choices (zustand + tanstack-query)
+   - Skips irrelevant prompts based on framework/platform (e.g., no styling for API, no ORM for mobile)
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
