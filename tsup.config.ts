@@ -1,4 +1,5 @@
 import { defineConfig } from "tsup";
+import babel from "esbuild-plugin-babel";
 
 export default defineConfig({
   entry: ["src/index.ts"],
@@ -14,4 +15,15 @@ export default defineConfig({
   banner: {
     js: "#!/usr/bin/env node",
   },
+  esbuildPlugins: [
+    babel({
+      filter: /\.tsx$/,
+      config: {
+        presets: [
+          ["@babel/preset-typescript", { isTSX: true, allExtensions: true }],
+          "babel-preset-solid",
+        ],
+      },
+    }),
+  ],
 });

@@ -34,13 +34,20 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
+    "@opentui/core": "^0.1.74",
+    "@opentui/solid": "^0.1.74",
     "detect-package-manager": "^3.0.2",
     "execa": "^9.0.0",
-    "fs-extra": "^11.2.0"
+    "fs-extra": "^11.2.0",
+    "solid-js": "^1.9.9"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.6",
+    "@babel/preset-typescript": "^7.28.5",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.7",
+    "babel-preset-solid": "^1.9.9",
+    "esbuild-plugin-babel": "^0.2.3",
     "tsup": "^8.3.5",
     "typescript": "^5.7.3",
     "vitest": "^4.0.0"

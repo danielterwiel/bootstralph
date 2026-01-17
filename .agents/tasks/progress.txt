@@ -952,3 +952,26 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 ### Build: PASSED
+
+## 2026-01-17 - impl-037: Add OpenTUI and SolidJS dependencies
+
+### Completed
+- Installed OpenTUI and SolidJS dependencies: @opentui/core, @opentui/solid, solid-js
+- Configured TypeScript for SolidJS JSX compilation (jsx: preserve, jsxImportSource: solid-js)
+- Updated tsup.config.ts to use esbuild-plugin-babel with babel-preset-solid for TSX files
+- Added babel dev dependencies: @babel/core, @babel/preset-typescript, babel-preset-solid, esbuild-plugin-babel
+
+### Technical Details
+- OpenTUI v0.1.74 installed (latest, uses Zig FFI for performance-critical rendering)
+- SolidJS v1.9.9 installed (stable)
+- Babel preset configured with @babel/preset-typescript for type stripping and babel-preset-solid for JSX transformation
+- Build uses esbuild-plugin-babel with filter: /\.tsx$/ to only transform SolidJS TSX files
+- Non-TSX TypeScript files continue to use esbuild's native TypeScript handling
+
+### Package Updates
+- Dependencies added: @opentui/core ^0.1.74, @opentui/solid ^0.1.74, solid-js ^1.9.9
+- Dev dependencies added: @babel/core ^7.28.6, @babel/preset-typescript ^7.28.5, babel-preset-solid ^1.9.9, esbuild-plugin-babel ^0.2.3
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+### Build: PASSED
