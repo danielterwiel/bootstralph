@@ -201,6 +201,28 @@ Edge runtimes have significant limitations that affect ORM and driver choices:
 | ESLint | Linter | Slow | Most rules, legacy standard |
 | Prettier | Formatter | Slow | De-facto standard |
 
+### Wizard Flow Logic: Linting & Formatting
+
+The wizard must implement mutual exclusivity for linting/formatting tool selection:
+
+```
+LINTING QUESTION → User selects: oxlint | Biome | ESLint
+
+IF Biome selected:
+  → SKIP formatting question (Biome handles both lint + format)
+  → Set formatter = "biome"
+
+IF oxlint selected:
+  → SHOW formatting question: oxfmt (Recommended) | Prettier
+  → Set linter = "oxlint", formatter = user_choice
+
+IF ESLint selected:
+  → SHOW formatting question: Prettier (Recommended) | oxfmt
+  → Set linter = "eslint", formatter = user_choice
+```
+
+**Implementation**: This logic should be handled in `src/compatibility/filters.ts` and the formatting prompt in `src/prompts/tooling.ts` should conditionally render based on prior linting selection.
+
 ### Pre-Commit Hook Compatibility
 
 | Tool | Language | Speed | Notes |

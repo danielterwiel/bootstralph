@@ -126,7 +126,9 @@
       "category": "wizard-flow",
       "task": "Check Biome mutual exclusivity logic",
       "check": "If Biome selected for linting, formatting question should be skipped. Is this clear in the flow?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "The PLAN.md incompatibility rules correctly state 'Biome | ESLint + Prettier | Pick one linting approach' and the Linting/Formatting Compatibility table shows Biome is 'Lint + Format' (all-in-one). However, there is NO explicit wizard flow documentation stating that selecting Biome should skip the formatting question. The wizard prompts directory structure exists (src/prompts/) but the actual flow logic is not documented. Biome v2.x is now stable and production-ready, offering 10-25x speed over ESLint+Prettier with 97% Prettier compatibility and 200+ linting rules.",
+      "action_required": "Add 'Wizard Flow Logic' section to PLAN.md documenting: (1) If user selects Biome for linting, skip the formatting question entirely since Biome handles both. (2) If user selects oxlint, show formatting question with oxfmt/Prettier options. (3) If user selects ESLint, show formatting question with Prettier/oxfmt options. This mutual exclusivity should be implemented in src/compatibility/filters.ts."
     },
     {
       "id": "review-011",

@@ -204,3 +204,28 @@
 - PLAN.md line 49 (Incompatibility Rules)
 - PLAN.md line 111 (Expo testing recommendations)
 - PLAN.md line 375 (Key Decisions Summary)
+
+## 2026-01-17: review-010 completed
+
+**Task**: Check Biome mutual exclusivity logic
+**Check**: If Biome selected for linting, formatting question should be skipped. Is this clear in the flow?
+
+**Finding**:
+- The PLAN.md incompatibility rules correctly state "Biome | ESLint + Prettier | Pick one linting approach"
+- The Linting/Formatting Compatibility table shows Biome is "Lint + Format" (all-in-one)
+- However, there was NO explicit wizard flow documentation stating that selecting Biome should skip the formatting question
+- Biome v2.x is now stable and production-ready (2025), offering 10-25x speed over ESLint+Prettier
+- Biome has 97% Prettier compatibility and 200+ linting rules
+- Single binary replaces 127+ npm packages (eslint, prettier, eslint-config-prettier, eslint-plugin-prettier, etc.)
+
+**Action Required**: Added "Wizard Flow Logic: Linting & Formatting" section to PLAN.md documenting:
+1. If user selects Biome for linting → skip formatting question (Biome handles both)
+2. If user selects oxlint → show formatting question with oxfmt/Prettier options
+3. If user selects ESLint → show formatting question with Prettier/oxfmt options
+4. Implementation note: Logic goes in src/compatibility/filters.ts and src/prompts/tooling.ts
+
+**Sources**:
+- https://biomejs.dev/guides/migrate-eslint-prettier/
+- https://medium.com/@pouria.r.1990/biome-js-the-unified-linter-and-formatter-replacing-eslint-and-prettier-2a752d8f357c
+- https://betterstack.com/community/guides/scaling-nodejs/biome-eslint/
+- https://dev.to/saswatapal/why-i-chose-biome-over-eslintprettier-20x-faster-linting-one-tool-to-rule-them-all-10kf
