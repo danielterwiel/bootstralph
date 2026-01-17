@@ -1472,3 +1472,36 @@ bootstralph my-app              # Shorthand for create
 bootstralph init                # Init in existing project (placeholder)
 bootstralph add auth            # Add feature (placeholder)
 ```
+
+## 2026-01-17: impl-003 completed
+
+**Task**: Implement compatibility matrix data structure
+**Files**: src/compatibility/matrix.ts
+
+**Changes Made**:
+1. Created comprehensive `src/compatibility/matrix.ts` with:
+   - **Core Types**: Platform, Framework, Styling, StateManagement, ORM, Backend, AuthProvider, Linter, Formatter, UnitTestFramework, E2ETestFramework, DeploymentTarget, PreCommitTool, Bundler, Routing
+   - **Platform Configuration**: PLATFORMS record defining web, mobile, universal, and api platforms with their compatible frameworks
+   - **Framework Configuration**: FRAMEWORKS record with complete config for all 8 frameworks (Next.js, TanStack Start, React Router v7, Astro, Expo, React Native CLI, Hono, Elysia) including bundler, routing, styling, state, orm, backend, auth, testing, deployment options
+   - **Incompatibility Rules**: 19 rules defining what cannot be used together (e.g., Next.js + TanStack Router, Drizzle + Prisma, Biome + ESLint, Expo + Vitest)
+   - **Edge Runtime Compatibility**: Matrix for Cloudflare, Vercel, Netlify, Railway, Fly.io with ORM support details
+   - **Styling Compatibility Matrix**: Per-platform styling support (web, expo, reactNative, universal)
+   - **Testing Compatibility Matrix**: Unit and E2E testing framework support per platform
+   - **Linter/Formatter Configuration**: oxlint, biome, eslint linters and oxfmt, prettier, biome formatters with metadata
+   - **Default Recommendations**: DEFAULTS object with recommended tools per platform
+   - **Skills Matrix**: SKILLS_MATRIX defining which skills to install based on selected stack
+   - **Helper Functions**:
+     - `getFrameworksForPlatform()` - Get frameworks for a platform
+     - `getFrameworkConfig()` - Get full framework configuration
+     - `areSelectionsCompatible()` - Check if two selections are compatible
+     - `getIncompatibleOptions()` - Get all incompatible options for a selection
+     - `getStylingForPlatform()` - Get available styling options for a platform
+     - `getRecommendedStyling()` - Get recommended styling for a platform
+     - `checkEdgeORMCompatibility()` - Validate ORM + edge deployment compatibility
+     - `getSkillsForConfig()` - Get skills to install for a given configuration
+
+2. All data structures derived from PLAN.md compatibility matrices and review findings
+
+**Verification**:
+- `npm run typecheck` passes
+- `npm run build` completes successfully
