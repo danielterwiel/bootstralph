@@ -1,0 +1,27 @@
+# Progress Log for bootstralph
+# Started: 2026-01-17T21:48:21+01:00
+
+## 2026-01-17 - impl-013: Implement Expo scaffolder wrapper
+
+### Completed
+- Created `src/scaffolders/expo.ts` with full Expo scaffolding support
+- Wraps `create-expo-stack@latest` CLI with bootstralph-specific configurations
+- Supports Expo Router and React Navigation for routing
+- Supports Uniwind (with NativeWind fallback + migration), NativeWind, Tamagui, Unistyles, and StyleSheets for styling
+- Integrates with mobile backends: Supabase (with AsyncStorage), Convex (convex-react-native), Firebase (@react-native-firebase)
+- Auth support: Clerk (@clerk/clerk-expo), better-auth (@better-auth/expo), Supabase Auth
+- E2E testing: Maestro (with flow setup) and Detox (with config and example tests)
+- Deployment: EAS Build configuration generation
+- Pre-commit hooks: Lefthook, Husky, prek support
+- Linting/Formatting: oxlint, Biome, ESLint, oxfmt, Prettier
+- Environment template generation with EXPO_PUBLIC_ prefix convention
+
+### Technical Details
+- Uses Jest preset for unit testing (jest-expo)
+- Creates test setup with @testing-library/react-native
+- Generates Maestro flows in `.maestro/` directory
+- Generates Detox configuration in `.detoxrc.js`
+- Supabase client uses AsyncStorage for session persistence
+- Uniwind migration swaps nativewind for uniwind post-scaffold
+
+### Type check: PASSED

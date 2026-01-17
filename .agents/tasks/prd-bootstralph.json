@@ -515,7 +515,7 @@
       "phase": 1,
       "task": "Implement Expo scaffolder wrapper",
       "files": ["src/scaffolders/expo.ts"],
-      "status": "pending"
+      "status": "completed"
     },
     {
       "id": "impl-014",
