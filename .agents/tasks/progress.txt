@@ -2911,3 +2911,50 @@ Examples:
 ### Bash syntax check: PASSED
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-015: Update afk-ralph.sh for Pair Vibe Mode
+
+### Completed
+- Recreated `afk-ralph.sh` with full Pair Vibe Mode support for AFK (unattended) operation
+- New CLI flags:
+  - `--pair-vibe`: Enable Pair Vibe Mode with AFK defaults
+  - `--no-pair-vibe`: Disable Pair Vibe Mode (single model)
+  - `--executor <provider>`: Set executor (anthropic/claude or openai/gpt)
+  - `--reviewer <provider>`: Set reviewer (anthropic/claude or openai/gpt)
+- AFK Mode Defaults:
+  - Executor: Claude/Anthropic (more capable for complex implementation)
+  - Reviewer: OpenAI/GPT (faster for search synthesis)
+- Features:
+  - `can_enable_pair_vibe()` - Validates both API keys are present
+  - `apply_pair_vibe_defaults()` - Sets Claude as Executor, OpenAI as Reviewer for AFK
+  - `build_pair_vibe_flags()` - Constructs flags for ralph.sh
+  - Automatic role inference (if only executor specified, reviewer is set to opposite)
+  - Validation that executor and reviewer are different providers
+  - Colored output for status display
+  - Passes all flags through to `ralph.sh afk` command
+  - Maintains backward compatibility with legacy `prd.json` fallback
+
+### Usage
+```bash
+# Basic AFK with Pair Vibe Mode (uses defaults)
+./afk-ralph.sh 20 --pair-vibe
+
+# AFK with custom role assignment
+./afk-ralph.sh 15 --pair-vibe --executor openai --reviewer anthropic
+
+# AFK with single model (explicit disable)
+./afk-ralph.sh 10 --no-pair-vibe
+
+# Combined with PRD selection
+./afk-ralph.sh 20 --pair-vibe --prd .agents/tasks/prd-feature.json
+```
+
+### Technical Details
+- Script wraps ralph.sh, passing iterations and Pair Vibe flags
+- Validates API key availability before enabling Pair Vibe Mode
+- Uses exec to replace shell process with ralph.sh
+- Maintains original fallback to legacy prd.json for backward compatibility
+
+### Bash syntax check: PASSED
+### Type check: PASSED
+### Tests: 729/729 PASSED

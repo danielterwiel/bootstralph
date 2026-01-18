@@ -252,8 +252,10 @@
       "phase": 4,
       "task": "Update afk-ralph.sh for Pair Vibe Mode",
       "files": ["afk-ralph.sh"],
-      "status": "pending",
-      "description": "Add --pair-vibe flag with defaults for unattended mode. Default: Claude as Executor (more capable), OpenAI as Reviewer (faster for search synthesis). Add --no-pair-vibe to force single model even when both keys exist."
+      "status": "completed",
+      "description": "Add --pair-vibe flag with defaults for unattended mode. Default: Claude as Executor (more capable), OpenAI as Reviewer (faster for search synthesis). Add --no-pair-vibe to force single model even when both keys exist.",
+      "completedAt": "2026-01-18T14:04:30.000Z",
+      "notes": "Recreated afk-ralph.sh with full Pair Vibe Mode support. Features: (1) CLI flags: --pair-vibe, --no-pair-vibe, --executor <provider>, --reviewer <provider>. (2) AFK defaults: Claude (anthropic) as Executor for complex implementation, OpenAI as Reviewer for faster search synthesis. (3) API key validation via can_enable_pair_vibe(). (4) Automatic role inference (if only executor specified, reviewer is set to opposite). (5) Validation that executor and reviewer are different. (6) Colored output for status display. (7) Passes flags through to ralph.sh afk command. (8) Maintains backward compatibility with legacy prd.json fallback."
     },
     {
       "id": "impl-016",
