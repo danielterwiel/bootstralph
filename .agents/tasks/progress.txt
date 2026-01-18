@@ -2295,3 +2295,45 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: PASSED (672/672)
+
+## 2026-01-18 - impl-003: Create Pair Vibe Mode configuration types
+
+### Completed
+- Created `src/ralph/pair-vibe-types.ts` with comprehensive type definitions for Pair Vibe Mode
+- Core configuration interfaces:
+  - `PairVibeConfig`: Mode configuration with enabled flag, executor/reviewer provider and model assignment, timeouts, and options
+  - `DEFAULT_PAIR_VIBE_CONFIG`: Default values (maxLookAhead: 3, reviewTimeout: 2min, consensusTimeout: 5min, maxConsensusRounds: 2)
+- State management types:
+  - `PairVibePhase`: 'initializing' | 'review' | 'execute' | 'consensus' | 'paused' | 'completed' | 'error'
+  - `PairVibeState`: Runtime state with current phase, reviewer/executor progress, step tracking, active consensus session
+  - `StepProgress`: Per-step status tracking with timestamps
+- Consensus types:
+  - `ConsensusSession`: Active consensus state with round tracking, proposals, ultrathink flag
+  - `ConsensusProposal`: Individual proposal with anonymized label (A/B per edge-006), content, reasoning
+  - `ConsensusResult`: Resolution result with alignment status, decidedBy, rounds, sycophancy detection
+- Event system:
+  - `PairVibeEvent`: Discriminated union of 20+ event types for phase changes, reviewer/executor progress, consensus, web search, rate limits, circuit breaker, cost updates
+  - `PairVibeEventHandler`: Event handler type
+- Metrics types:
+  - `CostBreakdown`: Cost by executor, reviewer, consensus, web search
+  - `PairVibeMetrics`: Session-level metrics with consensus rate, review timeouts, cost breakdown
+  - `StepMetrics`: Per-step duration and cost tracking
+- Model types:
+  - `ClaudeModel`: claude-sonnet-4-20250514, claude-opus-4-20250514, claude-sonnet-4-5-20250514
+  - `OpenAIModel`: gpt-4o, gpt-4.1, o1, o3, o3-mini
+  - `ModelIdentifier`: Union of both
+- Helper functions:
+  - `createInitialPairVibeState()`: Factory for initial state
+  - `createStepProgress()`: Factory for step progress
+  - `createDefaultPairVibeConfig()`: Create config from detected providers with sensible defaults
+  - `checkSycophancyRisk()`: Detect potential sycophancy (fast consensus, high similarity per edge-006)
+
+### Technical Details
+- Uses type-only imports per verbatimModuleSyntax
+- Imports ApiProvider from api-keys.ts and ConsensusRecord from prd-schema.ts
+- All timeout values aligned with review-007 findings
+- Sycophancy detection thresholds: <30s consensus, >95% similarity
+- Supports all edge cases defined in PRD (edge-001 through edge-010)
+
+### Type check: PASSED
+### Tests: 672 PASSED
