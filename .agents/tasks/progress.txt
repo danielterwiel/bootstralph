@@ -2109,3 +2109,65 @@ sleep = random(0, min(cap, base * 2^attempt))
 - [GitHub - llm_multiagent_debate](https://github.com/composable-models/llm_multiagent_debate)
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-007: Verify timeout strategy
+
+### Completed
+- Researched Claude API timeout best practices and streaming recommendations
+- Researched OpenAI API timeout configuration and SDK options
+- Analyzed circuit breaker pattern implementations for Node.js (opossum library)
+- Designed three-tier timeout strategy for Pair Vibe Mode coordination
+- Identified existing timeout patterns in codebase (10min iteration timeout in engine.ts)
+
+### Finding Summary
+**THREE-TIER TIMEOUT STRATEGY with circuit breaker pattern:**
+
+#### Tier 1 - Web Search (30s)
+- Individual Tavily/Brave API calls timeout at 30s
+- After 2 consecutive failures, circuit opens for 60s
+- Return cached/empty results when circuit is open
+
+#### Tier 2 - Review Step (2min)
+- Total time for Reviewer to complete one step review (search + analysis)
+- If exceeded, mark step as 'review_timeout' and let Executor proceed without review
+- Log warning for visibility
+
+#### Tier 3 - Reviewer Lag (5 steps)
+- If Executor is 5+ steps ahead of Reviewer, pause Executor
+- Show 'Waiting for review...' status
+- After 2min wait timeout, warn and continue without review for that step
+
+#### Streaming & Idle Timeout
+- Use streaming for all LLM calls per Anthropic recommendation (>10min requests)
+- 90s idle timeout (no data received) to detect hung streams
+- Anthropic SDK issue #867 proposes adding idleTimeout configuration
+
+#### Circuit Breaker Implementation
+- Three states: closed (normal), open (failing fast), half-open (testing recovery)
+- Failure threshold: 3 consecutive failures
+- Reset timeout: 60s before half-open test
+- Half-open allows 1 test request before fully closing
+- Use opossum library (nodeshift/opossum) for Node.js implementation
+
+#### Fallback Chain
+1. Retry with exponential backoff
+2. Skip web search (use LLM knowledge only)
+3. Skip review for current step
+4. Degrade to single-model mode
+
+#### Existing Codebase Patterns
+- engine.ts:59 uses 10min iteration timeout - maintain this for Executor
+- claude-runner.ts supports configurable timeout via options.timeout
+- prd-manager.ts uses debounced save with saveTimeout
+
+### Sources
+- [Claude Code Timeout Configuration Guide - GitHub #5615](https://github.com/anthropics/claude-code/issues/5615)
+- [Anthropic SDK Streaming Idle Timeout Proposal - GitHub #867](https://github.com/anthropics/anthropic-sdk-typescript/issues/867)
+- [Claude Docs - Errors](https://docs.anthropic.com/en/api/errors)
+- [OpenAI API Timeout Configuration](https://community.openai.com/t/setting-request-timeout-in-openai-v1-2-2/492772)
+- [opossum - Node.js Circuit Breaker](https://github.com/nodeshift/opossum)
+- [Circuit Breaker Pattern in Node.js - LogRocket](https://blog.logrocket.com/use-circuit-breaker-node-js/)
+- [Google SRE - Addressing Cascading Failures](https://sre.google/sre-book/addressing-cascading-failures/)
+- [AWS - Graceful Degradation](https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_graceful_degradation.html)
+
+### Type check: PASSED

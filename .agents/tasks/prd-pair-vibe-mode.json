@@ -94,7 +94,8 @@
       "category": "timeouts",
       "task": "Verify timeout strategy",
       "check": "What happens if Reviewer is stuck on web search when Executor needs to proceed? Define timeout thresholds and fallback behavior.",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Implement a THREE-TIER TIMEOUT STRATEGY with circuit breaker pattern. TIER 1 - WEB SEARCH (30s): Individual Tavily/Brave API calls timeout at 30s. After 2 consecutive failures, circuit opens for 60s, returning cached/empty results. TIER 2 - REVIEW STEP (2min): Total time for Reviewer to complete one step review (search + analysis). If exceeded, mark step as 'review_timeout' and let Executor proceed without review. Log warning. TIER 3 - REVIEWER LAG (5 steps): If Executor is 5+ steps ahead of Reviewer, pause Executor with 'Waiting for review...' status. After 2min wait timeout, warn and continue without review for that step. STREAMING: Use streaming for all LLM calls with 90s idle timeout (no data received). Anthropic recommends streaming for requests >10min. CIRCUIT BREAKER: Three states (closed/open/half-open). Failure threshold: 3, Reset timeout: 60s. Half-open allows 1 test request. Use opossum library for Node.js. IMPLEMENTATION: Create TimeoutManager class with per-operation timeouts. Emit events: 'review-timeout', 'search-timeout', 'circuit-open', 'circuit-half-open'. Graceful degradation: continue with single-model execution if Reviewer consistently times out. Existing codebase uses 10min iteration timeout (engine.ts:59) - maintain this for Executor. FALLBACK CHAIN: 1) Retry with backoff, 2) Skip web search (use LLM knowledge only), 3) Skip review for step, 4) Degrade to single-model mode."
     },
     {
       "id": "review-008",
