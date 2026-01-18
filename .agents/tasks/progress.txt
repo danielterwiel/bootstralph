@@ -3035,3 +3035,38 @@ limiter.isDegraded('anthropic');
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-017: Implement PRD file locking
+
+### Completed
+- Created `src/ralph/prd-lock.ts` with PrdLock class for concurrent access safety
+- Prevents race conditions when Reviewer and Executor both update PRD in Pair Vibe Mode
+- Implements strategy from review-004 findings
+
+### Features
+- **async-lock integration**: In-process serialization for PRD writes
+- **withLock()**: Execute function with exclusive file access
+- **writeWithLock()**: Atomic file write with temp file + rename pattern
+- **Timeout**: 5 seconds per review-004 spec
+- **Retries**: 3 attempts with exponential backoff (100ms, 200ms, 400ms)
+- **getPrdLock()**: Singleton lock instance per PRD path
+- **Event emission**: lock-retry and lock-failed events for TUI integration
+
+### PrdManager Integration
+- Added `enableLocking()` / `disableLocking()` methods
+- `save()` automatically uses locked writes when locking is enabled
+- Constructor accepts `enableLocking` option
+- `isLockingEnabled()` to check current state
+
+### Event Types Added to PairVibeEvent
+```typescript
+| { type: "lock-retry"; path: string; attempt: number; maxRetries: number; timestamp: number }
+| { type: "lock-failed"; path: string; error: string; retriesUsed: number; timestamp: number }
+```
+
+### Dependencies Added
+- `async-lock` (runtime)
+- `@types/async-lock` (dev)
+
+### Type check: PASSED
+### Tests: 729/729 PASSED

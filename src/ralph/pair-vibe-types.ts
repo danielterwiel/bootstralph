@@ -300,7 +300,9 @@ export type PairVibeEvent =
   | { type: "paused"; reason: string }
   | { type: "resumed" }
   | { type: "error"; error: string }
-  | { type: "cost-update"; totalCost: number; breakdown: CostBreakdown };
+  | { type: "cost-update"; totalCost: number; breakdown: CostBreakdown }
+  | { type: "lock-retry"; path: string; attempt: number; maxRetries: number; timestamp: number }
+  | { type: "lock-failed"; path: string; error: string; retriesUsed: number; timestamp: number };
 
 /**
  * Cost breakdown by model and phase

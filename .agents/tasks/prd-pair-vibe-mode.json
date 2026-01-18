@@ -272,8 +272,10 @@
       "phase": 4,
       "task": "Implement PRD file locking",
       "files": ["src/ralph/prd-lock.ts"],
-      "status": "pending",
-      "description": "Prevent race conditions when Reviewer and Executor both update PRD. Use proper-lockfile or similar. Lock before write, unlock after. Timeout: 5 seconds. On conflict: retry 3 times with backoff."
+      "status": "completed",
+      "description": "Prevent race conditions when Reviewer and Executor both update PRD. Use proper-lockfile or similar. Lock before write, unlock after. Timeout: 5 seconds. On conflict: retry 3 times with backoff.",
+      "completedAt": "2026-01-18T14:12:00.000Z",
+      "notes": "Implemented PrdLock class using async-lock for in-process serialization per review-004 findings. Features: (1) withLock() for exclusive access with 5-second timeout. (2) writeWithLock() for atomic file writes using temp file + rename pattern. (3) Exponential backoff retry: 3 attempts with 100ms, 200ms, 400ms delays. (4) getPrdLock() for singleton lock per PRD path. (5) Added lock-retry and lock-failed event types to PairVibeEvent. (6) Integrated with PrdManager via enableLocking()/disableLocking() methods. (7) PrdManager.save() automatically uses locked writes when Pair Vibe Mode is active. Type check: PASSED. Tests: 729/729 PASSED."
     },
     {
       "id": "impl-018",

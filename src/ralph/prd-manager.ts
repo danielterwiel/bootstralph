@@ -16,6 +16,7 @@ import {
   getPrdProgress,
   generatePrdFilename,
 } from "./prd-schema.js";
+import { getPrdLock, type PrdLock } from "./prd-lock.js";
 
 /**
  * Extended task interface for implementation_tasks format
@@ -98,6 +99,8 @@ export class PrdManager {
   private saveDebounceMs: number;
   private dirty = false;
   private onUpdate: ((prd: ExtendedPrd) => void) | null = null;
+  private lockingEnabled = false;
+  private prdLock: PrdLock | null = null;
 
   /**
    * Create a new PRD Manager instance
@@ -106,11 +109,41 @@ export class PrdManager {
   constructor(options: {
     saveDebounceMs?: number;
     onUpdate?: (prd: ExtendedPrd) => void;
+    /** Enable file locking for concurrent access (Pair Vibe Mode) */
+    enableLocking?: boolean;
   } = {}) {
     this.saveDebounceMs = options.saveDebounceMs ?? 500;
     if (options.onUpdate) {
       this.onUpdate = options.onUpdate;
     }
+    this.lockingEnabled = options.enableLocking ?? false;
+  }
+
+  /**
+   * Enable file locking for concurrent access.
+   * Call this when entering Pair Vibe Mode.
+   */
+  enableLocking(): void {
+    this.lockingEnabled = true;
+    if (this.filePath) {
+      this.prdLock = getPrdLock(this.filePath);
+    }
+  }
+
+  /**
+   * Disable file locking.
+   * Call this when exiting Pair Vibe Mode.
+   */
+  disableLocking(): void {
+    this.lockingEnabled = false;
+    this.prdLock = null;
+  }
+
+  /**
+   * Check if locking is enabled
+   */
+  isLockingEnabled(): boolean {
+    return this.lockingEnabled;
   }
 
   /**
@@ -123,6 +156,11 @@ export class PrdManager {
     this.prd = prd;
     this.filePath = filePath;
     this.dirty = false;
+
+    // Initialize lock if locking is enabled
+    if (this.lockingEnabled) {
+      this.prdLock = getPrdLock(filePath);
+    }
 
     return prd;
   }
@@ -144,8 +182,19 @@ export class PrdManager {
     const dir = dirname(this.filePath);
     await mkdir(dir, { recursive: true });
 
-    // Write with pretty formatting
-    await writeFile(this.filePath, JSON.stringify(this.prd, null, 2) + "\n");
+    const content = JSON.stringify(this.prd, null, 2) + "\n";
+
+    // Use locked write if locking is enabled (Pair Vibe Mode)
+    if (this.lockingEnabled && this.prdLock) {
+      const result = await this.prdLock.writeWithLock(this.filePath, content);
+      if (!result.success) {
+        throw result.error ?? new Error("Failed to write PRD with lock");
+      }
+    } else {
+      // Standard write without locking
+      await writeFile(this.filePath, content);
+    }
+
     this.dirty = false;
   }
 
