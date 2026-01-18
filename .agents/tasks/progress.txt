@@ -1830,3 +1830,75 @@ PRD COMPLETED after 1 iterations
 
 ### Type check: PASSED
 ### Tests: 514 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e + 113 parser)
+
+## 2026-01-18 - impl-055: Write unit tests for PRD manager
+
+### Completed
+- Created `tests/tui/prd-manager.test.ts` with comprehensive unit tests for the PRD manager
+- 79 tests covering all CRUD operations, auto-save, ID generation, and review tasks
+
+### Test Categories
+
+#### Constructor Tests (3 tests)
+- Default options
+- Custom saveDebounceMs
+- onUpdate callback
+
+#### Load/Save Tests (9 tests)
+- Load PRD from file (implementation_tasks and userStories formats)
+- Error handling for non-existent files and invalid JSON
+- Save PRD with metadata.updatedAt update
+- Save error when no PRD loaded
+- Auto-save with debounce
+- onUpdate callback triggering
+- Flush pending saves
+
+#### Task Retrieval Tests (12 tests)
+- getAllTasks: implementation_tasks vs userStories
+- getTask: Find by ID, non-existent ID
+- getNextTask: Sorted by phase/ID, by priority for userStories
+- getPendingTasks: pending and in_progress statuses
+- getCompletedTasks: completed status filtering
+
+#### Progress Tests (6 tests)
+- getProgress: Total, completed, remaining, percentage
+- isComplete: All tasks completed, some remaining
+
+#### CRUD Operations Tests (28 tests)
+- addIssue: New implementation task, new user story, phase/priority options
+- ID generation: Empty PRD, preserve prefix, handle gaps
+- updateNote: Add note, append mode, replace mode
+- updatePriority: Phase update for impl tasks, priority for stories
+- markComplete: Status and passes update, timestamps
+- markSkipped: Skip note with and without reason
+- startTask: in_progress status, startedAt timestamp
+- updateStatus: PRD status update
+
+#### Review Tasks Tests (6 tests)
+- getReviewTasks: Return review_tasks array
+- getPendingReviewTasks: Filter by status
+- updateReviewFinding: Finding and actionRequired update
+
+#### Static Methods Tests (6 tests)
+- fileExists: Existing and non-existent files
+- findPrdFiles: Find prd-*.json files
+- create: Create new PRD file with nested directories
+
+#### Singleton Tests (2 tests)
+- getDefaultPrdManager: Singleton pattern
+- resetDefaultPrdManager: Reset and create new instance
+
+#### Utility Methods Tests (3 tests)
+- getFilename: Return filename only
+- destroy: Flush saves and clear state
+
+### Technical Details
+- Uses vitest with beforeEach/afterEach for test isolation
+- Creates temporary directories in OS tmpdir
+- Tests both implementation_tasks and userStories PRD formats
+- Verifies auto-save debouncing with timing assertions
+- Tests file I/O operations with real filesystem
+- Uses vi.fn() for callback testing
+
+### Type check: PASSED
+### Tests: 79 passed

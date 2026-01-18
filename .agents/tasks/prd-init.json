@@ -849,7 +849,8 @@
       "phase": 5,
       "task": "Write unit tests for PRD manager",
       "files": ["tests/tui/prd-manager.test.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Test addIssue, updateNote, updatePriority, markComplete. Test auto-save. Test ID generation."
     },
     {
