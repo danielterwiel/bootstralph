@@ -70,7 +70,8 @@
       "category": "parallelism",
       "task": "Verify concurrent execution safety",
       "check": "When Reviewer and Executor run concurrently, how do we handle PRD file locking to prevent race conditions?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Use a two-layer locking strategy: (1) IN-PROCESS: Use async-lock for within-process serialization of PRD writes. This handles the common case where both Reviewer and Executor are async tasks in the same Node process. Create a shared AsyncLock instance with key based on PRD file path. Wrap all PrdManager.save() calls with lock.acquire(). (2) CROSS-PROCESS: Use proper-lockfile for file-based locking if supporting multiple processes (not needed for initial impl). The mkdir-based strategy is atomic on NFS. (3) ATOMIC WRITES: Use write-file-atomic (already battle-tested in npm ecosystem) to ensure partial writes don't corrupt the PRD. Write to temp file, then rename. (4) EXISTING CODE: PrdManager.save() at line 133 uses direct writeFile - wrap with async-lock. The scheduleSave() debounce at line 155 already helps reduce contention but doesn't prevent it. RECOMMENDATION: Add async-lock as dependency. Create src/ralph/prd-lock.ts with a singleton lock per PRD path. Modify PrdManager to acquire lock before save. Timeout: 5 seconds. Retries: 3 with exponential backoff (100ms, 200ms, 400ms). If lock fails, log warning and queue retry - never lose data."
     },
     {
       "id": "review-005",

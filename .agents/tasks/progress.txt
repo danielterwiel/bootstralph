@@ -2002,3 +2002,31 @@ Abstract behind `UltrathinkProvider` interface that:
 - [OpenAI reasoning_effort Parameter](https://www.vellum.ai/llm-parameters/reasoning-effort)
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-004: Verify concurrent execution safety
+
+### Completed
+- Researched Node.js file locking strategies for concurrent PRD updates
+- Analyzed proper-lockfile (mkdir-based atomic locking), async-lock (in-process), and write-file-atomic (atomic writes)
+- Reviewed existing PrdManager.save() implementation at src/ralph/prd-manager.ts:133
+- Identified that scheduleSave() debounce reduces but doesn't prevent race conditions
+
+### Finding Summary
+**Two-layer locking strategy recommended:**
+1. **In-process**: Use async-lock for Reviewer/Executor coordination (both are async tasks in same process)
+2. **Atomic writes**: Use write-file-atomic for safe file operations (temp file + rename pattern)
+3. **Cross-process** (future): proper-lockfile if supporting multiple ralph processes
+
+**Implementation plan:**
+- Add async-lock dependency
+- Create src/ralph/prd-lock.ts singleton lock manager
+- Modify PrdManager.save() to acquire lock before write
+- Timeout: 5 seconds, Retries: 3 with exponential backoff (100ms, 200ms, 400ms)
+
+### Sources
+- [proper-lockfile - npm](https://www.npmjs.com/package/proper-lockfile)
+- [async-lock - npm](https://www.npmjs.com/package/async-lock)
+- [write-file-atomic - npm](https://www.npmjs.com/package/write-file-atomic)
+- [Understanding Node.js file locking - LogRocket](https://blog.logrocket.com/understanding-node-js-file-locking/)
+
+### Type check: PASSED
