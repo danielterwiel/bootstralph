@@ -3361,3 +3361,126 @@ Created `src/ralph/cost-estimator.ts` for pre-session cost estimation in Pair Vi
 
 ### Type check: PASSED
 ### Tests: 794/794 PASSED
+
+## impl-021: Write unit tests for ConsensusRunner
+
+**Status**: Completed
+**Date**: 2026-01-18T15:00:00.000Z
+**Files Created**: tests/ralph/consensus-runner.test.ts
+
+### Summary
+Implemented comprehensive unit tests for the ConsensusRunner class, which orchestrates consensus resolution between Executor and Reviewer models when findings are identified.
+
+### Test Categories (68 tests total)
+
+1. **Initialization and State Tests** (5 tests)
+   - Idle state initialization
+   - Null current session initially
+   - Config option acceptance
+   - Web search service creation
+   - Provided web search service usage
+
+2. **Alignment Detection Tests** (4 tests)
+   - Detecting aligned proposals and resolving consensus
+   - Tracking proposal similarity score
+   - Detecting misaligned proposals
+   - Using simple similarity check when no LLM available
+
+3. **Multi-Round Escalation Tests** (5 tests)
+   - Proceeding to round 2 when round 1 not aligned
+   - Triggering ultrathink on round 2
+   - Aligning on second round when proposals converge
+   - Performing web search in ultrathink mode
+   - Skipping web search when disabled in config
+
+4. **Executor-Wins Tiebreaker Tests** (3 tests)
+   - Giving executor win after max rounds (per core_philosophy)
+   - Using executor proposal as final decision
+   - Respecting configured max rounds
+
+5. **Anonymization Tests (edge-006)** (3 tests)
+   - Labeling proposals as A/B not executor/reviewer
+   - Randomizing which model is A vs B
+   - Preserving source in proposal for internal tracking
+
+6. **Timeout Handling Tests** (4 tests)
+   - Using default timeout when not configured
+   - Respecting custom consensus timeout configuration
+   - Tracking timeout remaining in session
+   - Recording duration in result
+
+7. **Decision Recording Tests** (4 tests)
+   - Recording consensus result with all required fields
+   - Converting result to ConsensusRecord for PRD storage
+   - Adding notes when ultrathink was used
+   - Tracking duration in milliseconds
+
+8. **Cancellation Tests (edge-007)** (4 tests)
+   - Setting state to cancelled when cancel called during consensus
+   - Not cancelling if already idle
+   - Not cancelling if already resolved
+   - Preserving state after cancelling resolved consensus
+
+9. **Reset and Cleanup Tests** (3 tests)
+   - Resetting state to idle
+   - Allowing new consensus after reset
+   - Throwing if resolve called while not idle
+
+10. **PairVibe Event Emission Tests** (4 tests)
+    - Emitting consensus-started event
+    - Emitting consensus-round events
+    - Emitting consensus-completed event
+    - Not emitting events when no handler provided
+
+11. **Sycophancy Detection Tests** (2 tests)
+    - Detecting suspiciously quick consensus
+    - Flagging very short reasoning as potential sycophancy
+
+12. **Factory Functions Tests** (3 tests)
+    - Creating ConsensusRunner via createConsensusRunner
+    - Creating default LLM clients via createDefaultConsensusLLMClients
+    - Using default clients for basic operation
+
+13. **Helper Functions Tests** (6 tests)
+    - needsConsensus with non-empty findings returns true
+    - needsConsensus with empty findings returns false
+    - needsConsensus with no findings property returns false
+    - needsConsensus with null findings returns false
+    - hasConsensusRecord returns true when record exists
+    - hasConsensusRecord returns false when no/null record
+
+14. **Error Handling Tests** (4 tests)
+    - Throwing when all proposals fail across all rounds
+    - Emitting error event when consensus loop fails
+    - Throwing when only one model consistently fails
+    - Recovering if errors are intermittent and eventually succeed
+
+15. **Web Search Integration Tests** (3 tests)
+    - Generating search queries from step and findings
+    - Limiting search queries to prevent overload
+    - Handling web search failures gracefully
+
+16. **Session State Tests** (4 tests)
+    - Tracking current session during consensus
+    - Updating session round count
+    - Tracking ultrathink trigger in session
+    - Tracking web search usage in session
+
+17. **Edge Cases Tests** (6 tests)
+    - Handling empty findings array
+    - Handling very long findings
+    - Handling step with special characters in ID
+    - Handling step with minimal data
+    - Handling concurrent resolve attempts correctly
+    - Handling setExecutorClient/setReviewerClient after construction
+
+### Technical Details
+- Uses Vitest with fake timers for most tests
+- Real timers with short timeouts for timeout/cancellation tests requiring async timing
+- Mock implementations for ConsensusLLMClient and WebSearchService
+- Event collection helpers for testing EventEmitter behavior
+- Comprehensive PairVibeEvent emission verification
+- Tests verify all edge cases from PRD (edge-003, edge-006, edge-007)
+
+### Type check: PASSED
+### Tests: 862/862 PASSED
