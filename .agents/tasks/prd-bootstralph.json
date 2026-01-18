@@ -768,7 +768,8 @@
       "phase": 5,
       "task": "Implement /pause and /resume command handlers",
       "files": ["src/tui/commands/pause.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Set isPaused signal. Engine checks this between iterations. /resume clears the flag. Display status change in logs."
     },
     {

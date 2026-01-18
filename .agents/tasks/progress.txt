@@ -1339,3 +1339,49 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-046: Implement /pause and /resume command handlers
+
+### Completed
+- Created `src/tui/commands/pause.ts` with full pause/resume command implementation
+- Integrates with TUI store for isPaused signal management
+- Both commands log status changes to TUI log pane
+
+### Features
+- **executePauseCommand(options)**: Main /pause execution function
+  - Validates input if provided as raw string
+  - Checks if already paused (returns success with alreadyPaused flag)
+  - Checks if TUI is running (returns error if not)
+  - Calls store.pause() which sets isPaused signal and logs status
+  - Returns helpful message: "Ralph loop paused. Use /resume to continue."
+
+- **executeResumeCommand(options)**: Main /resume execution function
+  - Validates input if provided as raw string
+  - Checks if already running (returns success with alreadyRunning flag)
+  - Calls store.resume() which clears isPaused signal and logs status
+  - Returns message: "Ralph loop resumed"
+
+- **handlePauseCommand(input)**: Convenience for raw /pause command
+- **handleResumeCommand(input)**: Convenience for raw /resume command
+- **pauseRalph(showInLogs)**: Programmatic pause without parsing
+- **resumeRalph(showInLogs)**: Programmatic resume without parsing
+- **togglePause(showInLogs)**: Toggle between pause/resume states
+- **isPaused()**: Check current pause state
+- **getPauseHelp()**: Help text for /pause command
+- **getResumeHelp()**: Help text for /resume command
+
+### Technical Details
+- Commands integrate with existing store.pause() and store.resume() functions
+- Status changes logged to TUI with appropriate levels (warn for pause, info for resume)
+- showInLogs option allows silent operation for programmatic use
+- Engine will check store.isPaused() between iterations to honor pause state
+- Proper error handling for edge cases (already paused, not running)
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executePauseCommand, executeResumeCommand, handlePauseCommand, handleResumeCommand
+  - pauseRalph, resumeRalph, togglePause, isPaused, getPauseHelp, getResumeHelp
+  - PauseCommandOptions type
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

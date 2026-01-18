@@ -37,6 +37,20 @@ export {
 } from "./issue.js";
 export type { IssueCommandOptions } from "./issue.js";
 
+export {
+  executePauseCommand,
+  executeResumeCommand,
+  handlePauseCommand,
+  handleResumeCommand,
+  pauseRalph,
+  resumeRalph,
+  togglePause,
+  isPaused,
+  getPauseHelp,
+  getResumeHelp,
+} from "./pause.js";
+export type { PauseCommandOptions } from "./pause.js";
+
 // Export types
 export type {
   CommandName,
