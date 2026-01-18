@@ -2567,3 +2567,29 @@ for consensus mode. Provider-agnostic design with automatic strategy selection p
 
 ### Type check: PASSED
 ### Tests: PASSED (672/672)
+
+## 2026-01-18 - impl-009: Add Pair Vibe Mode prompt to ralph command
+
+### Completed
+- Extended ralph command with Pair Vibe Mode integration
+- Added CLI arguments: `--pair-vibe`, `--no-pair-vibe`, `--executor <provider>`, `--reviewer <provider>`
+- Implemented `promptPairVibeMode()` function with:
+  - API key detection via `detectApiKeys()` from api-keys.ts
+  - Interactive prompts for enabling Pair Vibe Mode
+  - Executor/Reviewer provider assignment
+  - Cost warning display (2-4x multiplier estimates per review-008)
+- Created `runPairVibeTuiMode()` function that:
+  - Initializes PairVibeEngine with config and event handlers
+  - Forwards all PairVibeEvents to TUI with appropriate log sources (reviewer, executor, consensus, search)
+  - Implements graceful shutdown on SIGINT/SIGTERM
+- Added `showCostWarning()` with breakdown of expected cost multipliers
+- Added `getModelDisplayName()` for user-friendly model output
+
+### Technical Details
+- Import additions: detectApiKeys, ApiProvider, PairVibeConfig, ModelIdentifier, createDefaultPairVibeConfig, PairVibeEngine, PairVibeEngineOptions
+- Extended RalphOptions interface with pairVibe, executorProvider, reviewerProvider fields
+- Updated parseRalphArgs to handle new CLI options
+- Pair Vibe Mode only available in interactive TUI mode (not AFK)
+- Event handler maps all PairVibeEvent types to TUI log calls with appropriate sources and levels
+
+### Type check: PASSED

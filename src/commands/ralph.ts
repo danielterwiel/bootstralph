@@ -8,6 +8,12 @@
  *   bootstralph ralph --afk              # Run in AFK mode (unattended)
  *   bootstralph ralph --no-tui           # Disable TUI (use simple spinner mode)
  *   bootstralph ralph --tui              # Enable TUI (default)
+ *
+ * Pair Vibe Mode (requires ANTHROPIC_API_KEY and OPENAI_API_KEY):
+ *   bootstralph ralph --pair-vibe        # Enable Pair Vibe Mode
+ *   bootstralph ralph --no-pair-vibe     # Disable Pair Vibe Mode
+ *   bootstralph ralph --pair-vibe --executor claude --reviewer openai
+ *                                        # Specify model assignment
  */
 
 import * as p from "@clack/prompts";
@@ -46,6 +52,19 @@ import {
   getHelpText,
 } from "../tui/commands/index.js";
 import { store } from "../tui/state/store.js";
+import {
+  detectApiKeys,
+  type ApiProvider,
+} from "../ralph/api-keys.js";
+import {
+  type PairVibeConfig,
+  type ModelIdentifier,
+  createDefaultPairVibeConfig,
+} from "../ralph/pair-vibe-types.js";
+import {
+  PairVibeEngine,
+  type PairVibeEngineOptions,
+} from "../ralph/pair-vibe-engine.js";
 
 /** Default max iterations for AFK mode */
 const DEFAULT_MAX_ITERATIONS = 10;
@@ -60,6 +79,12 @@ interface RalphOptions {
   verbose: boolean;
   /** Enable TUI mode (default: true) */
   tui: boolean;
+  /** Enable Pair Vibe Mode (requires 2 API keys) */
+  pairVibe?: boolean;
+  /** Provider for Executor in Pair Vibe Mode */
+  executorProvider?: ApiProvider;
+  /** Provider for Reviewer in Pair Vibe Mode */
+  reviewerProvider?: ApiProvider;
 }
 
 /**
@@ -97,6 +122,28 @@ function parseRalphArgs(args: string[]): RalphOptions {
       options.tui = true;
     } else if (arg === "--no-tui") {
       options.tui = false;
+    } else if (arg === "--pair-vibe") {
+      options.pairVibe = true;
+    } else if (arg === "--no-pair-vibe") {
+      options.pairVibe = false;
+    } else if (arg === "--executor") {
+      const nextArg = args[i + 1];
+      if (nextArg === "claude" || nextArg === "anthropic") {
+        options.executorProvider = "anthropic";
+        i++;
+      } else if (nextArg === "openai" || nextArg === "gpt") {
+        options.executorProvider = "openai";
+        i++;
+      }
+    } else if (arg === "--reviewer") {
+      const nextArg = args[i + 1];
+      if (nextArg === "claude" || nextArg === "anthropic") {
+        options.reviewerProvider = "anthropic";
+        i++;
+      } else if (nextArg === "openai" || nextArg === "gpt") {
+        options.reviewerProvider = "openai";
+        i++;
+      }
     } else if (!arg.startsWith("-")) {
       // Treat as PRD file if it looks like one
       if (arg.includes("prd-") || arg.endsWith(".json")) {
@@ -155,6 +202,154 @@ async function selectPrd(): Promise<{ filename: string; prd: Prd } | null> {
 
   const match = incompletePrds.find((item) => item.filename === selected);
   return match ?? null;
+}
+
+/**
+ * Prompt user to enable Pair Vibe Mode when 2+ API keys are detected
+ * @returns PairVibeConfig if enabled, null if disabled
+ */
+async function promptPairVibeMode(
+  options: RalphOptions
+): Promise<PairVibeConfig | null> {
+  // Detect available API keys
+  const detection = detectApiKeys();
+
+  // If explicitly disabled via CLI, skip
+  if (options.pairVibe === false) {
+    return null;
+  }
+
+  // If only one or no providers available, can't enable Pair Vibe
+  if (!detection.canEnablePairVibe) {
+    if (options.pairVibe === true) {
+      // User explicitly requested Pair Vibe but it's not available
+      p.log.warn("Pair Vibe Mode requires 2 API providers (Anthropic + OpenAI)");
+      p.log.info(detection.summary);
+    }
+    return null;
+  }
+
+  // 2+ providers detected - check if we should prompt
+  p.log.info(`${detection.summary}`);
+
+  // If explicitly enabled via CLI with provider assignments, use those
+  if (options.pairVibe === true && options.executorProvider && options.reviewerProvider) {
+    // Validate that both providers are available
+    if (!detection.availableProviders.includes(options.executorProvider)) {
+      p.log.error(`Executor provider "${options.executorProvider}" not available`);
+      return null;
+    }
+    if (!detection.availableProviders.includes(options.reviewerProvider)) {
+      p.log.error(`Reviewer provider "${options.reviewerProvider}" not available`);
+      return null;
+    }
+    if (options.executorProvider === options.reviewerProvider) {
+      p.log.warn("Executor and Reviewer should use different providers for best results");
+    }
+
+    // Show cost warning
+    await showCostWarning();
+
+    return createDefaultPairVibeConfig(options.executorProvider, options.reviewerProvider);
+  }
+
+  // Prompt user to enable Pair Vibe Mode
+  const enablePairVibe = await p.confirm({
+    message: "Enable Pair Vibe Mode? (Two models work concurrently for better results)",
+    initialValue: false,
+  });
+
+  if (p.isCancel(enablePairVibe) || !enablePairVibe) {
+    return null;
+  }
+
+  // Prompt for Executor assignment
+  const executorChoice = await p.select({
+    message: "Which provider should be the Executor? (Runs the main Ralph loop)",
+    options: [
+      {
+        value: "anthropic" as const,
+        label: "Claude (Anthropic)",
+        hint: "Recommended - more capable for complex implementations",
+      },
+      {
+        value: "openai" as const,
+        label: "GPT (OpenAI)",
+        hint: "Faster, good for simpler tasks",
+      },
+    ],
+  });
+
+  if (p.isCancel(executorChoice)) {
+    return null;
+  }
+
+  // Reviewer is the other provider
+  const executorProvider = executorChoice as ApiProvider;
+  const reviewerProvider: ApiProvider = executorProvider === "anthropic" ? "openai" : "anthropic";
+
+  p.log.info(`Executor: ${executorProvider === "anthropic" ? "Claude" : "GPT"}`);
+  p.log.info(`Reviewer: ${reviewerProvider === "anthropic" ? "Claude" : "GPT"}`);
+
+  // Show cost warning
+  const proceed = await showCostWarning();
+  if (!proceed) {
+    return null;
+  }
+
+  return createDefaultPairVibeConfig(executorProvider, reviewerProvider);
+}
+
+/**
+ * Show cost warning for Pair Vibe Mode
+ * Per review-008: Expected cost 2-4x single model
+ */
+async function showCostWarning(): Promise<boolean> {
+  p.log.warn("⚠ Pair Vibe Mode Cost Warning");
+  p.note(
+    `Pair Vibe Mode runs two models concurrently with independent review.
+
+Expected cost: 2-4x single model
+- Low friction (10% consensus): ~2.2x
+- Medium friction (25% consensus): ~2.8x
+- High friction (40% consensus): ~3.5x
+
+Actual cost depends on how often consensus is needed.`,
+    "Cost Estimate"
+  );
+
+  const proceed = await p.confirm({
+    message: "Continue with Pair Vibe Mode?",
+    initialValue: true,
+  });
+
+  return !p.isCancel(proceed) && proceed;
+}
+
+/**
+ * Get display name for a model
+ */
+function getModelDisplayName(model: ModelIdentifier): string {
+  switch (model) {
+    case "claude-sonnet-4-20250514":
+      return "Claude Sonnet 4";
+    case "claude-opus-4-20250514":
+      return "Claude Opus 4";
+    case "claude-sonnet-4-5-20250514":
+      return "Claude Sonnet 4.5";
+    case "gpt-4o":
+      return "GPT-4o";
+    case "gpt-4.1":
+      return "GPT-4.1";
+    case "o1":
+      return "o1";
+    case "o3":
+      return "o3";
+    case "o3-mini":
+      return "o3-mini";
+    default:
+      return model;
+  }
 }
 
 /**
@@ -534,6 +729,206 @@ async function runTuiMode(
 }
 
 /**
+ * Run Ralph in Pair Vibe TUI mode with two models
+ */
+async function runPairVibeTuiMode(
+  prdFile: string,
+  prd: Prd,
+  config: PairVibeConfig,
+  maxIterations: number,
+  verbose: boolean
+): Promise<void> {
+  // Resolve the tasks directory for PRD operations
+  const tasksDir = path.resolve(process.cwd(), AGENTS_TASKS_DIR);
+
+  // Start the TUI
+  startTui({
+    prd,
+    prdFile,
+    maxIterations,
+    onCommand: handleTuiCommand,
+    showPrdInfo: true,
+    showSuggestions: true,
+    title: `Ralph [PAIR VIBE]: ${prd.name}`,
+    debug: verbose,
+  });
+
+  // Log startup message with Pair Vibe info
+  tuiLog(`Starting Pair Vibe Mode for: ${prd.name}`, "info", "system");
+  tuiLog(
+    `Executor: ${getModelDisplayName(config.executorModel)} (${config.executorProvider})`,
+    "info",
+    "system"
+  );
+  tuiLog(
+    `Reviewer: ${getModelDisplayName(config.reviewerModel)} (${config.reviewerProvider})`,
+    "info",
+    "system"
+  );
+  tuiLog(`Max iterations: ${maxIterations}`, "info", "system");
+  tuiLog('Type /help for available commands', "info", "system");
+
+  // Build Pair Vibe Engine options
+  const engineOptions: PairVibeEngineOptions = {
+    config,
+    eventHandler: (event) => {
+      // Forward events to TUI
+      switch (event.type) {
+        case "phase-change":
+          tuiLog(`Phase: ${event.phase}`, "info", "engine");
+          break;
+        case "reviewer-started":
+          tuiLog(`Reviewer started: ${event.stepId}`, "info", "reviewer");
+          break;
+        case "reviewer-completed":
+          tuiLog(
+            `Reviewer completed: ${event.stepId} (${event.hasFindings ? "findings" : "clean"})`,
+            event.hasFindings ? "warn" : "success",
+            "reviewer"
+          );
+          break;
+        case "reviewer-timeout":
+          tuiLog(`Reviewer timeout: ${event.stepId}`, "warn", "reviewer");
+          break;
+        case "executor-started":
+          tuiLog(`Executor started: ${event.stepId}`, "info", "executor");
+          break;
+        case "executor-completed":
+          tuiLog(
+            `Executor completed: ${event.stepId} (${event.success ? "success" : "failed"})`,
+            event.success ? "success" : "error",
+            "executor"
+          );
+          break;
+        case "consensus-started":
+          tuiLog(
+            `Consensus needed for ${event.stepId}: ${event.findings.length} findings`,
+            "warn",
+            "consensus"
+          );
+          break;
+        case "consensus-round":
+          tuiLog(`Consensus round ${event.round} for ${event.stepId}`, "info", "consensus");
+          break;
+        case "consensus-completed":
+          tuiLog(
+            `Consensus reached for ${event.result.stepId} (${event.result.decidedBy}) in ${event.result.rounds} rounds`,
+            "success",
+            "consensus"
+          );
+          break;
+        case "consensus-timeout":
+          tuiLog(`Consensus timeout: ${event.stepId}`, "warn", "consensus");
+          break;
+        case "web-search-started":
+          if (verbose) {
+            tuiLog(`Web search: ${event.query}`, "info", "search");
+          }
+          break;
+        case "web-search-completed":
+          if (verbose) {
+            tuiLog(`Search found ${event.resultCount} results`, "success", "search");
+          }
+          break;
+        case "web-search-failed":
+          tuiLog(`Search failed: ${event.error}`, "warn", "search");
+          break;
+        case "rate-limit-hit":
+          tuiLog(
+            `Rate limit hit (${event.provider}), retry in ${Math.round(event.retryAfterMs / 1000)}s`,
+            "warn",
+            "system"
+          );
+          break;
+        case "degraded-mode":
+          tuiLog(`Degraded mode: ${event.reason}`, "warn", "system");
+          break;
+        case "paused":
+          tuiLog(`Paused: ${event.reason}`, "info", "system");
+          break;
+        case "resumed":
+          tuiLog("Resumed", "info", "system");
+          break;
+        case "error":
+          tuiLog(`Error: ${event.error}`, "error", "system");
+          break;
+        case "cost-update":
+          if (verbose) {
+            tuiLog(`Cost: $${event.totalCost.toFixed(4)}`, "info", "cost");
+          }
+          break;
+      }
+    },
+    savePrd: async (updatedPrd: Prd) => {
+      // Save PRD to file
+      const prdPath = path.join(tasksDir, prdFile);
+      await fs.writeJson(prdPath, updatedPrd, { spaces: 2 });
+    },
+    reloadPrd: async () => {
+      // Reload PRD from file
+      const loaded = await loadPrd(prdFile);
+      if (!loaded) {
+        throw new Error(`Failed to reload PRD: ${prdFile}`);
+      }
+      return loaded;
+    },
+  };
+
+  // Create the Pair Vibe Engine
+  const engine = new PairVibeEngine(engineOptions);
+
+  // Handle Ctrl+C gracefully
+  const handleSignal = () => {
+    tuiLog("Received interrupt signal, shutting down...", "warn", "system");
+    engine.stop("User interrupt");
+    stopTui();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", handleSignal);
+  process.on("SIGTERM", handleSignal);
+
+  try {
+    // Run the Pair Vibe Engine
+    const result = await engine.run(prd);
+
+    // Log final result
+    if (result.prdComplete) {
+      tuiLog(
+        `PRD completed! ${result.stepsCompleted}/${result.stepsTotal} steps`,
+        "success",
+        "system"
+      );
+      tuiLog(
+        `Consensus triggered ${result.consensusRounds} times, ${result.reviewTimeouts} review timeouts`,
+        "info",
+        "system"
+      );
+    } else {
+      tuiLog(
+        `Ralph stopped: ${result.stopReason} (${result.stepsCompleted}/${result.stepsTotal} steps)`,
+        "warn",
+        "system"
+      );
+      if (result.error) {
+        tuiLog(`Error: ${result.error}`, "error", "system");
+      }
+    }
+
+    // Wait a bit for user to see the result before exiting
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    tuiLog(`Engine error: ${errorMessage}`, "error", "system");
+  } finally {
+    // Cleanup
+    process.off("SIGINT", handleSignal);
+    process.off("SIGTERM", handleSignal);
+    stopTui();
+  }
+}
+
+/**
  * Handle the 'ralph' command
  */
 export async function handleRalph(args: string[]): Promise<void> {
@@ -583,12 +978,21 @@ export async function handleRalph(args: string[]): Promise<void> {
     return;
   }
 
+  // Check for Pair Vibe Mode (only in interactive TUI mode, not AFK)
+  let pairVibeConfig: PairVibeConfig | null = null;
+  if (!options.afk && options.tui) {
+    pairVibeConfig = await promptPairVibeMode(options);
+  }
+
   // Run in appropriate mode
   if (options.afk) {
     // AFK mode always uses simple spinner mode (no TUI)
     await runAfkMode(prdFile, prd, options.iterations, options.verbose);
+  } else if (pairVibeConfig) {
+    // Pair Vibe TUI mode with two models
+    await runPairVibeTuiMode(prdFile, prd, pairVibeConfig, options.iterations, options.verbose);
   } else if (options.tui) {
-    // TUI mode with full interactive interface
+    // Standard TUI mode with single model
     await runTuiMode(prdFile, prd, options.iterations, options.verbose);
   } else {
     // Simple interactive mode (legacy behavior)
