@@ -3,10 +3,12 @@
  * Fourth step in the wizard - select deployment target based on framework
  * Uses filtering logic to show only compatible options
  * Includes edge runtime validation for ORM compatibility
+ * Supports multi-select for universal apps (web + mobile)
  */
 
 import * as p from "@clack/prompts";
 import {
+  type Target,
   type Framework,
   type DeploymentTarget,
   type ORM,
@@ -24,12 +26,14 @@ import {
 
 export interface DeploymentResult {
   deployment: DeploymentTarget;
+  deployments?: DeploymentTarget[]; // For multi-platform projects
   edgeWarning?: string;
 }
 
 export interface DeploymentPromptContext {
   framework: Framework;
   orm?: ORM;
+  targets?: Target[]; // For multi-platform deployment selection
 }
 
 // ============================================================================
@@ -37,20 +41,30 @@ export interface DeploymentPromptContext {
 // ============================================================================
 
 /**
- * Prompt user to select a deployment target for their project
+ * Prompt user to select deployment target(s) for their project
  * Shows only compatible options based on framework
+ * For universal apps (web + mobile), allows multi-select
  * Validates edge runtime ORM compatibility after selection
- * Returns the selected deployment or undefined if cancelled
+ * Returns the selected deployment(s) or undefined if cancelled
  */
 export async function promptDeployment(
   context: DeploymentPromptContext
 ): Promise<DeploymentResult | undefined> {
-  const { framework, orm } = context;
+  const { framework, orm, targets } = context;
 
   const availableOptions = getAvailableDeployment({ framework });
 
   if (availableOptions.length === 0) {
     return undefined;
+  }
+
+  // Check if this is a universal app that needs multiple deployment targets
+  const isUniversal = targets && targets.includes('web') &&
+    (targets.includes('ios') || targets.includes('android'));
+
+  // For universal apps, use multi-select to allow both web and mobile deployments
+  if (isUniversal) {
+    return promptMultiDeployment(context, availableOptions);
   }
 
   // Auto-select if only one option
@@ -86,6 +100,90 @@ export async function promptDeployment(
   }
 
   return { deployment };
+}
+
+/**
+ * Prompt for multiple deployment targets (for universal apps)
+ */
+async function promptMultiDeployment(
+  context: DeploymentPromptContext,
+  availableOptions: FilteredOption<DeploymentTarget>[]
+): Promise<DeploymentResult | undefined> {
+  const { orm } = context;
+
+  // Categorize deployment options
+  const webDeployments: DeploymentTarget[] = ['vercel', 'netlify', 'cloudflare', 'fly-io', 'railway', 'render'];
+  const mobileDeployments: DeploymentTarget[] = ['eas', 'local-builds', 'fastlane', 'codemagic'];
+
+  const webOptions = availableOptions.filter(o => webDeployments.includes(o.value));
+  const mobileOptions = availableOptions.filter(o => mobileDeployments.includes(o.value));
+
+  // Build combined options with category hints
+  const options = availableOptions.map((opt) => {
+    const isWeb = webDeployments.includes(opt.value);
+    const isMobile = mobileDeployments.includes(opt.value);
+    const category = isWeb ? '(Web)' : isMobile ? '(Mobile)' : '';
+
+    const option: { value: DeploymentTarget; label: string; hint?: string } = {
+      value: opt.value,
+      label: opt.recommended ? `${opt.label} ${category} (Recommended)` : `${opt.label} ${category}`,
+    };
+    if (opt.description) {
+      option.hint = opt.description;
+    }
+    return option;
+  });
+
+  // Pre-select recommended web + mobile deployment
+  const initialValues: DeploymentTarget[] = [];
+  const recommendedWeb = webOptions.find(o => o.recommended)?.value ?? webOptions[0]?.value;
+  const recommendedMobile = mobileOptions.find(o => o.recommended)?.value ?? mobileOptions[0]?.value;
+  if (recommendedWeb) initialValues.push(recommendedWeb);
+  if (recommendedMobile) initialValues.push(recommendedMobile);
+
+  p.log.info('Universal apps can deploy to both web and mobile platforms');
+
+  const result = await p.multiselect({
+    message: "Select deployment targets (Space to select, Enter to confirm)",
+    options,
+    initialValues,
+    required: true,
+  });
+
+  if (p.isCancel(result)) {
+    return undefined;
+  }
+
+  const deployments = result as DeploymentTarget[];
+
+  // Use the first deployment as primary, store all in deployments array
+  const primaryDeployment = deployments[0]!;
+
+  // Check edge runtime compatibility for web deployments
+  let edgeWarning: string | undefined;
+  if (orm && orm !== "none") {
+    for (const deployment of deployments) {
+      if (webDeployments.includes(deployment)) {
+        const warning = validateEdgeCompatibility(deployment, orm);
+        if (warning) {
+          edgeWarning = warning;
+          p.log.warn(warning);
+          break;
+        }
+      }
+    }
+  }
+
+  const deploymentResult: DeploymentResult = {
+    deployment: primaryDeployment,
+    deployments,
+  };
+
+  if (edgeWarning) {
+    deploymentResult.edgeWarning = edgeWarning;
+  }
+
+  return deploymentResult;
 }
 
 // ============================================================================

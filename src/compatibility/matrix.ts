@@ -7,6 +7,19 @@
 // Core Types
 // ============================================================================
 
+/**
+ * Target represents the individual build targets a user can select.
+ * Users can select multiple targets (e.g., web + ios + android).
+ */
+export type Target = 'web' | 'ios' | 'android' | 'api';
+
+/**
+ * Platform is derived from the selected targets for internal use.
+ * - 'web': Only web target selected
+ * - 'mobile': ios and/or android selected (no web)
+ * - 'universal': web + (ios and/or android) selected
+ * - 'api': Only api target selected
+ */
 export type Platform = 'web' | 'mobile' | 'universal' | 'api';
 
 export type Framework =
@@ -809,10 +822,99 @@ export const SKILLS_MATRIX: SkillsByStack[] = [
 // ============================================================================
 
 /**
+ * Derive Platform from selected targets
+ * - Only web → 'web'
+ * - Only api → 'api'
+ * - ios and/or android (no web) → 'mobile'
+ * - web + (ios and/or android) → 'universal'
+ */
+export function derivePlatformFromTargets(targets: Target[]): Platform {
+  const hasWeb = targets.includes('web');
+  const hasMobile = targets.includes('ios') || targets.includes('android');
+  const hasApi = targets.includes('api');
+
+  // API only
+  if (hasApi && !hasWeb && !hasMobile) {
+    return 'api';
+  }
+
+  // Web + Mobile = Universal
+  if (hasWeb && hasMobile) {
+    return 'universal';
+  }
+
+  // Mobile only
+  if (hasMobile && !hasWeb) {
+    return 'mobile';
+  }
+
+  // Web only (or fallback)
+  return 'web';
+}
+
+/**
+ * Check if targets include mobile (iOS or Android)
+ */
+export function hasMobileTargets(targets: Target[]): boolean {
+  return targets.includes('ios') || targets.includes('android');
+}
+
+/**
+ * Check if targets include web
+ */
+export function hasWebTarget(targets: Target[]): boolean {
+  return targets.includes('web');
+}
+
+/**
+ * Get specific mobile targets selected
+ */
+export function getMobileTargets(targets: Target[]): ('ios' | 'android')[] {
+  const mobile: ('ios' | 'android')[] = [];
+  if (targets.includes('ios')) mobile.push('ios');
+  if (targets.includes('android')) mobile.push('android');
+  return mobile;
+}
+
+/**
+ * Validate target selection - some combinations don't make sense
+ */
+export function validateTargetSelection(targets: Target[]): {
+  valid: boolean;
+  reason?: string;
+} {
+  if (targets.length === 0) {
+    return { valid: false, reason: 'At least one target must be selected' };
+  }
+
+  // API + other targets is an unusual combination but could be valid (monorepo)
+  // Web + Mobile is valid (universal)
+  // All combinations are technically valid for now
+
+  return { valid: true };
+}
+
+/**
  * Get frameworks available for a platform
  */
 export function getFrameworksForPlatform(platform: Platform): Framework[] {
   return PLATFORMS[platform].frameworks;
+}
+
+/**
+ * Get frameworks available for selected targets
+ * More nuanced than platform-based - considers specific target combinations
+ */
+export function getFrameworksForTargets(targets: Target[]): Framework[] {
+  const platform = derivePlatformFromTargets(targets);
+  const baseFrameworks = PLATFORMS[platform].frameworks;
+
+  // For universal (web + mobile), prioritize Expo with web support
+  if (platform === 'universal') {
+    return ['expo']; // Expo is the only framework that truly supports web + mobile
+  }
+
+  return baseFrameworks;
 }
 
 /**

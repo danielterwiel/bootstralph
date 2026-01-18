@@ -345,7 +345,7 @@ function collectAdditionalDependencies(
         deps.push("@react-native-async-storage/async-storage");
         break;
       case "convex":
-        deps.push("convex", "convex-react-native");
+        deps.push("convex");
         break;
       case "firebase":
         // React Native Firebase

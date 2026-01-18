@@ -8,6 +8,7 @@ import * as p from "@clack/prompts";
 import path from "node:path";
 import fs from "fs-extra";
 import type {
+  Target,
   Platform,
   Framework,
   Styling,
@@ -23,7 +24,7 @@ import type {
   PreCommitTool,
   Routing,
 } from "../compatibility/matrix.js";
-import { FRAMEWORKS, DEFAULTS } from "../compatibility/matrix.js";
+import { FRAMEWORKS, DEFAULTS, derivePlatformFromTargets } from "../compatibility/matrix.js";
 import { validateAllSelections } from "../compatibility/validators.js";
 import { promptProjectType } from "../prompts/project-type.js";
 import { promptFramework, getFrameworkDisplayName } from "../prompts/framework.js";
@@ -52,7 +53,8 @@ export type Preset = "saas" | "mobile" | "api" | "content" | "universal" | "full
  */
 export interface ProjectConfig {
   projectName: string;
-  platform: Platform;
+  targets: Target[];
+  platform: Platform; // Derived from targets for backward compatibility
   framework: Framework;
   styling?: Styling;
   state?: StateManagement[];
@@ -60,6 +62,7 @@ export interface ProjectConfig {
   backend?: Backend;
   auth?: AuthProvider;
   deployment?: DeploymentTarget;
+  deployments?: DeploymentTarget[]; // For multi-platform projects
   linter: Linter;
   formatter: Formatter;
   unitTesting: UnitTestFramework;
@@ -92,6 +95,7 @@ export interface CreateResult {
  */
 const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
   saas: {
+    targets: ["web"],
     platform: "web",
     framework: "nextjs",
     styling: "tailwind-shadcn",
@@ -108,6 +112,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     packageManager: "bun",
   },
   mobile: {
+    targets: ["ios", "android"],
     platform: "mobile",
     framework: "expo",
     styling: "uniwind",
@@ -124,6 +129,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     routing: "expo-router",
   },
   api: {
+    targets: ["api"],
     platform: "api",
     framework: "hono",
     orm: "drizzle",
@@ -137,6 +143,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     apiFramework: "hono",
   },
   content: {
+    targets: ["web"],
     platform: "web",
     framework: "astro",
     styling: "tailwind",
@@ -151,6 +158,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     packageManager: "bun",
   },
   universal: {
+    targets: ["web", "ios", "android"],
     platform: "universal",
     framework: "expo",
     styling: "tamagui",
@@ -158,6 +166,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     backend: "supabase",
     auth: "clerk",
     deployment: "eas",
+    deployments: ["vercel", "eas"], // Web + Mobile deployments
     linter: "oxlint",
     formatter: "oxfmt",
     unitTesting: "jest",
@@ -167,6 +176,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
     routing: "expo-router",
   },
   fullstack: {
+    targets: ["web"],
     platform: "web",
     framework: "nextjs",
     styling: "tailwind-shadcn",
@@ -338,15 +348,17 @@ export async function handleCreate(
  * Run the full wizard flow to collect project configuration
  */
 async function runWizard(projectName: string): Promise<ProjectConfig | undefined> {
-  // Step 1: Project type selection
+  // Step 1: Target platforms selection
   const projectTypeResult = await promptProjectType();
   if (!projectTypeResult) {
     p.cancel("Operation cancelled");
     return undefined;
   }
 
-  // Step 2: Framework selection
-  const frameworkResult = await promptFramework(projectTypeResult.platform);
+  const { targets, platform } = projectTypeResult;
+
+  // Step 2: Framework selection (pass targets for better filtering)
+  const frameworkResult = await promptFramework(targets);
   if (!frameworkResult) {
     p.cancel("Operation cancelled");
     return undefined;
@@ -354,13 +366,13 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
 
   // Step 2.5: API framework selection (if API platform)
   let apiFramework: ApiFramework | undefined;
-  if (projectTypeResult.platform === "api") {
+  if (platform === "api") {
     apiFramework = frameworkResult.framework as ApiFramework;
   }
 
   // Step 3: Features selection
   const featuresResult = await promptFeatures({
-    platform: projectTypeResult.platform,
+    platform,
     framework: frameworkResult.framework,
   });
   if (!featuresResult) {
@@ -368,9 +380,10 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
     return undefined;
   }
 
-  // Step 4: Deployment selection
-  const deploymentContext: { framework: Framework; orm?: ORM } = {
+  // Step 4: Deployment selection (pass targets for multi-platform deployment)
+  const deploymentContext: { framework: Framework; orm?: ORM; targets?: Target[] } = {
     framework: frameworkResult.framework,
+    targets,
   };
   if (featuresResult.orm) {
     deploymentContext.orm = featuresResult.orm;
@@ -383,7 +396,7 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
 
   // Step 5: Tooling selection
   const toolingResult = await promptTooling({
-    platform: projectTypeResult.platform,
+    platform,
     framework: frameworkResult.framework,
   });
   if (!toolingResult) {
@@ -394,7 +407,8 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
   // Build configuration
   const config: ProjectConfig = {
     projectName,
-    platform: projectTypeResult.platform,
+    targets,
+    platform,
     framework: frameworkResult.framework,
     linter: toolingResult.linter,
     formatter: toolingResult.formatter,
@@ -421,6 +435,9 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
   }
   if (deploymentResult.deployment) {
     config.deployment = deploymentResult.deployment;
+  }
+  if (deploymentResult.deployments && deploymentResult.deployments.length > 1) {
+    config.deployments = deploymentResult.deployments;
   }
   if (toolingResult.e2eTesting) {
     config.e2eTesting = toolingResult.e2eTesting;
@@ -451,14 +468,19 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
 function applyPreset(projectName: string, preset: Preset): ProjectConfig {
   const presetConfig = PRESET_CONFIGS[preset];
 
+  // Determine targets and platform
+  const targets = presetConfig.targets ?? ["web"];
+  const platform = presetConfig.platform ?? derivePlatformFromTargets(targets);
+
   // Merge preset with defaults
   const config: ProjectConfig = {
     projectName,
-    platform: presetConfig.platform ?? "web",
+    targets,
+    platform,
     framework: presetConfig.framework ?? "nextjs",
     linter: presetConfig.linter ?? DEFAULTS.linter,
     formatter: presetConfig.formatter ?? DEFAULTS.formatter,
-    unitTesting: presetConfig.unitTesting ?? DEFAULTS.unitTesting[presetConfig.platform ?? "web"],
+    unitTesting: presetConfig.unitTesting ?? DEFAULTS.unitTesting[platform],
     preCommit: presetConfig.preCommit ?? DEFAULTS.preCommit,
     packageManager: presetConfig.packageManager ?? DEFAULTS.packageManager,
   };
@@ -481,6 +503,9 @@ function applyPreset(projectName: string, preset: Preset): ProjectConfig {
   }
   if (presetConfig.deployment) {
     config.deployment = presetConfig.deployment;
+  }
+  if (presetConfig.deployments) {
+    config.deployments = presetConfig.deployments;
   }
   if (presetConfig.e2eTesting) {
     config.e2eTesting = presetConfig.e2eTesting;
@@ -786,9 +811,18 @@ function getDefaultRouting(framework: Framework): Routing | undefined {
  * Display configuration summary
  */
 function displayConfigSummary(config: ProjectConfig): void {
+  // Format targets for display
+  const targetLabels: Record<Target, string> = {
+    web: "Web",
+    ios: "iOS",
+    android: "Android",
+    api: "API",
+  };
+  const targetsDisplay = config.targets.map(t => targetLabels[t]).join(" + ");
+
   const summaryLines: string[] = [
     `Project: ${config.projectName}`,
-    `Platform: ${config.platform}`,
+    `Targets: ${targetsDisplay}`,
     `Framework: ${getFrameworkDisplayName(config.framework)}`,
   ];
 
@@ -807,7 +841,9 @@ function displayConfigSummary(config: ProjectConfig): void {
   if (config.auth) {
     summaryLines.push(`Auth: ${config.auth}`);
   }
-  if (config.deployment) {
+  if (config.deployments && config.deployments.length > 1) {
+    summaryLines.push(`Deployments: ${config.deployments.join(", ")}`);
+  } else if (config.deployment) {
     summaryLines.push(`Deployment: ${config.deployment}`);
   }
   summaryLines.push(`Linter: ${config.linter}`);

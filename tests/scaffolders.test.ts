@@ -803,7 +803,6 @@ describe('Expo Scaffolder', () => {
       });
 
       expect(deps.dependencies).toContain('convex');
-      expect(deps.dependencies).toContain('convex-react-native');
     });
 
     it('should collect Firebase React Native deps', () => {

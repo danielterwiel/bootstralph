@@ -4,6 +4,7 @@
  */
 
 import {
+  type Target,
   type Platform,
   type Framework,
   type Styling,
@@ -22,6 +23,8 @@ import {
   STYLING_COMPATIBILITY,
   LINTERS,
   DEFAULTS,
+  derivePlatformFromTargets,
+  getFrameworksForTargets,
 } from './matrix.js';
 
 // ============================================================================
@@ -32,7 +35,8 @@ import {
  * Current wizard selections
  */
 export interface WizardSelections {
-  platform?: Platform;
+  targets?: Target[];
+  platform?: Platform; // Can be derived from targets or set directly
   framework?: Framework;
   styling?: Styling;
   state?: StateManagement[];
@@ -77,6 +81,42 @@ export function getAvailableFrameworks(platform: Platform): FilteredOption<Frame
       recommended: framework === getRecommendedFramework(platform),
     };
   });
+}
+
+/**
+ * Get available frameworks for selected targets
+ * More nuanced than platform-based - considers specific target combinations
+ */
+export function getAvailableFrameworksForTargets(targets: Target[]): FilteredOption<Framework>[] {
+  const frameworks = getFrameworksForTargets(targets);
+  const platform = derivePlatformFromTargets(targets);
+
+  return frameworks.map((framework) => {
+    const config = FRAMEWORKS[framework];
+    return {
+      value: framework,
+      label: config.name,
+      description: getFrameworkDescriptionForTargets(framework, targets),
+      recommended: framework === getRecommendedFramework(platform),
+    };
+  });
+}
+
+/**
+ * Get framework description customized for selected targets
+ */
+function getFrameworkDescriptionForTargets(framework: Framework, targets: Target[]): string {
+  const config = FRAMEWORKS[framework];
+  const hasWeb = targets.includes('web');
+  const hasIos = targets.includes('ios');
+  const hasAndroid = targets.includes('android');
+
+  // Customize description for universal (web + mobile)
+  if (framework === 'expo' && hasWeb && (hasIos || hasAndroid)) {
+    return 'Universal app with Expo + web export';
+  }
+
+  return config.description;
 }
 
 /**
