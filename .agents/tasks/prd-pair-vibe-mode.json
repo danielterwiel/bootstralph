@@ -62,7 +62,8 @@
       "category": "consensus",
       "task": "Verify ultrathink implementation",
       "check": "How to implement ultrathink? Claude's extended thinking mode requires beta header. OpenAI has no equivalent - use multi-turn reflection instead?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Use native extended thinking for Claude, reasoning_effort for OpenAI o-series, and multi-turn reflection fallback for GPT-4. Implementation details: (1) CLAUDE: Use 'thinking' object with {type: 'enabled', budget_tokens: 10000}. Minimum budget 1024 tokens. Supported models: Claude 4 Opus/Sonnet, Claude 3.7 Sonnet. For interleaved thinking add beta header 'interleaved-thinking-2025-05-14'. Response includes 'thinking' content blocks with reasoning chain. Constraints: incompatible with temperature/top_p/top_k modifications, budget_tokens must be < max_tokens unless using interleaved thinking. (2) OPENAI O-SERIES (o1, o3, o3-mini): Use 'reasoning_effort' parameter with values 'low'/'medium'/'high'. Default is 'medium'. High improves accuracy 10-30% but costs more. Chain of thought is hidden (summarized only). Use Responses API for best performance. (3) GPT-4 FALLBACK: Multi-turn reflection pattern - Turn 1: generate initial proposal, Turn 2: critique own proposal (prompt: 'Review your proposal for flaws, edge cases, and improvements'), Turn 3: refine based on critique. This provides similar depth without native thinking support. (4) RECOMMENDATION: Abstract behind UltrathinkProvider interface that detects model type and applies appropriate strategy. Return normalized response with reasoning_summary (visible thinking/summary) and final_proposal fields."
     },
     {
       "id": "review-004",

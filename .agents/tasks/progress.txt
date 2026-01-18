@@ -1959,3 +1959,46 @@ PRD COMPLETED after 3 iterations
 - Updated impl-004 description should reflect "Tavily (primary) with Brave (fallback)" instead of "Tavily (primary) with SerpAPI fallback"
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-003: Verify ultrathink implementation
+
+### Completed
+- Researched extended thinking/reasoning modes for Claude and OpenAI APIs
+- Documented implementation strategy for "ultrathink" consensus mode
+
+### Research Findings
+
+#### Claude Extended Thinking
+- **API Parameter**: `thinking: { type: "enabled", budget_tokens: 10000 }`
+- **Minimum Budget**: 1,024 tokens
+- **Supported Models**: Claude 4 Opus/Sonnet, Claude 3.7 Sonnet
+- **Beta Header** (for interleaved thinking): `interleaved-thinking-2025-05-14`
+- **Response Format**: Includes `thinking` content blocks with reasoning chain
+- **Constraints**: Incompatible with temperature/top_p/top_k modifications; budget_tokens must be < max_tokens (unless using interleaved thinking)
+
+#### OpenAI Reasoning Models (o1, o3, o3-mini)
+- **API Parameter**: `reasoning_effort: "low" | "medium" | "high"`
+- **Default**: "medium"
+- **Performance**: High effort improves accuracy 10-30% but costs more
+- **Note**: Chain of thought is hidden (only summarized in response)
+- **Best Practice**: Use Responses API for improved performance
+
+#### GPT-4 Fallback (Multi-turn Reflection)
+For models without native reasoning support:
+1. **Turn 1**: Generate initial proposal
+2. **Turn 2**: Critique own proposal ("Review your proposal for flaws, edge cases, and improvements")
+3. **Turn 3**: Refine based on critique
+
+#### Implementation Recommendation
+Abstract behind `UltrathinkProvider` interface that:
+1. Detects model type (Claude extended thinking, OpenAI o-series, or GPT-4 fallback)
+2. Applies appropriate strategy automatically
+3. Returns normalized response with `reasoning_summary` and `final_proposal` fields
+
+### Sources
+- [Claude Extended Thinking Docs](https://docs.anthropic.com/en/docs/build-with-claude/extended-thinking)
+- [AWS Bedrock Extended Thinking](https://docs.aws.amazon.com/bedrock/latest/userguide/claude-messages-extended-thinking.html)
+- [OpenAI Reasoning Models](https://platform.openai.com/docs/guides/reasoning)
+- [OpenAI reasoning_effort Parameter](https://www.vellum.ai/llm-parameters/reasoning-effort)
+
+### Type check: PASSED
