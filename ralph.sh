@@ -24,6 +24,15 @@
 #   - If only ANTHROPIC_API_KEY is set, uses Claude (Anthropic)
 #   - If only OPENAI_API_KEY is set, uses GPT-4o (OpenAI)
 #   - If both are set, prompts user to choose
+#
+# Pair Vibe Mode:
+#   --pair-vibe           Enable Pair Vibe Mode (concurrent review)
+#   --no-pair-vibe        Disable Pair Vibe Mode (single model)
+#   --executor <provider> Set executor (anthropic or openai)
+#   --reviewer <provider> Set reviewer (anthropic or openai)
+#
+# When --pair-vibe is used with both API keys, runs two models concurrently:
+# one as Executor (implements tasks) and one as Reviewer (validates ahead).
 
 set -e
 
@@ -34,6 +43,10 @@ VERBOSE="${RALPH_VERBOSE:-false}"
 COMPLETION_PROMISE="<promise>COMPLETE</promise>"
 SELECTED_PROVIDER=""
 FORCE_PROVIDER=""
+# Pair Vibe Mode configuration
+PAIR_VIBE_MODE=""  # "", "enabled", "disabled"
+PAIR_VIBE_EXECUTOR=""
+PAIR_VIBE_REVIEWER=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -121,6 +134,143 @@ detect_and_select_provider() {
       print_color "$GREEN" "Using ANTHROPIC_API_KEY"
       ;;
   esac
+}
+
+# Detect if Pair Vibe Mode is available (both API keys present)
+can_enable_pair_vibe() {
+  [ -n "$OPENAI_API_KEY" ] && [ -n "$ANTHROPIC_API_KEY" ]
+}
+
+# Prompt user for Pair Vibe Mode executor/reviewer assignment
+prompt_pair_vibe_assignment() {
+  echo ""
+  print_color "$BLUE" "Pair Vibe Mode - Model Assignment"
+  echo ""
+  echo "Both API keys detected. Pair Vibe Mode runs two models concurrently:"
+  echo "  • Executor: Implements tasks"
+  echo "  • Reviewer: Validates steps ahead of time"
+  echo ""
+  print_color "$YELLOW" "Select Executor (Reviewer will use the other):"
+  echo ""
+  echo "  [1] Anthropic (Claude) - Recommended for complex implementation"
+  echo "  [2] OpenAI (GPT-4o) - Faster, good for straightforward tasks"
+  echo ""
+  read -p "Select executor [1-2]: " executor_choice
+
+  case $executor_choice in
+    1)
+      PAIR_VIBE_EXECUTOR="anthropic"
+      PAIR_VIBE_REVIEWER="openai"
+      ;;
+    2)
+      PAIR_VIBE_EXECUTOR="openai"
+      PAIR_VIBE_REVIEWER="anthropic"
+      ;;
+    *)
+      print_color "$YELLOW" "Invalid selection. Defaulting to Anthropic as Executor."
+      PAIR_VIBE_EXECUTOR="anthropic"
+      PAIR_VIBE_REVIEWER="openai"
+      ;;
+  esac
+
+  print_color "$GREEN" "Executor: $PAIR_VIBE_EXECUTOR"
+  print_color "$GREEN" "Reviewer: $PAIR_VIBE_REVIEWER"
+}
+
+# Show Pair Vibe Mode cost warning
+show_pair_vibe_cost_warning() {
+  echo ""
+  print_color "$YELLOW" "⚠ Cost Warning"
+  echo ""
+  echo "Pair Vibe Mode runs two models concurrently with independent review."
+  echo "Expected cost: 2-4x single model (depending on consensus frequency)."
+  echo ""
+  echo "Cost breakdown estimate:"
+  echo "  • Base execution: 1.0x"
+  echo "  • Reviewer overhead: +0.6x"
+  echo "  • Consensus mode (when needed): +0.5-1.5x per step"
+  echo ""
+  read -p "Proceed with Pair Vibe Mode? [Y/n]: " confirm
+  if [[ "$confirm" =~ ^[Nn] ]]; then
+    echo "Pair Vibe Mode disabled. Running in single-model mode."
+    PAIR_VIBE_MODE="disabled"
+    PAIR_VIBE_EXECUTOR=""
+    PAIR_VIBE_REVIEWER=""
+    return 1
+  fi
+  return 0
+}
+
+# Configure Pair Vibe Mode
+configure_pair_vibe() {
+  # Check if --no-pair-vibe was set
+  if [ "$PAIR_VIBE_MODE" = "disabled" ]; then
+    return
+  fi
+
+  # Check if --pair-vibe was set
+  if [ "$PAIR_VIBE_MODE" = "enabled" ]; then
+    if ! can_enable_pair_vibe; then
+      print_color "$RED" "Error: Pair Vibe Mode requires both ANTHROPIC_API_KEY and OPENAI_API_KEY"
+      exit 1
+    fi
+
+    # Validate executor and reviewer are different if both specified
+    if [ -n "$PAIR_VIBE_EXECUTOR" ] && [ -n "$PAIR_VIBE_REVIEWER" ]; then
+      if [ "$PAIR_VIBE_EXECUTOR" = "$PAIR_VIBE_REVIEWER" ]; then
+        print_color "$RED" "Error: Executor and Reviewer must be different providers"
+        exit 1
+      fi
+    fi
+
+    # If only executor specified, set reviewer to other provider
+    if [ -n "$PAIR_VIBE_EXECUTOR" ] && [ -z "$PAIR_VIBE_REVIEWER" ]; then
+      if [ "$PAIR_VIBE_EXECUTOR" = "anthropic" ]; then
+        PAIR_VIBE_REVIEWER="openai"
+      else
+        PAIR_VIBE_REVIEWER="anthropic"
+      fi
+    fi
+
+    # If only reviewer specified, set executor to other provider
+    if [ -z "$PAIR_VIBE_EXECUTOR" ] && [ -n "$PAIR_VIBE_REVIEWER" ]; then
+      if [ "$PAIR_VIBE_REVIEWER" = "anthropic" ]; then
+        PAIR_VIBE_EXECUTOR="openai"
+      else
+        PAIR_VIBE_EXECUTOR="anthropic"
+      fi
+    fi
+
+    # If neither executor nor reviewer specified via flags, prompt
+    if [ -z "$PAIR_VIBE_EXECUTOR" ] || [ -z "$PAIR_VIBE_REVIEWER" ]; then
+      prompt_pair_vibe_assignment
+    fi
+
+    # Show cost warning
+    if ! show_pair_vibe_cost_warning; then
+      return
+    fi
+
+    print_color "$GREEN" "Pair Vibe Mode enabled"
+    return
+  fi
+
+  # Auto-detect: if both keys present and not explicitly disabled, offer Pair Vibe
+  if can_enable_pair_vibe; then
+    echo ""
+    print_color "$BLUE" "Both API keys detected."
+    read -p "Enable Pair Vibe Mode (concurrent review)? [y/N]: " enable_pair_vibe
+    if [[ "$enable_pair_vibe" =~ ^[Yy] ]]; then
+      PAIR_VIBE_MODE="enabled"
+      prompt_pair_vibe_assignment
+      if ! show_pair_vibe_cost_warning; then
+        return
+      fi
+      print_color "$GREEN" "Pair Vibe Mode enabled"
+    else
+      PAIR_VIBE_MODE="disabled"
+    fi
+  fi
 }
 
 # Ensure tasks directory exists
@@ -312,6 +462,17 @@ get_model_flag() {
   esac
 }
 
+# Get Pair Vibe Mode flags for bootstralph ralph command
+get_pair_vibe_flags() {
+  if [ "$PAIR_VIBE_MODE" = "enabled" ] && [ -n "$PAIR_VIBE_EXECUTOR" ] && [ -n "$PAIR_VIBE_REVIEWER" ]; then
+    echo "--pair-vibe --executor $PAIR_VIBE_EXECUTOR --reviewer $PAIR_VIBE_REVIEWER"
+  elif [ "$PAIR_VIBE_MODE" = "disabled" ]; then
+    echo "--no-pair-vibe"
+  else
+    echo ""
+  fi
+}
+
 # Run a single Ralph iteration
 run_iteration() {
   local prd_file=$1
@@ -329,10 +490,16 @@ run_iteration() {
   if [ "$VERBOSE" = "true" ]; then
     echo "Prompt: $prompt"
     echo "Provider: $SELECTED_PROVIDER"
+    if [ "$PAIR_VIBE_MODE" = "enabled" ]; then
+      echo "Pair Vibe Mode: ENABLED"
+      echo "  Executor: $PAIR_VIBE_EXECUTOR"
+      echo "  Reviewer: $PAIR_VIBE_REVIEWER"
+    fi
   fi
 
   local model_flag=$(get_model_flag)
-  docker sandbox run claude --permission-mode acceptEdits $model_flag -p "$prompt"
+  local pair_vibe_flags=$(get_pair_vibe_flags)
+  docker sandbox run claude --permission-mode acceptEdits $model_flag $pair_vibe_flags -p "$prompt"
 }
 
 # Run AFK mode
@@ -346,6 +513,12 @@ run_afk_mode() {
   echo "  PRD: $name"
   echo "  File: $prd_file"
   echo "  Max iterations: $max_iterations"
+  if [ "$PAIR_VIBE_MODE" = "enabled" ]; then
+    echo ""
+    print_color "$GREEN" "  Pair Vibe Mode: ENABLED"
+    echo "    Executor: $PAIR_VIBE_EXECUTOR"
+    echo "    Reviewer: $PAIR_VIBE_REVIEWER"
+  fi
   echo ""
   print_color "$YELLOW" "Press Ctrl+C to stop"
   echo ""
@@ -367,7 +540,24 @@ run_afk_mode() {
 
     echo "$result"
 
+    # Check if Claude claims completion
     if [[ "$result" == *"$COMPLETION_PROMISE"* ]]; then
+      # IMPORTANT: Verify the PRD is actually complete before trusting Claude's claim
+      # Claude sometimes outputs the completion promise prematurely
+      if is_prd_complete "$prd_file"; then
+        echo ""
+        print_color "$GREEN" "PRD COMPLETE after $i iterations!"
+        echo "## $(date -Iseconds)" >> "$progress_file"
+        echo "PRD COMPLETED after $i iterations" >> "$progress_file"
+        exit 0
+      else
+        local actual_progress=$(get_prd_progress "$prd_file")
+        print_color "$YELLOW" "⚠ Claude claimed completion but PRD is $actual_progress. Continuing..."
+      fi
+    fi
+
+    # Also check actual completion status (Claude might complete without saying so)
+    if is_prd_complete "$prd_file"; then
       echo ""
       print_color "$GREEN" "PRD COMPLETE after $i iterations!"
       echo "## $(date -Iseconds)" >> "$progress_file"
@@ -396,6 +586,12 @@ run_interactive() {
   print_color "$BLUE" "Ralph Interactive Mode"
   echo "  PRD: $name"
   echo "  Progress: $progress"
+  if [ "$PAIR_VIBE_MODE" = "enabled" ]; then
+    echo ""
+    print_color "$GREEN" "  Pair Vibe Mode: ENABLED"
+    echo "    Executor: $PAIR_VIBE_EXECUTOR"
+    echo "    Reviewer: $PAIR_VIBE_REVIEWER"
+  fi
   echo ""
 
   read -p "Run iteration? [Y/n]: " confirm
@@ -454,6 +650,44 @@ main() {
         esac
         shift 2
         ;;
+      --pair-vibe)
+        PAIR_VIBE_MODE="enabled"
+        shift
+        ;;
+      --no-pair-vibe)
+        PAIR_VIBE_MODE="disabled"
+        shift
+        ;;
+      --executor)
+        case $2 in
+          anthropic|claude)
+            PAIR_VIBE_EXECUTOR="anthropic"
+            ;;
+          openai|gpt)
+            PAIR_VIBE_EXECUTOR="openai"
+            ;;
+          *)
+            print_color "$RED" "Invalid executor: $2 (use 'anthropic' or 'openai')"
+            exit 1
+            ;;
+        esac
+        shift 2
+        ;;
+      --reviewer)
+        case $2 in
+          anthropic|claude)
+            PAIR_VIBE_REVIEWER="anthropic"
+            ;;
+          openai|gpt)
+            PAIR_VIBE_REVIEWER="openai"
+            ;;
+          *)
+            print_color "$RED" "Invalid reviewer: $2 (use 'anthropic' or 'openai')"
+            exit 1
+            ;;
+        esac
+        shift 2
+        ;;
       --help|-h)
         echo "Usage: $0 [command] [options]"
         echo ""
@@ -467,6 +701,12 @@ main() {
         echo "  --provider      Force provider (anthropic or openai)"
         echo "  --verbose, -v   Enable verbose output"
         echo "  --help, -h      Show this help"
+        echo ""
+        echo "Pair Vibe Mode (concurrent review with two models):"
+        echo "  --pair-vibe     Enable Pair Vibe Mode"
+        echo "  --no-pair-vibe  Disable Pair Vibe Mode"
+        echo "  --executor      Set executor provider (anthropic or openai)"
+        echo "  --reviewer      Set reviewer provider (anthropic or openai)"
         exit 0
         ;;
       *)
@@ -501,8 +741,17 @@ main() {
     exit 0
   fi
 
-  # Detect and select AI provider
-  detect_and_select_provider
+  # Configure Pair Vibe Mode (if applicable)
+  configure_pair_vibe
+
+  # If Pair Vibe Mode is not enabled, detect and select single provider
+  if [ "$PAIR_VIBE_MODE" != "enabled" ]; then
+    detect_and_select_provider
+  else
+    # In Pair Vibe Mode, we don't need a single selected provider
+    # The executor provider will be used for the main model flag
+    SELECTED_PROVIDER="$PAIR_VIBE_EXECUTOR"
+  fi
 
   # Run appropriate mode
   case $mode in

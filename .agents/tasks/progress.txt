@@ -2879,3 +2879,35 @@ Examples:
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-014: Update ralph.sh for Pair Vibe Mode
+
+### Completed
+- Added Pair Vibe Mode support to `ralph.sh` shell script
+- New CLI flags:
+  - `--pair-vibe`: Enable Pair Vibe Mode (concurrent review)
+  - `--no-pair-vibe`: Disable Pair Vibe Mode (single model)
+  - `--executor <provider>`: Set executor (anthropic or openai)
+  - `--reviewer <provider>`: Set reviewer (anthropic or openai)
+- API key detection via `can_enable_pair_vibe()` function
+- Interactive prompts:
+  - Executor/Reviewer assignment with numbered selection (1=Anthropic, 2=OpenAI)
+  - Cost warning with 2-4x multiplier estimate and breakdown
+  - Confirmation before proceeding
+- Validation:
+  - Ensures executor and reviewer are different providers
+  - Auto-infers missing role from the other (e.g., --executor anthropic sets reviewer to openai)
+  - Validates API keys are present when --pair-vibe is used
+- Config passing via `get_pair_vibe_flags()` to docker sandbox run claude
+- Status display in AFK and interactive modes shows Pair Vibe Mode status
+- Updated help text with Pair Vibe Mode options section
+
+### Technical Details
+- Uses PAIR_VIBE_MODE variable: "", "enabled", "disabled"
+- PAIR_VIBE_EXECUTOR and PAIR_VIBE_REVIEWER track provider assignments
+- Flags passed to bootstralph ralph command for TypeScript integration
+- Supports both "anthropic"/"openai" and "claude"/"gpt" as provider aliases
+
+### Bash syntax check: PASSED
+### Type check: PASSED
+### Tests: 729/729 PASSED
