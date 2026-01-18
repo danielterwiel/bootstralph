@@ -78,7 +78,8 @@
       "category": "rate-limits",
       "task": "Verify rate limit handling",
       "check": "What rate limits apply when using both Claude and OpenAI simultaneously? How do we implement exponential backoff with jitter?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Both providers use tier-based rate limits with RPM, TPM (input/output). Claude Tier 1-4: RPM 50-4000, ITPM 30K-2M, OTPM 8K-400K for Sonnet/Opus. OpenAI Tier 1: ~500 RPM, 30K TPM for GPT-4o (varies by tier). IMPLEMENTATION: (1) Use 'Full Jitter' exponential backoff per AWS best practice: sleep = random(0, min(cap, base * 2^attempt)). Base: 1s, Cap: 60s, Max attempts: 6. (2) Respect 'retry-after' header from 429 responses - both APIs provide this. (3) Claude provides detailed headers: anthropic-ratelimit-{requests,tokens,input-tokens,output-tokens}-{limit,remaining,reset}. OpenAI provides: x-ratelimit-{limit,remaining,reset}-{requests,tokens}. (4) Track limits PER PROVIDER independently since Reviewer (OpenAI) and Executor (Claude) have separate quotas. (5) Use token bucket algorithm client-side to proactively avoid hitting limits. (6) On repeated failures (3+ retries exhausted): emit 'rate-limit-degraded' event, warn user, continue with single-model mode if one provider still available. (7) Cache-aware: Claude's ITPM only counts uncached input tokens - leverage prompt caching for 5-10x effective throughput. CIRCUIT BREAKER: After 5 consecutive 429s from same provider within 60s, open circuit for 2 minutes before retrying."
     },
     {
       "id": "review-006",

@@ -2030,3 +2030,42 @@ Abstract behind `UltrathinkProvider` interface that:
 - [Understanding Node.js file locking - LogRocket](https://blog.logrocket.com/understanding-node-js-file-locking/)
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-005: Verify rate limit handling
+
+### Completed
+- Researched Claude API rate limits by tier (1-4): RPM 50-4000, ITPM 30K-2M, OTPM 8K-400K for Sonnet/Opus
+- Researched OpenAI API rate limits by tier: ~500 RPM, 30K+ TPM for GPT-4o (tier-dependent)
+- Analyzed exponential backoff with jitter strategies (Full Jitter recommended by AWS)
+- Documented response headers for both providers for dynamic rate limit tracking
+
+### Finding Summary
+**Rate Limits by Provider:**
+- **Claude (Tier 1-4)**: RPM 50-4000, ITPM 30K-2M (uncached only), OTPM 8K-400K
+- **OpenAI (Tier 1-4)**: RPM ~500-5000, TPM 30K-4M+ (varies significantly by tier)
+
+**Exponential Backoff with Full Jitter:**
+```
+sleep = random(0, min(cap, base * 2^attempt))
+// base: 1s, cap: 60s, max_attempts: 6
+```
+
+**Response Headers:**
+- Claude: `anthropic-ratelimit-{requests,tokens,input-tokens,output-tokens}-{limit,remaining,reset}`, `retry-after`
+- OpenAI: `x-ratelimit-{limit,remaining,reset}-{requests,tokens}`, `retry-after`
+
+**Implementation Recommendations:**
+1. Track limits PER PROVIDER independently (Reviewer vs Executor have separate quotas)
+2. Respect `retry-after` header from 429 responses
+3. Use client-side token bucket to proactively avoid hitting limits
+4. Circuit breaker: After 5 consecutive 429s within 60s, open circuit for 2 minutes
+5. Graceful degradation: On rate limit exhaustion, continue with single-model mode
+6. Leverage Claude's cache-aware ITPM for 5-10x effective throughput
+
+### Sources
+- [Claude API Rate Limits](https://platform.claude.com/docs/en/api/rate-limits)
+- [OpenAI Rate Limits](https://platform.openai.com/docs/guides/rate-limits)
+- [AWS Exponential Backoff and Jitter](https://aws.amazon.com/blogs/architecture/exponential-backoff-and-jitter/)
+- [AWS Builders Library - Timeouts, retries and backoff](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
+
+### Type check: PASSED
