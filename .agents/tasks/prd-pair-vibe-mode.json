@@ -54,7 +54,8 @@
       "category": "web-search",
       "task": "Verify web search implementation options",
       "check": "What's the best approach for Reviewer's web search? Tavily API, SerpAPI, or browser automation? Check cost and rate limits.",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Recommend Tavily API as primary with Brave Search API as fallback. Rationale: (1) Tavily: $0.008/credit, 1-2 credits/search, 100 RPM free tier, 1000 RPM paid, designed specifically for AI agents and RAG applications. (2) Brave: $5/1000 requests (~$0.005/search), 2000 free/month, up to 20 QPS paid tier, privacy-focused independent index. (3) SerpAPI rejected: expensive at $0.015/request ($75/mo for only 5k searches), designed for SEO data extraction not AI grounding. (4) Browser automation rejected: too slow (1-3s per page), requires headless browser infrastructure, anti-bot detection issues, overkill for search synthesis. (5) Perplexity Sonar rejected: more expensive ($1-3/M tokens + $5/1000 searches), designed for conversational search not programmatic. Implementation: Use Tavily's /search endpoint with basic depth (1 credit), cache results by query hash for 15 minutes, fallback to Brave if Tavily rate limited or unavailable."
     },
     {
       "id": "review-003",
@@ -130,7 +131,7 @@
       "task": "Create web search service for Reviewer",
       "files": ["src/ralph/web-search.ts"],
       "status": "pending",
-      "description": "Implement WebSearchService class that searches for: best practices for technology, known issues with specific versions, alternative approaches. Support Tavily API (primary) with fallback to SerpAPI. Include caching to avoid duplicate searches."
+      "description": "Implement WebSearchService class that searches for: best practices for technology, known issues with specific versions, alternative approaches. Support Tavily API (primary) with fallback to Brave Search API. Include caching to avoid duplicate searches. Env vars: TAVILY_API_KEY, BRAVE_SEARCH_API_KEY."
     },
     {
       "id": "impl-005",

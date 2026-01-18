@@ -1928,3 +1928,34 @@ PRD COMPLETED after 3 iterations
 ### No action required - finding confirms existing approach is correct
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-002: Verify web search implementation options (Pair Vibe Mode)
+
+### Review Task Completed
+- Researched web search API options for the Reviewer's look-ahead validation
+
+### Finding
+
+**Recommend Tavily API (primary) with Brave Search API (fallback)**
+
+#### Option Analysis
+
+| Provider | Cost | Rate Limits | Verdict |
+|----------|------|-------------|---------|
+| **Tavily** | $0.008/credit, 1-2 credits/search | 100 RPM free, 1000 RPM paid | ✅ PRIMARY - designed for AI agents/RAG |
+| **Brave** | $5/1000 (~$0.005/search) | 2000 free/mo, 20 QPS paid | ✅ FALLBACK - independent index, privacy-focused |
+| SerpAPI | $0.015/request ($75/mo for 5k) | Per-plan limits | ❌ Too expensive, designed for SEO scraping |
+| Perplexity Sonar | $1-3/M tokens + $5/1K searches | Token-based | ❌ More expensive, designed for conversational search |
+| Browser automation | N/A (infra cost) | N/A | ❌ Too slow (1-3s/page), anti-bot issues |
+
+#### Implementation Recommendations for src/ralph/web-search.ts
+1. Use Tavily's `/search` endpoint with basic depth (1 credit per search)
+2. Cache results by query hash for 15 minutes to avoid duplicate searches
+3. Fallback to Brave Search API if Tavily is rate limited or unavailable
+4. Both APIs support structured JSON responses ideal for AI consumption
+5. Environment variables: `TAVILY_API_KEY`, `BRAVE_SEARCH_API_KEY`
+
+#### PRD Update
+- Updated impl-004 description should reflect "Tavily (primary) with Brave (fallback)" instead of "Tavily (primary) with SerpAPI fallback"
+
+### Type check: PASSED
