@@ -60,6 +60,15 @@ export {
 } from "./skip.js";
 export type { SkipCommandOptions } from "./skip.js";
 
+export {
+  executeStatusCommand,
+  handleStatusCommand,
+  getStatus,
+  validateStatusInput,
+  getStatusHelp,
+} from "./status.js";
+export type { StatusCommandOptions, StatusInfo } from "./status.js";
+
 // Export types
 export type {
   CommandName,

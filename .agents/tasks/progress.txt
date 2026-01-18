@@ -1426,3 +1426,60 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-048: Implement /status command handler
+
+### Completed
+- Created `src/tui/commands/status.ts` with full /status command implementation
+- Integrates with PrdManager for progress and task details retrieval
+- Integrates with TUI store for current task info and logging
+- Read-only command that does not modify the PRD
+
+### Features
+- **executeStatusCommand(options)**: Main /status execution function
+  - Validates input if provided as raw string
+  - Retrieves progress from PRD manager (total, completed, pending, percentage)
+  - Gets current task from TUI store with elapsed time
+  - Supports optional task ID for detailed task info
+  - Supports -v/--verbose flag for review task summary
+  - Formats output with progress bar and structured display
+  - Logs status to TUI log pane
+
+- **handleStatusCommand(input)**: Convenience for raw /status command
+- **getStatus(options)**: Programmatic status retrieval without parsing
+  - Returns StatusInfo object or null if no PRD loaded
+- **validateStatusInput(input)**: Pre-validation for UI
+  - Validates input without executing
+  - Returns parsed args if valid
+- **getStatusHelp()**: Returns help text for the command
+
+### StatusInfo Interface
+- prdName, prdStatus: PRD identification
+- total, completed, pending, inProgress: Task counts
+- percentage: Completion percentage
+- currentTask: Optional current task with id, title, status, elapsedTime
+- taskDetails: Optional specific task details (if task ID provided)
+- reviewSummary: Optional review tasks summary (verbose mode)
+
+### Display Format
+- Bordered header with PRD name and status
+- Text-based progress bar with percentage
+- Completed/pending/in-progress counts
+- Current task section with elapsed time
+- Task details section (if specific task requested)
+- Review summary section (verbose mode only)
+
+### Technical Details
+- Handles exactOptionalPropertyTypes by conditionally building result objects
+- Supports both ImplementationTask and UserStory formats via type guards
+- formatElapsedTime() converts startedAt timestamps to human-readable format
+- buildProgressBar() creates text-based progress visualization
+- All errors logged to store with appropriate levels
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executeStatusCommand, handleStatusCommand, getStatus, validateStatusInput, getStatusHelp
+  - StatusCommandOptions, StatusInfo types
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

@@ -786,7 +786,8 @@
       "phase": 5,
       "task": "Implement /status command handler",
       "files": ["src/tui/commands/status.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Display formatted PRD progress: total tasks, completed, pending, current task details. No PRD modification."
     },
     {
