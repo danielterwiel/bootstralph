@@ -1296,3 +1296,46 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-045: Implement /issue command handler
+
+### Completed
+- Created `src/tui/commands/issue.ts` with full /issue command implementation
+- Integrates with PrdManager for task creation
+- Integrates with TUI store for logging and progress updates
+
+### Features
+- **executeIssueCommand(options)**: Main execution function
+  - Accepts raw input string or pre-parsed IssueCommandArgs
+  - Uses PrdManager singleton by default (can override)
+  - Auto-generates task ID based on existing pattern (impl-XXX or US-XXX)
+  - Supports optional priority/phase override
+  - Updates store progress after adding task
+  - Logs success/error to TUI log pane
+
+- **handleIssueCommand(input)**: Convenience function for raw command handling
+
+- **createIssue(description, options)**: Programmatic issue creation
+  - Direct API for creating issues without command parsing
+
+- **validateIssueInput(input)**: Pre-validation for UI
+  - Validates input without executing
+  - Returns parsed args if valid
+  - Useful for input field validation before submission
+
+- **getIssueHelp()**: Returns help text for the command
+
+### Technical Details
+- Handles exactOptionalPropertyTypes by conditionally building result objects
+- Parses description from rawArgs (supports quoted strings via parser)
+- Uses PrdManager.addIssue() which handles both implementation_tasks and userStories formats
+- Updates TUI store progress via setProgress() after successful creation
+- All errors logged to store with "error" level for TUI display
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executeIssueCommand, handleIssueCommand, createIssue, validateIssueInput, getIssueHelp
+  - IssueCommandOptions type
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

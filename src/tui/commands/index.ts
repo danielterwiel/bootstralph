@@ -1,7 +1,7 @@
 /**
  * TUI Commands Module
  *
- * Exports command parser and types for the Ralph TUI.
+ * Exports command parser, types, and handlers for the Ralph TUI.
  */
 
 // Export parser functions
@@ -26,6 +26,16 @@ export {
   getCommandSuggestions,
   formatCommandResult,
 } from "./parser.js";
+
+// Export command handlers
+export {
+  executeIssueCommand,
+  handleIssueCommand,
+  createIssue,
+  validateIssueInput,
+  getIssueHelp,
+} from "./issue.js";
+export type { IssueCommandOptions } from "./issue.js";
 
 // Export types
 export type {

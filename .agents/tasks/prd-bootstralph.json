@@ -759,7 +759,8 @@
       "phase": 5,
       "task": "Implement /issue command handler",
       "files": ["src/tui/commands/issue.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Parse description from args. Generate next ID (impl-XXX or US-XXX). Create UserStory with priority = max+1. Add to PRD via manager. Display confirmation."
     },
     {
