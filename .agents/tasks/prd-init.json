@@ -822,7 +822,8 @@
       "phase": 5,
       "task": "Implement Ralph engine (port bash logic to TypeScript)",
       "files": ["src/ralph/engine.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Core loop: get next task, run Claude iteration, check completion, update PRD. Respect pause flag. Emit events for UI updates. Handle max iterations."
     },
     {

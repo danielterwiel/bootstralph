@@ -1638,3 +1638,61 @@ npm publish --access public
 
 ## 2026-01-18T01:44:02+01:00
 PRD COMPLETED after 18 iterations
+
+## 2026-01-18 - impl-052: Implement Ralph engine (port bash logic to TypeScript)
+
+### Completed
+- Verified existing `src/ralph/engine.ts` implementation is complete and functional
+- Fixed TypeScript errors related to exactOptionalPropertyTypes
+- Fixed PrdManager instantiation to use constructor with callback instead of accessing private field
+- Fixed convertTasksToStories to build UserStory objects conditionally for optional properties
+- Removed unused imports (getDefaultPrdManager, ExtendedPrd)
+
+### Features - RalphEngine Class
+- Core loop that gets next task, runs Claude iteration, checks completion, updates PRD
+- Respects pause flag between iterations via waitForResume() method
+- Emits events for UI updates: start, iterationStart, iterationComplete, taskStart, taskComplete, prdComplete, pause, resume, stop, error, progress
+- Handles max iterations with configurable limit (default: 10)
+- Supports both Docker sandbox and native Claude CLI execution modes
+- Loads and manages PRD files via PrdManager
+- Initializes and appends to progress file
+- Converts implementation_tasks to userStories format for TUI store compatibility
+
+### Configuration Options (RalphEngineOptions)
+- prdFile: Path to PRD file (required)
+- progressFile: Progress log file path (default: .agents/tasks/progress.txt)
+- maxIterations: Max iterations (default: 10)
+- provider: AI provider (anthropic/openai)
+- model: Model to use
+- useDocker: Whether to use Docker sandbox (default: true)
+- permissionMode: Claude Code permission mode
+- completionPromise: String to detect completion
+- iterationTimeout: Timeout per iteration
+- logToStore: Whether to log to TUI store (default: true)
+- Callbacks: onIterationComplete, onTaskStart, onTaskComplete, onPrdComplete, onStop
+- verbose: Enable verbose logging
+
+### Control Methods
+- run(): Start the Ralph engine loop, returns RalphEngineResult
+- pause(): Pause after current iteration
+- resume(): Resume from paused state
+- abort(): Stop as soon as possible, kills active Claude runner
+- stop(): Graceful stop
+
+### Convenience Functions
+- runRalphEngine(options): Run engine with given options
+- runSingleIteration(options): Run single iteration without full engine
+- canRunRalph(): Check if Ralph can run (Docker/Claude available)
+
+### Singleton Support for TUI
+- getActiveEngine(): Get active engine instance
+- startRalphEngine(options): Start and track as active
+- pauseRalphEngine(): Pause active engine
+- resumeRalphEngine(): Resume active engine
+- abortRalphEngine(): Abort active engine
+- hasActiveEngine(): Check if engine exists
+- isEngineRunning(): Check if engine is running
+- isEnginePaused(): Check if engine is paused
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)

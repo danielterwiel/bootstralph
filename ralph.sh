@@ -247,7 +247,7 @@ get_incomplete_prds() {
   echo "$incomplete"
 }
 
-# Select PRD interactively
+# Select PRD interactively using OpenTUI
 select_prd() {
   local incomplete=$(get_incomplete_prds)
 
@@ -264,30 +264,58 @@ select_prd() {
     return
   fi
 
-  # Multiple PRDs - let user choose
-  echo ""
-  print_color "$BLUE" "Multiple incomplete PRDs found:"
-  echo ""
+  # Multiple PRDs - use TypeScript TUI selector
+  local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+  local selector_script="$script_dir/src/scripts/select-prd.ts"
 
-  local index=1
-  declare -a prd_array
-  while IFS= read -r prd_file; do
-    local name=$(get_prd_name "$prd_file")
-    local progress=$(get_prd_progress "$prd_file")
-    prd_array[$index]="$prd_file"
-    echo "  [$index] $name ($progress)"
-    index=$((index + 1))
-  done <<< "$incomplete"
+  # Check if the script exists and bun is available
+  if [ -f "$selector_script" ] && command -v bun &> /dev/null; then
+    # Use a temp file to capture the result so the TUI has TTY access
+    local temp_file=$(mktemp)
+    trap "rm -f '$temp_file'" EXIT
 
-  echo ""
-  read -p "Select PRD [1-$((index-1))]: " selection
+    # Run the TypeScript selector with TTY access, output goes to temp file
+    bun run "$selector_script" > "$temp_file"
+    local exit_code=$?
 
-  if [[ ! "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -ge "$index" ]; then
-    print_color "$RED" "Invalid selection"
-    exit 1
+    local selected=$(cat "$temp_file")
+    rm -f "$temp_file"
+
+    if [ $exit_code -ne 0 ] || [ -z "$selected" ]; then
+      print_color "$RED" "Selection cancelled" >&2
+      exit 1
+    fi
+
+    echo "$AGENTS_TASKS_DIR/$selected"
+  else
+    # Fallback to basic bash selection if TypeScript selector not available
+    # Note: All messages go to stderr so stdout only has the selected PRD path
+    echo "" >&2
+    print_color "$BLUE" "Multiple incomplete PRDs found:" >&2
+    echo "" >&2
+
+    local index=1
+    declare -a prd_array
+    while IFS= read -r prd_file; do
+      local name=$(get_prd_name "$prd_file")
+      local progress=$(get_prd_progress "$prd_file")
+      prd_array[$index]="$prd_file"
+      echo "  [$index] $name ($progress)" >&2
+      index=$((index + 1))
+    done <<< "$incomplete"
+
+    echo "" >&2
+    # Read from /dev/tty if available (for when stdout is captured), otherwise use stdin
+    echo -n "Select PRD [1-$((index-1))]: " >&2
+    { read selection </dev/tty; } 2>/dev/null || read selection
+
+    if [[ ! "$selection" =~ ^[0-9]+$ ]] || [ "$selection" -lt 1 ] || [ "$selection" -ge "$index" ]; then
+      print_color "$RED" "Invalid selection" >&2
+      exit 1
+    fi
+
+    echo "${prd_array[$selection]}"
   fi
-
-  echo "${prd_array[$selection]}"
 }
 
 # Get the model flag based on selected provider

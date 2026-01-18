@@ -1,0 +1,390 @@
+{
+  "name": "Pair Vibe Mode",
+  "version": "0.1.0",
+  "description": "Multi-model Ralph'ing with concurrent review and consensus resolution. When two API keys are detected, users can enable Pair Vibe Mode where one model executes tasks while another reviews steps ahead of time, entering consensus mode when disagreements arise.",
+  "status": "planning",
+  "branchName": "feature/pair-vibe-mode",
+  "mode": "feature",
+  "specs": {
+    "core_philosophy": {
+      "look_ahead_review": "Reviewer works concurrently ahead of Executor, pre-populating findings on future steps",
+      "minimal_slowdown": "Only enter Consensus Mode when actual findings exist, otherwise execute at full speed",
+      "executor_wins_ties": "When consensus cannot be reached after ultrathink round, Executor's approach wins (they're most invested)",
+      "anonymized_review": "Reviewer never sees which model is Executor to prevent sycophancy bias"
+    },
+    "architecture": {
+      "executor_model": "Runs the standard Ralph loop, implementing tasks one at a time",
+      "reviewer_model": "Works ahead concurrently, web searching and validating each step before Executor reaches it",
+      "consensus_mode": "Triggered when step.findings.length > 0, both models present solutions and attempt to align"
+    },
+    "failure_modes_addressed": [
+      "FM-1.1 Disobey task specification - Reviewer validates against original requirements",
+      "FM-2.5 Ignored other agent's input - Consensus mode forces both models to engage",
+      "FM-3.2 No or incomplete verification - Reviewer provides independent verification",
+      "Sycophancy bias - Anonymized review prevents model identity from influencing judgment"
+    ]
+  },
+  "workflow": {
+    "instructions": [
+      "Work through review_tasks BEFORE starting implementation_tasks",
+      "Update task status to 'in_progress' when starting, 'completed' or 'failed' when done",
+      "Add 'finding' field to review tasks with what you discovered",
+      "If a review task reveals an issue, add 'action_required' field describing the fix needed",
+      "Only proceed to implementation_tasks once all critical review issues are resolved"
+    ],
+    "status_values": [
+      "pending",
+      "in_progress",
+      "completed",
+      "failed",
+      "blocked"
+    ]
+  },
+  "review_tasks": [
+    {
+      "id": "review-001",
+      "category": "api-detection",
+      "task": "Verify API key detection approach",
+      "check": "How should we detect ANTHROPIC_API_KEY and OPENAI_API_KEY? Environment variables only, or also check for config files?",
+      "status": "pending"
+    },
+    {
+      "id": "review-002",
+      "category": "web-search",
+      "task": "Verify web search implementation options",
+      "check": "What's the best approach for Reviewer's web search? Tavily API, SerpAPI, or browser automation? Check cost and rate limits.",
+      "status": "pending"
+    },
+    {
+      "id": "review-003",
+      "category": "consensus",
+      "task": "Verify ultrathink implementation",
+      "check": "How to implement ultrathink? Claude's extended thinking mode requires beta header. OpenAI has no equivalent - use multi-turn reflection instead?",
+      "status": "pending"
+    },
+    {
+      "id": "review-004",
+      "category": "parallelism",
+      "task": "Verify concurrent execution safety",
+      "check": "When Reviewer and Executor run concurrently, how do we handle PRD file locking to prevent race conditions?",
+      "status": "pending"
+    },
+    {
+      "id": "review-005",
+      "category": "rate-limits",
+      "task": "Verify rate limit handling",
+      "check": "What rate limits apply when using both Claude and OpenAI simultaneously? How do we implement exponential backoff with jitter?",
+      "status": "pending"
+    },
+    {
+      "id": "review-006",
+      "category": "sycophancy",
+      "task": "Research sycophancy mitigation",
+      "check": "The CONSENSAGENT paper proposes dynamic prompt refinement. Should we implement their approach or use simpler anonymization?",
+      "status": "pending"
+    },
+    {
+      "id": "review-007",
+      "category": "timeouts",
+      "task": "Verify timeout strategy",
+      "check": "What happens if Reviewer is stuck on web search when Executor needs to proceed? Define timeout thresholds and fallback behavior.",
+      "status": "pending"
+    },
+    {
+      "id": "review-008",
+      "category": "cost",
+      "task": "Estimate cost multiplier",
+      "check": "Pair Vibe Mode will increase API costs. Calculate expected multiplier and add cost warning to UI.",
+      "status": "pending"
+    }
+  ],
+  "implementation_tasks": [
+    {
+      "id": "impl-001",
+      "phase": 1,
+      "task": "Create API key detector utility",
+      "files": ["src/ralph/api-keys.ts"],
+      "status": "pending",
+      "description": "Detect available API keys (ANTHROPIC_API_KEY, OPENAI_API_KEY) from environment. Return object with available providers and validation status. Check key format validity without making API calls."
+    },
+    {
+      "id": "impl-002",
+      "phase": 1,
+      "task": "Extend UserStory type with review fields",
+      "files": ["src/ralph/prd-schema.ts"],
+      "status": "pending",
+      "description": "Add new fields: findings (string[] | null), consensus ({ executorProposal, reviewerProposal, aligned, finalDecision, decidedBy, rounds, timestamp }). Update JSON schema. Ensure backwards compatibility with existing PRDs."
+    },
+    {
+      "id": "impl-003",
+      "phase": 1,
+      "task": "Create Pair Vibe Mode configuration types",
+      "files": ["src/ralph/pair-vibe-types.ts"],
+      "status": "pending",
+      "description": "Define interfaces: PairVibeConfig (enabled, executorProvider, reviewerProvider, executorModel, reviewerModel), PairVibeState (currentPhase: 'review' | 'execute' | 'consensus', reviewerProgress, executorProgress), ConsensusResult."
+    },
+    {
+      "id": "impl-004",
+      "phase": 1,
+      "task": "Create web search service for Reviewer",
+      "files": ["src/ralph/web-search.ts"],
+      "status": "pending",
+      "description": "Implement WebSearchService class that searches for: best practices for technology, known issues with specific versions, alternative approaches. Support Tavily API (primary) with fallback to SerpAPI. Include caching to avoid duplicate searches."
+    },
+    {
+      "id": "impl-005",
+      "phase": 2,
+      "task": "Implement ReviewerRunner class",
+      "files": ["src/ralph/reviewer-runner.ts"],
+      "status": "pending",
+      "description": "Class that runs ahead of Executor, reviewing future steps. For each unreviewed step: 1) Web search for potential issues, 2) Analyze step against search results, 3) Set step.findings = [] (clean) or [...] (issues). Emit events for UI updates. Handle cancellation when consensus needed."
+    },
+    {
+      "id": "impl-006",
+      "phase": 2,
+      "task": "Implement ConsensusRunner class",
+      "files": ["src/ralph/consensus-runner.ts"],
+      "status": "pending",
+      "description": "Orchestrate consensus resolution when findings exist. Round 1: Both models present proposals (anonymized). Check alignment. Round 2 (if needed): Ultrathink mode with web search. Round 3 (if still misaligned): Executor wins. Record decision in step.consensus field. Max timeout: 5 minutes."
+    },
+    {
+      "id": "impl-007",
+      "phase": 2,
+      "task": "Implement ultrathink prompting",
+      "files": ["src/ralph/ultrathink.ts"],
+      "status": "pending",
+      "description": "Create ultrathink prompt wrapper. For Claude: Use extended thinking mode with beta header. For OpenAI: Use multi-turn reflection (generate -> critique -> refine). Both: Include structured web search results. Return enhanced proposal with reasoning chain."
+    },
+    {
+      "id": "impl-008",
+      "phase": 2,
+      "task": "Implement PairVibeEngine orchestrator",
+      "files": ["src/ralph/pair-vibe-engine.ts"],
+      "status": "pending",
+      "description": "Main orchestrator class. Spawn Reviewer as concurrent async task. Main loop: check if next step has findings !== null, if findings.length > 0 enter consensus, otherwise execute. Handle pause/resume. Emit structured events for TUI. Graceful shutdown on errors."
+    },
+    {
+      "id": "impl-009",
+      "phase": 3,
+      "task": "Add Pair Vibe Mode prompt to ralph command",
+      "files": ["src/commands/ralph.ts"],
+      "status": "pending",
+      "description": "When starting ralph: 1) Detect available API keys, 2) If 2+ keys found, prompt 'Enable Pair Vibe Mode?', 3) If yes, prompt for Executor/Reviewer assignment, 4) Show cost warning, 5) Start PairVibeEngine instead of single runner."
+    },
+    {
+      "id": "impl-010",
+      "phase": 3,
+      "task": "Add Pair Vibe status to TUI StatusBar",
+      "files": ["src/tui/components/StatusBar.tsx"],
+      "status": "pending",
+      "description": "Extend StatusBar to show: [PAIR VIBE] indicator when active, Reviewer progress (X steps ahead), Current phase (review/execute/consensus), Consensus round indicator when in consensus mode."
+    },
+    {
+      "id": "impl-011",
+      "phase": 3,
+      "task": "Add Pair Vibe log formatting to LogPane",
+      "files": ["src/tui/components/LogPane.tsx"],
+      "status": "pending",
+      "description": "Color-code logs by source: Executor (blue), Reviewer (purple), Consensus (yellow), System (gray). Add collapsible sections for consensus discussions. Show web search results in dimmed text."
+    },
+    {
+      "id": "impl-012",
+      "phase": 3,
+      "task": "Implement /consensus command",
+      "files": ["src/tui/commands/consensus.ts"],
+      "status": "pending",
+      "description": "New slash command to manually trigger consensus mode for current step. Useful when user notices an issue before Reviewer does. Syntax: /consensus 'reason for concern'. Pauses execution and enters consensus."
+    },
+    {
+      "id": "impl-013",
+      "phase": 3,
+      "task": "Implement /reviewer command",
+      "files": ["src/tui/commands/reviewer.ts"],
+      "status": "pending",
+      "description": "Commands to control Reviewer: /reviewer status (show progress), /reviewer pause (pause look-ahead), /reviewer resume, /reviewer skip <step-id> (skip reviewing a step). Useful when Reviewer is slow or stuck."
+    },
+    {
+      "id": "impl-014",
+      "phase": 4,
+      "task": "Update ralph.sh for Pair Vibe Mode",
+      "files": ["ralph.sh"],
+      "status": "pending",
+      "description": "Add --pair-vibe flag to ralph.sh. Detect API keys from environment. If flag set and 2 keys available, prompt for model assignment (or accept --executor=claude --reviewer=openai args). Pass config to bootstralph ralph."
+    },
+    {
+      "id": "impl-015",
+      "phase": 4,
+      "task": "Update afk-ralph.sh for Pair Vibe Mode",
+      "files": ["afk-ralph.sh"],
+      "status": "pending",
+      "description": "Add --pair-vibe flag with defaults for unattended mode. Default: Claude as Executor (more capable), OpenAI as Reviewer (faster for search synthesis). Add --no-pair-vibe to force single model even when both keys exist."
+    },
+    {
+      "id": "impl-016",
+      "phase": 4,
+      "task": "Implement rate limit handler with backoff",
+      "files": ["src/ralph/rate-limiter.ts"],
+      "status": "pending",
+      "description": "Create RateLimiter class with: exponential backoff with jitter, per-provider rate tracking, Retry-After header respect, circuit breaker for repeated failures, graceful degradation (warn and continue with single model if one provider fails)."
+    },
+    {
+      "id": "impl-017",
+      "phase": 4,
+      "task": "Implement PRD file locking",
+      "files": ["src/ralph/prd-lock.ts"],
+      "status": "pending",
+      "description": "Prevent race conditions when Reviewer and Executor both update PRD. Use proper-lockfile or similar. Lock before write, unlock after. Timeout: 5 seconds. On conflict: retry 3 times with backoff."
+    },
+    {
+      "id": "impl-018",
+      "phase": 5,
+      "task": "Add Pair Vibe metrics and logging",
+      "files": ["src/ralph/pair-vibe-metrics.ts"],
+      "status": "pending",
+      "description": "Track: consensus rounds per step, reviewer ahead distance, findings per step, time in each phase, cost per model. Write to .agents/metrics/pair-vibe-{timestamp}.json. Display summary at end of ralph session."
+    },
+    {
+      "id": "impl-019",
+      "phase": 5,
+      "task": "Add cost estimation and warning",
+      "files": ["src/ralph/cost-estimator.ts"],
+      "status": "pending",
+      "description": "Estimate cost multiplier for Pair Vibe Mode based on: task count, expected consensus rate, model pricing. Show warning before starting: 'Pair Vibe Mode may cost 2-4x more than single model. Continue?'"
+    },
+    {
+      "id": "impl-020",
+      "phase": 5,
+      "task": "Write unit tests for ReviewerRunner",
+      "files": ["tests/ralph/reviewer-runner.test.ts"],
+      "status": "pending",
+      "description": "Test: look-ahead execution, findings population, cancellation on consensus, web search mocking, timeout handling, error recovery."
+    },
+    {
+      "id": "impl-021",
+      "phase": 5,
+      "task": "Write unit tests for ConsensusRunner",
+      "files": ["tests/ralph/consensus-runner.test.ts"],
+      "status": "pending",
+      "description": "Test: alignment detection, multi-round escalation, executor-wins tiebreaker, anonymization, timeout handling, decision recording."
+    },
+    {
+      "id": "impl-022",
+      "phase": 5,
+      "task": "Write unit tests for PairVibeEngine",
+      "files": ["tests/ralph/pair-vibe-engine.test.ts"],
+      "status": "pending",
+      "description": "Test: concurrent execution, pause/resume, graceful shutdown, event emission, phase transitions, edge cases (empty PRD, all steps have findings, etc.)."
+    },
+    {
+      "id": "impl-023",
+      "phase": 5,
+      "task": "Write integration tests for full Pair Vibe flow",
+      "files": ["tests/ralph/pair-vibe-integration.test.ts"],
+      "status": "pending",
+      "description": "End-to-end tests with mocked API calls. Test: happy path, consensus triggered, reviewer faster than executor, executor faster than reviewer, rate limit recovery, single model fallback."
+    },
+    {
+      "id": "impl-024",
+      "phase": 6,
+      "task": "Update README with Pair Vibe Mode documentation",
+      "files": ["README.md"],
+      "status": "pending",
+      "description": "Add section: What is Pair Vibe Mode, how to enable, model assignment recommendations, cost implications, CLI flags, troubleshooting."
+    },
+    {
+      "id": "impl-025",
+      "phase": 6,
+      "task": "Create Pair Vibe Mode architecture diagram",
+      "files": ["docs/pair-vibe-architecture.md"],
+      "status": "pending",
+      "description": "Create ASCII/Mermaid diagram showing: Executor loop, Reviewer concurrent track, consensus mode trigger, phase transitions, data flow between components."
+    }
+  ],
+  "edge_cases": {
+    "description": "Critical edge cases identified from research on multi-agent LLM system failures (MAST framework)",
+    "cases": [
+      {
+        "id": "edge-001",
+        "scenario": "Reviewer is slower than Executor",
+        "handling": "Executor waits at step where findings === null. Show 'Waiting for review...' in status. Timeout after 2 minutes, then warn and proceed without review for that step.",
+        "failure_mode_addressed": "FM-1.5 Unaware of termination conditions"
+      },
+      {
+        "id": "edge-002",
+        "scenario": "Reviewer and Executor both update PRD simultaneously",
+        "handling": "Use file locking (proper-lockfile). If lock cannot be acquired after 5s and 3 retries, queue the write and retry. Never lose data.",
+        "failure_mode_addressed": "Resource contention / deadlock"
+      },
+      {
+        "id": "edge-003",
+        "scenario": "Consensus cannot be reached after 2 rounds",
+        "handling": "Executor wins by default. Log decision rationale. Add note to step: 'Consensus not reached, proceeded with Executor approach.'",
+        "failure_mode_addressed": "FM-2.4 Information withholding"
+      },
+      {
+        "id": "edge-004",
+        "scenario": "One API provider hits rate limit",
+        "handling": "Exponential backoff with jitter (base: 1s, max: 60s, 6 retries). If still failing, warn user and fall back to single-model mode.",
+        "failure_mode_addressed": "Infrastructure failure / graceful degradation"
+      },
+      {
+        "id": "edge-005",
+        "scenario": "Reviewer's web search returns no results",
+        "handling": "Set findings = [] (clean) with note 'No external validation available'. Proceed without blocking Executor.",
+        "failure_mode_addressed": "FM-3.2 No or incomplete verification"
+      },
+      {
+        "id": "edge-006",
+        "scenario": "Sycophancy: Models agree too readily",
+        "handling": "Anonymize model responses during comparison (call them 'Proposal A' and 'Proposal B'). Require explicit reasoning for agreement. Flag suspiciously short consensus rounds.",
+        "failure_mode_addressed": "Sycophancy bias (CONSENSAGENT)"
+      },
+      {
+        "id": "edge-007",
+        "scenario": "User cancels during consensus mode",
+        "handling": "Save partial consensus state to step.consensus with status: 'cancelled'. Next run can resume or restart consensus.",
+        "failure_mode_addressed": "FM-2.1 Conversation reset"
+      },
+      {
+        "id": "edge-008",
+        "scenario": "All steps have findings (pathological case)",
+        "handling": "Cap concurrent consensus at 1 to avoid overwhelming both models. Queue remaining consensus. Show progress: 'Resolving consensus 3/10'.",
+        "failure_mode_addressed": "Resource exhaustion"
+      },
+      {
+        "id": "edge-009",
+        "scenario": "Executor completes step but Reviewer hasn't reviewed it yet",
+        "handling": "Mark step as 'passed_without_review'. Log warning. Continue to next step. Reviewer catches up asynchronously for future steps.",
+        "failure_mode_addressed": "FM-3.1 Premature termination"
+      },
+      {
+        "id": "edge-010",
+        "scenario": "Context window overflow during consensus",
+        "handling": "Truncate earlier conversation rounds, keep: original step, findings summary, latest proposals. Use summarization if needed.",
+        "failure_mode_addressed": "FM-1.4 Loss of conversation history"
+      }
+    ]
+  },
+  "plugins": {
+    "recommended": [
+      "webapp-testing",
+      "test-driven-development",
+      "systematic-debugging"
+    ],
+    "optional": [
+      "verification-before-completion"
+    ]
+  },
+  "metadata": {
+    "createdAt": "2026-01-18T00:00:00.000Z",
+    "createdBy": "bootstralph-prd-writer",
+    "completionPromise": "<promise>COMPLETE</promise>",
+    "research_sources": [
+      "https://github.com/karpathy/llm-council",
+      "https://arxiv.org/abs/2503.13657",
+      "https://aclanthology.org/2025.findings-acl.1141/",
+      "https://arxiv.org/abs/2510.04371",
+      "https://arxiv.org/abs/2510.07517"
+    ]
+  }
+}
