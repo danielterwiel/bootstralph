@@ -2449,3 +2449,70 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: All 672 existing tests pass
+
+## 2026-01-18 - impl-007: Implement ultrathink prompting
+
+### Completed
+Created `src/ralph/ultrathink.ts` implementing extended thinking / deep reasoning capabilities
+for consensus mode. Provider-agnostic design with automatic strategy selection per model type.
+
+### Implementation Details (per review-003 findings)
+
+#### 1. Claude Extended Thinking
+- Uses `thinking` object with `{type: 'enabled', budget_tokens: N}`
+- Minimum budget: 1024 tokens, default: 10000 tokens
+- Beta header: `anthropic-beta: interleaved-thinking-2025-05-14`
+- Model mapping for claude-sonnet-4, claude-opus-4, claude-sonnet-4-5
+- Parses thinking and text content blocks from response
+- Returns thinking content in metadata when exposed
+
+#### 2. OpenAI O-Series (o1, o3, o3-mini)
+- Uses `reasoning_effort` parameter: 'low' | 'medium' | 'high'
+- Default: 'high' (improves accuracy 10-30% per review-003)
+- Hidden chain of thought (summarized in reasoningSummary)
+- Extracts reasoning_tokens from completion_tokens_details
+- Uses max_completion_tokens instead of max_tokens
+
+#### 3. GPT-4 Multi-Turn Reflection Fallback
+- For gpt-4o and gpt-4.1 (no native extended thinking)
+- 3-turn pattern: Generate → Critique → Refine
+- Turn 1: Generate initial proposal with context
+- Turn 2: "Review your proposal for flaws, edge cases, and improvements"
+- Turn 3: Refine based on self-critique
+- Returns critique summary in reasoningSummary
+
+### Core Types
+- `UltrathinkResult`: Normalized response with finalProposal, reasoningSummary, usedExtendedThinking, model, metadata, tokenUsage, durationMs
+- `UltrathinkParams`: Input including step, findings, searchResults, model, timeout, thinkingBudget, reasoningEffort
+- `UltrathinkProvider`: Interface with generateProposal() and supportsModel()
+- `UltrathinkMetadata`: Provider-specific details (thinkingContent, reasoningEffort, reflectionTurns)
+- `UltrathinkTokenUsage`: inputTokens, outputTokens, optional thinkingTokens
+
+### Provider Classes
+- `ClaudeUltrathinkProvider`: Extended thinking implementation
+- `OpenAIOSeriesUltrathinkProvider`: reasoning_effort implementation
+- `GPT4ReflectionProvider`: Multi-turn reflection fallback
+
+### Helper Functions
+- `isClaudeModel(model)`: Check if model is claude-*
+- `isOpenAIOSeriesModel(model)`: Check if model is o1/o3/o3-mini
+- `isGPTModel(model)`: Check if model is gpt-4o/gpt-4.1
+- `createUltrathinkProvider(model, config)`: Factory with auto-selection
+- `generateUltrathinkProposal(params, config)`: Convenience wrapper
+- `supportsExtendedThinking(model)`: Check native thinking support
+- `getRecommendedThinkingBudget(model)`: Returns 10000 for Claude, 0 otherwise
+- `getRecommendedReasoningEffort(model)`: Returns 'high' for o-series, null otherwise
+
+### Error Handling
+- All providers return graceful fallback on API errors
+- Timeout via AbortController on all fetch calls
+- Error message included in fallback UltrathinkResult
+
+### Integration Points
+- Compatible with ConsensusRunner.generateProposal() interface
+- Uses WebSearchResponse from web-search.ts for search result formatting
+- Uses UserStory from prd-schema.ts for step context
+- Uses ModelIdentifier from pair-vibe-types.ts for model type checking
+
+### Type check: PASSED
+### Tests: All 672 existing tests pass

@@ -172,8 +172,10 @@
       "phase": 2,
       "task": "Implement ultrathink prompting",
       "files": ["src/ralph/ultrathink.ts"],
-      "status": "pending",
-      "description": "Create ultrathink prompt wrapper. For Claude: Use extended thinking mode with beta header. For OpenAI: Use multi-turn reflection (generate -> critique -> refine). Both: Include structured web search results. Return enhanced proposal with reasoning chain."
+      "status": "completed",
+      "description": "Create ultrathink prompt wrapper. For Claude: Use extended thinking mode with beta header. For OpenAI: Use multi-turn reflection (generate -> critique -> refine). Both: Include structured web search results. Return enhanced proposal with reasoning chain.",
+      "completedAt": "2026-01-18T13:18:00.000Z",
+      "notes": "Implemented ultrathink module with provider-agnostic UltrathinkProvider interface. Features: (1) ClaudeUltrathinkProvider: Uses extended thinking with 'thinking' object, budget_tokens (min 1024, default 10000), and beta header 'interleaved-thinking-2025-05-14' per review-003. (2) OpenAIOSeriesUltrathinkProvider: Uses reasoning_effort parameter ('low'/'medium'/'high') for o1/o3/o3-mini models. (3) GPT4ReflectionProvider: Multi-turn reflection fallback (generate → critique → refine) for gpt-4o/gpt-4.1. (4) Factory function createUltrathinkProvider() auto-selects provider based on model. (5) Normalized UltrathinkResult with finalProposal, reasoningSummary, metadata, tokenUsage. (6) Helper functions: isClaudeModel(), isOpenAIOSeriesModel(), isGPTModel(), supportsExtendedThinking(), getRecommendedThinkingBudget(), getRecommendedReasoningEffort(). All exports typed and compatible with ConsensusRunner integration."
     },
     {
       "id": "impl-008",
