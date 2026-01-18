@@ -8,6 +8,7 @@
 
 import { createSignal, createMemo, batch } from "solid-js";
 import type { Prd, UserStory } from "../../ralph/prd-schema.js";
+import type { PairVibePhase, ConsensusSession } from "../../ralph/pair-vibe-types.js";
 
 /**
  * Log entry in the TUI log pane
@@ -63,6 +64,28 @@ export interface InputHistoryEntry {
   timestamp: Date;
 }
 
+/**
+ * Pair Vibe Mode state for the TUI
+ */
+export interface PairVibeStatus {
+  /** Whether Pair Vibe Mode is active */
+  enabled: boolean;
+  /** Current execution phase */
+  phase: PairVibePhase;
+  /** Number of steps the Reviewer is ahead of Executor */
+  reviewerAhead: number;
+  /** Current step the Reviewer is working on */
+  reviewerStep: string | null;
+  /** Current step the Executor is working on */
+  executorStep: string | null;
+  /** Active consensus session (if in consensus phase) */
+  activeConsensus: ConsensusSession | null;
+  /** Provider name for Executor (for display) */
+  executorProvider: string;
+  /** Provider name for Reviewer (for display) */
+  reviewerProvider: string;
+}
+
 /** Maximum number of logs to keep in memory to avoid CPU issues */
 const MAX_LOGS = 500;
 
@@ -111,6 +134,9 @@ const [autoScroll, setAutoScroll] = createSignal(true);
 /** Whether the TUI is running (for cleanup) */
 const [isRunning, setIsRunning] = createSignal(false);
 
+/** Pair Vibe Mode status */
+const [pairVibeStatus, setPairVibeStatus] = createSignal<PairVibeStatus | null>(null);
+
 // ============================================================================
 // Derived State (Memos)
 // ============================================================================
@@ -132,6 +158,35 @@ const statusText = createMemo(() => {
   if (isPaused()) return "PAUSED";
   if (!isRunning()) return "STOPPED";
   return "RUNNING";
+});
+
+/** Whether Pair Vibe Mode is currently active */
+const isPairVibeActive = createMemo(() => {
+  const status = pairVibeStatus();
+  return status !== null && status.enabled;
+});
+
+/** Pair Vibe phase display text */
+const pairVibePhaseText = createMemo(() => {
+  const status = pairVibeStatus();
+  if (!status || !status.enabled) return null;
+
+  switch (status.phase) {
+    case "initializing":
+      return "INIT";
+    case "review":
+      return "REVIEW";
+    case "execute":
+      return "EXEC";
+    case "consensus":
+      return "CONSENSUS";
+    case "paused":
+      return "PAUSED";
+    case "completed":
+      return "DONE";
+    case "error":
+      return "ERROR";
+  }
 });
 
 /** Get the next task from the current PRD */
@@ -423,6 +478,78 @@ function stop(): void {
 }
 
 /**
+ * Enable Pair Vibe Mode with initial configuration
+ */
+function enablePairVibe(
+  executorProvider: string,
+  reviewerProvider: string
+): void {
+  setPairVibeStatus({
+    enabled: true,
+    phase: "initializing",
+    reviewerAhead: 0,
+    reviewerStep: null,
+    executorStep: null,
+    activeConsensus: null,
+    executorProvider,
+    reviewerProvider,
+  });
+  addLog(
+    `Pair Vibe Mode enabled (Executor: ${executorProvider}, Reviewer: ${reviewerProvider})`,
+    "info",
+    "system"
+  );
+}
+
+/**
+ * Disable Pair Vibe Mode
+ */
+function disablePairVibe(): void {
+  setPairVibeStatus(null);
+  addLog("Pair Vibe Mode disabled", "info", "system");
+}
+
+/**
+ * Update Pair Vibe Mode phase
+ */
+function updatePairVibePhase(phase: PairVibePhase): void {
+  setPairVibeStatus((prev) => {
+    if (!prev) return prev;
+    return { ...prev, phase };
+  });
+}
+
+/**
+ * Update Reviewer progress in Pair Vibe Mode
+ */
+function updateReviewerProgress(stepId: string | null, aheadBy: number): void {
+  setPairVibeStatus((prev) => {
+    if (!prev) return prev;
+    return { ...prev, reviewerStep: stepId, reviewerAhead: aheadBy };
+  });
+}
+
+/**
+ * Update Executor progress in Pair Vibe Mode
+ */
+function updateExecutorProgress(stepId: string | null): void {
+  setPairVibeStatus((prev) => {
+    if (!prev) return prev;
+    return { ...prev, executorStep: stepId };
+  });
+}
+
+/**
+ * Set active consensus session
+ */
+function setActiveConsensus(session: ConsensusSession | null): void {
+  setPairVibeStatus((prev) => {
+    if (!prev) return prev;
+    return { ...prev, activeConsensus: session };
+  });
+}
+
+/**
  * Reset all state
  */
 function reset(): void {
@@ -441,6 +568,7 @@ function reset(): void {
     setCurrentPrdFile(null);
     setAutoScroll(true);
     setIsRunning(false);
+    setPairVibeStatus(null);
   });
 }
 
@@ -462,12 +590,15 @@ export const store = {
   currentPrdFile,
   autoScroll,
   isRunning,
+  pairVibeStatus,
 
   // Derived state (memos)
   progressPercentage,
   hasPendingTasks,
   statusText,
   nextTask,
+  isPairVibeActive,
+  pairVibePhaseText,
 
   // Actions
   addLog,
@@ -491,12 +622,19 @@ export const store = {
   start,
   stop,
   reset,
+  enablePairVibe,
+  disablePairVibe,
+  updatePairVibePhase,
+  updateReviewerProgress,
+  updateExecutorProgress,
+  setActiveConsensus,
 
   // Direct setters for advanced use
   setAutoScroll,
   setIsPaused,
   setCurrentTask,
   setProgress,
+  setPairVibeStatus,
 } as const;
 
 // Re-export types

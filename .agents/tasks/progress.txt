@@ -2593,3 +2593,48 @@ for consensus mode. Provider-agnostic design with automatic strategy selection p
 - Event handler maps all PairVibeEvent types to TUI log calls with appropriate sources and levels
 
 ### Type check: PASSED
+
+## 2026-01-18 - impl-010: Add Pair Vibe status to TUI StatusBar
+
+### Completed
+- Extended TUI store with Pair Vibe Mode state management
+- Added `PairVibeStatus` interface to store with fields: enabled, phase, reviewerAhead, reviewerStep, executorStep, activeConsensus, executorProvider, reviewerProvider
+- Added store signals: `pairVibeStatus`, `setPairVibeStatus`
+- Added derived memos: `isPairVibeActive`, `pairVibePhaseText`
+- Added store actions: `enablePairVibe()`, `disablePairVibe()`, `updatePairVibePhase()`, `updateReviewerProgress()`, `updateExecutorProgress()`, `setActiveConsensus()`
+
+### StatusBar Component Updates
+- Added `getPairVibePhaseColor()` helper for phase-specific coloring:
+  - REVIEW: purple (#bb88ff)
+  - EXEC: blue (#55aaff)
+  - CONSENSUS: orange (#ffaa55)
+  - PAUSED: yellow (#ffff55)
+  - ERROR: red (#ff5555)
+  - DONE: green (#55ff55)
+  - INIT: gray (#888888)
+- Added Pair Vibe indicators to StatusBar JSX:
+  - [PAIR VIBE] indicator in magenta (#ff88ff)
+  - Phase indicator with color-coding
+  - Reviewer progress display (e.g., "Rev: +3 ahead" or "Rev: synced")
+  - Consensus round indicator when in consensus mode (e.g., "(R2)")
+- Updated `CompactStatusBar` to include Pair Vibe info in compact format
+
+### Test Coverage
+- Added 21 new tests for Pair Vibe store functionality:
+  - enablePairVibe and disablePairVibe tests
+  - updatePairVibePhase tests
+  - updateReviewerProgress tests
+  - updateExecutorProgress tests
+  - setActiveConsensus tests
+  - isPairVibeActive memo tests
+  - pairVibePhaseText memo tests
+  - reset clears Pair Vibe state test
+  - getPairVibePhaseColor helper function tests
+
+### Files Modified
+- `src/tui/state/store.ts`: Added Pair Vibe state management
+- `src/tui/components/StatusBar.tsx`: Added Pair Vibe indicators
+- `tests/tui/components.test.ts`: Added Pair Vibe tests
+
+### Type check: PASSED
+### Tests: 693/693 PASSED

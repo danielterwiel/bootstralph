@@ -40,6 +40,30 @@ function getStatusColor(status: string): string {
 }
 
 /**
+ * Get Pair Vibe phase color
+ */
+function getPairVibePhaseColor(phase: string | null): string {
+  switch (phase) {
+    case "REVIEW":
+      return "#bb88ff"; // Purple - Reviewer working
+    case "EXEC":
+      return "#55aaff"; // Blue - Executor working
+    case "CONSENSUS":
+      return "#ffaa55"; // Orange - Consensus mode
+    case "PAUSED":
+      return "#ffff55"; // Yellow - Paused
+    case "ERROR":
+      return "#ff5555"; // Red - Error
+    case "DONE":
+      return "#55ff55"; // Green - Complete
+    case "INIT":
+      return "#888888"; // Gray - Initializing
+    default:
+      return "#888888"; // Gray
+  }
+}
+
+/**
  * Get progress bar color based on percentage
  */
 function getProgressColor(percentage: number): string {
@@ -99,6 +123,9 @@ export function StatusBar(props: StatusBarProps) {
   const progress = store.progress;
   const statusText = store.statusText;
   const progressPercentage = store.progressPercentage;
+  const isPairVibeActive = store.isPairVibeActive;
+  const pairVibeStatus = store.pairVibeStatus;
+  const pairVibePhaseText = store.pairVibePhaseText;
 
   // Formatted progress text
   const progressText = createMemo(() => {
@@ -133,6 +160,26 @@ export function StatusBar(props: StatusBarProps) {
   // Progress color
   const progressColor = createMemo(() => {
     return getProgressColor(progressPercentage());
+  });
+
+  // Pair Vibe phase color
+  const pairVibePhaseColor = createMemo(() => {
+    return getPairVibePhaseColor(pairVibePhaseText());
+  });
+
+  // Reviewer ahead text
+  const reviewerAheadText = createMemo(() => {
+    const status = pairVibeStatus();
+    if (!status || !status.enabled) return null;
+    if (status.reviewerAhead === 0) return "synced";
+    return `+${status.reviewerAhead} ahead`;
+  });
+
+  // Consensus round text
+  const consensusRoundText = createMemo(() => {
+    const status = pairVibeStatus();
+    if (!status?.activeConsensus) return null;
+    return `R${status.activeConsensus.currentRound}`;
   });
 
   // Build box props conditionally to satisfy exactOptionalPropertyTypes
@@ -177,6 +224,28 @@ export function StatusBar(props: StatusBarProps) {
           fg={statusColor()}
           content={`[${statusText()}]`}
         />
+
+        {/* Pair Vibe Mode indicator */}
+        <Show when={isPairVibeActive()}>
+          <text
+            fg="#ff88ff"
+            content="[PAIR VIBE]"
+          />
+          <text
+            fg={pairVibePhaseColor()}
+            content={`[${pairVibePhaseText()}]`}
+          />
+          <text
+            fg="#bb88ff"
+            content={`Rev: ${reviewerAheadText()}`}
+          />
+          <Show when={consensusRoundText()}>
+            <text
+              fg="#ffaa55"
+              content={`(${consensusRoundText()})`}
+            />
+          </Show>
+        </Show>
 
         {/* Current task */}
         <text
@@ -236,6 +305,9 @@ export function CompactStatusBar(props: Pick<StatusBarProps, "bgColor">) {
   const progress = store.progress;
   const statusText = store.statusText;
   const progressPercentage = store.progressPercentage;
+  const isPairVibeActive = store.isPairVibeActive;
+  const pairVibeStatus = store.pairVibeStatus;
+  const pairVibePhaseText = store.pairVibePhaseText;
 
   const compactText = createMemo(() => {
     const status = statusText();
@@ -244,7 +316,19 @@ export function CompactStatusBar(props: Pick<StatusBarProps, "bgColor">) {
     const pct = progressPercentage();
 
     const taskPart = task ? `${task.id}` : "idle";
-    return `[${status}] ${taskPart} | ${p.completed}/${p.total} (${pct}%) | iter ${p.iteration}/${p.maxIterations}`;
+    const basePart = `[${status}] ${taskPart} | ${p.completed}/${p.total} (${pct}%) | iter ${p.iteration}/${p.maxIterations}`;
+
+    // Add Pair Vibe info if active
+    const pvStatus = pairVibeStatus();
+    const pvActive = isPairVibeActive();
+    if (pvActive && pvStatus) {
+      const phase = pairVibePhaseText();
+      const aheadPart = pvStatus.reviewerAhead > 0 ? `+${pvStatus.reviewerAhead}` : "synced";
+      const consensusPart = pvStatus.activeConsensus ? ` R${pvStatus.activeConsensus.currentRound}` : "";
+      return `${basePart} | [PAIR VIBE] ${phase} Rev:${aheadPart}${consensusPart}`;
+    }
+
+    return basePart;
   });
 
   const statusColor = createMemo(() => {
