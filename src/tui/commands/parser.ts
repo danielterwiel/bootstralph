@@ -2,7 +2,7 @@
  * Slash Command Parser
  *
  * Parses input starting with / and extracts command name and arguments.
- * Supports: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort, /help, /clear
+ * Supports: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort, /help, /clear, /consensus
  */
 
 import type {
@@ -17,6 +17,7 @@ import type {
   SkipCommandArgs,
   AbortCommandArgs,
   StatusCommandArgs,
+  ConsensusCommandArgs,
 } from "./types.js";
 
 /**
@@ -122,6 +123,19 @@ export const COMMAND_DEFINITIONS: Record<CommandName, CommandDefinition> = {
     minArgs: 0,
     maxArgs: 0,
     examples: ["/clear"],
+  },
+  consensus: {
+    name: "consensus",
+    category: "control",
+    description: "Manually trigger consensus mode for the current step (Pair Vibe Mode only)",
+    usage: "/consensus <reason>",
+    requiresArgs: true,
+    minArgs: 1,
+    maxArgs: -1,
+    examples: [
+      "/consensus I have concerns about this approach",
+      "/consensus Need to discuss security implications",
+    ],
   },
 };
 
@@ -425,6 +439,20 @@ export function parseStatusArgs(parsed: ParsedCommand): StatusCommandArgs {
 }
 
 /**
+ * Parse /consensus command arguments
+ */
+export function parseConsensusArgs(parsed: ParsedCommand): ConsensusCommandArgs | null {
+  if (parsed.name !== "consensus" || parsed.args.length === 0) {
+    return null;
+  }
+
+  // Join all args as reason
+  return {
+    reason: parsed.rawArgs,
+  };
+}
+
+/**
  * Get color for command category (for UI styling)
  */
 export function getCategoryColor(category: CommandCategory | null): string {
@@ -526,4 +554,5 @@ export type {
   SkipCommandArgs,
   AbortCommandArgs,
   StatusCommandArgs,
+  ConsensusCommandArgs,
 } from "./types.js";

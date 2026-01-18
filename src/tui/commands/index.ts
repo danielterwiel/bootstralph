@@ -21,6 +21,7 @@ export {
   parseSkipArgs,
   parseAbortArgs,
   parseStatusArgs,
+  parseConsensusArgs,
   getCategoryColor,
   getHelpText,
   getCommandSuggestions,
@@ -88,6 +89,15 @@ export {
 } from "./priority.js";
 export type { PriorityCommandOptions } from "./priority.js";
 
+export {
+  executeConsensusCommand,
+  handleConsensusCommand,
+  triggerConsensus,
+  canTriggerConsensus,
+  getConsensusHelp,
+} from "./consensus.js";
+export type { ConsensusCommandOptions } from "./consensus.js";
+
 // Export types
 export type {
   CommandName,
@@ -101,5 +111,6 @@ export type {
   SkipCommandArgs,
   AbortCommandArgs,
   StatusCommandArgs,
+  ConsensusCommandArgs,
   CommandResult,
 } from "./types.js";

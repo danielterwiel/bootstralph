@@ -49,6 +49,7 @@ import {
   handleStatusCommand,
   handleNoteCommand,
   handlePriorityCommand,
+  handleConsensusCommand,
   getHelpText,
 } from "../tui/commands/index.js";
 import { store } from "../tui/state/store.js";
@@ -616,6 +617,10 @@ async function handleTuiCommand(input: string): Promise<void> {
       store.clearLogs();
       break;
 
+    case "consensus":
+      await handleConsensusCommand(input);
+      break;
+
     default:
       tuiLog(`Command not implemented: ${parsed.name}`, "warn", "system");
   }
@@ -877,6 +882,9 @@ async function runPairVibeTuiMode(
   // Create the Pair Vibe Engine
   const engine = new PairVibeEngine(engineOptions);
 
+  // Register engine with store for manual consensus triggering via /consensus command
+  store.registerPairVibeEngine(engine);
+
   // Handle Ctrl+C gracefully
   const handleSignal = () => {
     tuiLog("Received interrupt signal, shutting down...", "warn", "system");
@@ -921,7 +929,8 @@ async function runPairVibeTuiMode(
     const errorMessage = error instanceof Error ? error.message : String(error);
     tuiLog(`Engine error: ${errorMessage}`, "error", "system");
   } finally {
-    // Cleanup
+    // Cleanup - unregister engine first
+    store.registerPairVibeEngine(null);
     process.off("SIGINT", handleSignal);
     process.off("SIGTERM", handleSignal);
     stopTui();

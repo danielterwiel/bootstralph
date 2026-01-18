@@ -9,6 +9,7 @@
 import { createSignal, createMemo, batch } from "solid-js";
 import type { Prd, UserStory } from "../../ralph/prd-schema.js";
 import type { PairVibePhase, ConsensusSession } from "../../ralph/pair-vibe-types.js";
+import type { PairVibeEngine } from "../../ralph/pair-vibe-engine.js";
 
 /**
  * Log entry in the TUI log pane
@@ -136,6 +137,9 @@ const [isRunning, setIsRunning] = createSignal(false);
 
 /** Pair Vibe Mode status */
 const [pairVibeStatus, setPairVibeStatus] = createSignal<PairVibeStatus | null>(null);
+
+/** Reference to the PairVibeEngine when running (for manual consensus trigger) */
+const [pairVibeEngine, setPairVibeEngine] = createSignal<PairVibeEngine | null>(null);
 
 // ============================================================================
 // Derived State (Memos)
@@ -550,6 +554,20 @@ function setActiveConsensus(session: ConsensusSession | null): void {
 }
 
 /**
+ * Register the PairVibeEngine for manual consensus triggering
+ */
+function registerPairVibeEngine(engine: PairVibeEngine | null): void {
+  setPairVibeEngine(engine);
+}
+
+/**
+ * Get the current PairVibeEngine (for manual consensus trigger)
+ */
+function getPairVibeEngine(): PairVibeEngine | null {
+  return pairVibeEngine();
+}
+
+/**
  * Reset all state
  */
 function reset(): void {
@@ -569,6 +587,7 @@ function reset(): void {
     setAutoScroll(true);
     setIsRunning(false);
     setPairVibeStatus(null);
+    setPairVibeEngine(null);
   });
 }
 
@@ -628,6 +647,8 @@ export const store = {
   updateReviewerProgress,
   updateExecutorProgress,
   setActiveConsensus,
+  registerPairVibeEngine,
+  getPairVibeEngine,
 
   // Direct setters for advanced use
   setAutoScroll,
@@ -635,6 +656,7 @@ export const store = {
   setCurrentTask,
   setProgress,
   setPairVibeStatus,
+  setPairVibeEngine,
 } as const;
 
 // Re-export types

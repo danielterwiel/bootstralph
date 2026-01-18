@@ -2705,3 +2705,87 @@ for consensus mode. Provider-agnostic design with automatic strategy selection p
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED (36 new tests added)
+
+---
+
+## impl-012: Implement /consensus command
+**Completed:** 2026-01-18T13:50:00.000Z
+
+### Summary
+Implemented the `/consensus` slash command for Pair Vibe Mode, allowing users to manually trigger consensus mode for the current step when they notice an issue before the Reviewer does.
+
+### Changes Made
+
+#### 1. Type Definitions (src/tui/commands/types.ts)
+- Added `"consensus"` to `CommandName` union type
+- Added `ConsensusCommandArgs` interface with `reason: string` field
+
+#### 2. Parser (src/tui/commands/parser.ts)
+- Added consensus command definition:
+  - Category: `control`
+  - Description: "Manually trigger consensus mode for the current step (Pair Vibe Mode only)"
+  - Usage: `/consensus <reason>`
+  - Requires at least 1 argument (the reason)
+  - maxArgs: -1 (unlimited, joins all args as reason)
+- Added `parseConsensusArgs()` function
+- Updated re-exports to include `ConsensusCommandArgs`
+
+#### 3. Command Handler (src/tui/commands/consensus.ts)
+New file with:
+- `executeConsensusCommand(options)`: Main command executor
+  - Validates Pair Vibe Mode is active
+  - Gets PairVibeEngine from store
+  - Checks engine is running and not already in consensus
+  - Calls `engine.triggerConsensus(reason)`
+- `handleConsensusCommand(input)`: Convenience wrapper for raw input
+- `triggerConsensus(reason, showInLogs)`: Direct API without parsing
+- `canTriggerConsensus()`: Check if consensus can be triggered
+- `getConsensusHelp()`: Help text for the command
+
+#### 4. Store Updates (src/tui/state/store.ts)
+- Added `pairVibeEngine` signal to store reference to running engine
+- Added `registerPairVibeEngine(engine)`: Register/unregister engine
+- Added `getPairVibeEngine()`: Get current engine for commands
+- Updated `reset()` to clear engine reference
+- Exported new functions in store object
+
+#### 5. Ralph Command Integration (src/commands/ralph.ts)
+- Imported `handleConsensusCommand` from commands
+- In `runPairVibeTuiMode()`:
+  - Register engine with store after creation
+  - Unregister engine in finally block
+- Added `"consensus"` case to command switch in `handleTuiCommand()`
+
+#### 6. Index Exports (src/tui/commands/index.ts)
+- Added `parseConsensusArgs` to parser exports
+- Added consensus command exports:
+  - `executeConsensusCommand`
+  - `handleConsensusCommand`
+  - `triggerConsensus`
+  - `canTriggerConsensus`
+  - `getConsensusHelp`
+- Added `ConsensusCommandOptions` type export
+- Added `ConsensusCommandArgs` type export
+
+#### 7. Test Updates (tests/tui/parser.test.ts)
+- Updated command count expectations from 10 to 11
+- Added `'consensus'` to expected commands list
+
+### Usage
+```
+/consensus <reason>
+```
+
+Examples:
+- `/consensus I have concerns about this approach`
+- `/consensus Need to discuss security implications`
+- `/consensus This approach might not scale well`
+
+### Validation
+- Only works when Pair Vibe Mode is active
+- Engine must be running
+- Cannot trigger if already in consensus mode
+- Reason is required (at least 1 argument)
+
+### Type check: PASSED
+### Tests: 729/729 PASSED

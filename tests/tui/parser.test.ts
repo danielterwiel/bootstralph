@@ -33,14 +33,14 @@ import {
 // ============================================================================
 
 describe('COMMAND_DEFINITIONS', () => {
-  it('should have all 10 command definitions', () => {
-    expect(Object.keys(COMMAND_DEFINITIONS)).toHaveLength(10);
+  it('should have all 11 command definitions', () => {
+    expect(Object.keys(COMMAND_DEFINITIONS)).toHaveLength(11);
   });
 
   it('should have all required commands', () => {
     const expectedCommands: CommandName[] = [
       'issue', 'pause', 'resume', 'skip', 'status',
-      'note', 'priority', 'abort', 'help', 'clear'
+      'note', 'priority', 'abort', 'help', 'clear', 'consensus'
     ];
     for (const cmd of expectedCommands) {
       expect(COMMAND_DEFINITIONS).toHaveProperty(cmd);
@@ -102,8 +102,8 @@ describe('COMMAND_DEFINITIONS', () => {
 });
 
 describe('VALID_COMMAND_NAMES', () => {
-  it('should contain all 10 valid command names', () => {
-    expect(VALID_COMMAND_NAMES).toHaveLength(10);
+  it('should contain all 11 valid command names', () => {
+    expect(VALID_COMMAND_NAMES).toHaveLength(11);
     expect(VALID_COMMAND_NAMES).toContain('issue');
     expect(VALID_COMMAND_NAMES).toContain('pause');
     expect(VALID_COMMAND_NAMES).toContain('resume');
@@ -114,6 +114,7 @@ describe('VALID_COMMAND_NAMES', () => {
     expect(VALID_COMMAND_NAMES).toContain('abort');
     expect(VALID_COMMAND_NAMES).toContain('help');
     expect(VALID_COMMAND_NAMES).toContain('clear');
+    expect(VALID_COMMAND_NAMES).toContain('consensus');
   });
 });
 
@@ -770,7 +771,7 @@ describe('getCommandSuggestions', () => {
 
   it('should return all commands for just /', () => {
     const suggestions = getCommandSuggestions('/');
-    expect(suggestions).toHaveLength(10);
+    expect(suggestions).toHaveLength(11);
   });
 
   it('should filter by prefix', () => {

@@ -17,7 +17,8 @@ export type CommandName =
   | "priority"
   | "abort"
   | "help"
-  | "clear";
+  | "clear"
+  | "consensus";
 
 /**
  * Command categories for grouping and styling
@@ -120,6 +121,14 @@ export interface StatusCommandArgs {
   taskId?: string;
   /** Whether to show verbose status */
   verbose?: boolean;
+}
+
+/**
+ * /consensus command arguments
+ */
+export interface ConsensusCommandArgs {
+  /** Reason for triggering consensus */
+  reason: string;
 }
 
 /**
