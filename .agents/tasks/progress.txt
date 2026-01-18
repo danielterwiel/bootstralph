@@ -2379,3 +2379,34 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: 672 PASSED
+
+## 2026-01-18 - impl-005: Implement ReviewerRunner class
+
+### Completed
+- Created `src/ralph/reviewer-runner.ts` with concurrent step review for Pair Vibe Mode
+- Runs ahead of Executor to pre-review future steps
+- Uses WebSearchService for technology validation (Tavily primary, Brave fallback)
+- Auto-generates search queries based on detected technologies in step content
+- Technology detection covers: React, Vue, Angular, Next.js, TypeScript, databases, cloud providers, testing frameworks
+- LLM client abstraction (ReviewerLLMClient interface) for provider-agnostic analysis
+- Heuristic findings extraction when no LLM client is available
+
+### Technical Details
+- ReviewerRunner class extends EventEmitter for UI integration
+- State machine: idle → running → paused/waiting_for_consensus → stopped
+- MAX_STEPS_AHEAD = 5 to prevent Reviewer from getting too far ahead
+- Timeout strategy per review-007:
+  - Web search: 30s per call (DEFAULT_SEARCH_TIMEOUT_MS)
+  - Review step: 2min total (DEFAULT_REVIEW_TIMEOUT_MS)
+- Query generation using searchQueries helpers:
+  - bestPractices(tech, context)
+  - knownIssues(tech, version)
+  - security(tech, operation)
+  - performance(tech, operation)
+- Emits PairVibeEvents: reviewer-started, reviewer-completed, reviewer-timeout, consensus-started
+- pause()/resume()/waitForConsensus()/consensusCompleted() for consensus mode integration
+- skipStep() for /reviewer skip command support
+- createDefaultReviewerLLMClient() placeholder for testing
+
+### Type check: PASSED
+### Tests: All 672 existing tests pass
