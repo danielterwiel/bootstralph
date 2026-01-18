@@ -804,7 +804,8 @@
       "phase": 5,
       "task": "Implement /priority command handler",
       "files": ["src/tui/commands/priority.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Change task priority: /priority <id> <number>. Lower number = higher priority. Reorder affects next task selection."
     },
     {

@@ -79,6 +79,15 @@ export {
 } from "./note.js";
 export type { NoteCommandOptions } from "./note.js";
 
+export {
+  executePriorityCommand,
+  handlePriorityCommand,
+  changePriority,
+  validatePriorityInput,
+  getPriorityHelp,
+} from "./priority.js";
+export type { PriorityCommandOptions } from "./priority.js";
+
 // Export types
 export type {
   CommandName,

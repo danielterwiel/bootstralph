@@ -1529,3 +1529,50 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-050: Implement /priority command handler
+
+### Completed
+- Created `src/tui/commands/priority.ts` with full /priority command implementation
+- Integrates with PrdManager for updating task priority/phase
+- Integrates with TUI store for logging and progress updates
+
+### Features
+- **executePriorityCommand(options)**: Main /priority execution function
+  - Validates input if provided as raw string
+  - Checks for loaded PRD (returns error if none)
+  - Validates task exists (returns error if not found)
+  - Validates priority is a valid integer
+  - Calls PrdManager.updatePriority() which updates phase (implementation_tasks) or priority (userStories)
+  - Logs success with old and new values
+  - Updates store progress after change
+
+- **handlePriorityCommand(input)**: Convenience for raw /priority command
+- **changePriority(taskId, priority, options)**: Programmatic priority change
+- **validatePriorityInput(input)**: Pre-validation for UI
+  - Validates input without executing
+  - Returns parsed args if valid
+  - Validates priority is an integer
+- **getPriorityHelp()**: Returns help text for the command
+
+### Usage Examples
+- `/priority impl-044 1` - Move task to phase 1 (highest priority)
+- `/priority US-001 5` - Set user story priority to 5
+- `/priority impl-050 2` - Move impl-050 to phase 2
+
+### Technical Details
+- Handles exactOptionalPropertyTypes by conditionally building result objects
+- Uses parsePriorityArgs() which extracts taskId and priority number
+- Lower numbers = higher priority (processed first)
+- For implementation_tasks: updates the 'phase' field
+- For userStories: updates the 'priority' field
+- Changes affect which task is selected next by getNextTask()
+- All errors logged to store with "error" level for TUI display
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executePriorityCommand, handlePriorityCommand, changePriority, validatePriorityInput, getPriorityHelp
+  - PriorityCommandOptions type
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+
