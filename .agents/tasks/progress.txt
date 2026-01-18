@@ -2410,3 +2410,42 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: All 672 existing tests pass
+
+## 2026-01-18 - impl-006: Implement ConsensusRunner class
+
+### Completed
+- Created `src/ralph/consensus-runner.ts` with full consensus orchestration
+- Orchestrates consensus resolution when Reviewer finds issues on a step
+- Multi-round consensus with configurable max rounds (default 2 per edge-003)
+- Anonymized proposals as "Proposal A" and "Proposal B" to prevent sycophancy (per edge-006)
+- Ultrathink mode triggers on round 2+ with optional web search grounding
+- 5-minute consensus timeout with graceful handling (per impl-006 spec)
+- Executor wins tie-breaker after max rounds (per core_philosophy)
+- Sycophancy risk detection using checkSycophancyRisk() from pair-vibe-types
+
+### Key Interfaces
+- ConsensusLLMClient: Provider-agnostic interface for proposal generation and alignment checking
+  - generateProposal(): Generate a proposal for a step given findings
+  - checkAlignment(): Check if two proposals are substantially aligned
+- ConsensusRunnerOptions: Configuration with executor/reviewer clients, web search, event handler
+- ConsensusState: idle | collecting_proposals | checking_alignment | ultrathink | resolved | timeout | cancelled | error
+
+### Features
+1. Multi-round consensus loop with timeout protection
+2. Parallel proposal collection from executor and reviewer
+3. Random A/B label assignment to prevent identity bias
+4. Simple Jaccard similarity fallback when no LLM client available
+5. Web search grounding during ultrathink mode
+6. toConsensusRecord() for converting results to PRD storage format
+7. Cancel support per edge-007 for saving partial consensus state
+8. PairVibeEvent emission for UI integration:
+   - consensus-started, consensus-round, consensus-completed, consensus-timeout
+
+### Helper Functions
+- createConsensusRunner(): Factory function
+- createDefaultConsensusLLMClients(): Placeholder clients for testing
+- needsConsensus(step): Check if step has findings requiring consensus
+- hasConsensusRecord(step): Check if step already has consensus resolution
+
+### Type check: PASSED
+### Tests: All 672 existing tests pass
