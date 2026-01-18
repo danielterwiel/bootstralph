@@ -3196,3 +3196,59 @@ await metricsService.stop('completed');
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+## 2026-01-18T15:18:18+01:00
+Max iterations reached (25)
+## 2026-01-18T14:30:00+01:00
+### impl-019: Add cost estimation and warning
+
+Created `src/ralph/cost-estimator.ts` for pre-session cost estimation in Pair Vibe Mode.
+
+### Features Implemented
+
+1. **countPendingSteps(prd)**
+   - Counts pending steps across review_tasks, implementation_tasks, userStories, and reviewTasks
+   - Supports both standard Prd and ExtendedPrd formats
+
+2. **suggestConsensusRate(prd)**
+   - Analyzes task complexity based on description keywords
+   - Returns 'low' (10%), 'medium' (25%), or 'high' (40%) consensus rate
+   - Complexity indicators: refactor, integration, auth, database, API, multiple
+
+3. **estimatePairVibeCost(prd, config, options)**
+   - Calculates detailed cost breakdown:
+     - Executor cost (all steps)
+     - Reviewer cost (all steps, ~40% of executor output)
+     - Consensus cost (based on expected consensus rate)
+     - Web search cost ($0.008/query via Tavily)
+   - Accounts for cache discounts (90% for cached input tokens)
+   - Returns min/max range based on low/high consensus rates
+
+4. **formatCostEstimate(estimate)**
+   - ASCII box formatting for terminal display
+   - Shows step count, consensus rate, cost breakdown, total, range, multiplier
+
+5. **formatCostWarning(estimate)**
+   - Short warning message for prompts
+
+6. **getCostWarningLevel(estimate)**
+   - Returns 'none', 'info', 'warn', or 'danger' based on thresholds
+   - danger: >$10, warn: >$5, info: >$1
+
+7. **getCostRecommendation(estimate)**
+   - Returns actionable advice based on cost level
+
+8. **estimateSingleModelCost(prd, model)**
+   - Baseline cost for comparison
+
+9. **compareCosts(prd, config)**
+   - Compares Pair Vibe vs single-model cost
+   - Returns recommendation based on multiplier
+
+### Token Estimates Used
+- Executor: 8K input, 2K output per step
+- Reviewer: 4K input, 500 output per step  
+- Consensus: 6K input, 1.5K output per round
+- Web searches: 1.5 per step average
+
+### Type check: PASSED
+### Tests: 729/729 PASSED

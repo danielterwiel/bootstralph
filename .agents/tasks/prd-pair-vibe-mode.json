@@ -292,8 +292,10 @@
       "phase": 5,
       "task": "Add cost estimation and warning",
       "files": ["src/ralph/cost-estimator.ts"],
-      "status": "pending",
-      "description": "Estimate cost multiplier for Pair Vibe Mode based on: task count, expected consensus rate, model pricing. Show warning before starting: 'Pair Vibe Mode may cost 2-4x more than single model. Continue?'"
+      "status": "completed",
+      "description": "Estimate cost multiplier for Pair Vibe Mode based on: task count, expected consensus rate, model pricing. Show warning before starting: 'Pair Vibe Mode may cost 2-4x more than single model. Continue?'",
+      "completedAt": "2026-01-18T14:30:00.000Z",
+      "notes": "Implemented comprehensive cost-estimator.ts with: (1) countPendingSteps() for analyzing PRD tasks (supports both standard Prd and ExtendedPrd formats). (2) suggestConsensusRate() that estimates low/medium/high consensus rate based on task complexity heuristics. (3) estimatePairVibeCost() calculating detailed cost breakdown (executor, reviewer, consensus, web search) with range estimates. (4) formatCostEstimate() for ASCII box display and formatCostWarning() for short messages. (5) getCostWarningLevel() (none/info/warn/danger thresholds) and getCostRecommendation(). (6) estimateSingleModelCost() and compareCosts() for comparison. Uses MODEL_PRICING and WEB_SEARCH_COST_PER_QUERY from pair-vibe-metrics.ts. Accounts for cache discounts (90% for cached tokens). Type check: PASSED. Tests: 729/729 PASSED."
     },
     {
       "id": "impl-020",
