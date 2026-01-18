@@ -731,8 +731,9 @@
       "id": "impl-042",
       "phase": 5,
       "task": "Create main TUI App component and entry point",
-      "files": ["src/tui/App.tsx", "src/tui/index.ts"],
-      "status": "pending",
+      "files": ["src/tui/App.tsx", "src/tui/index.tsx"],
+      "status": "completed",
+      "passes": true,
       "description": "Main layout with flexbox: LogPane (flex:1), StatusBar, InputBar. Mount OpenTUI app with SolidJS renderer. Handle terminal resize."
     },
     {

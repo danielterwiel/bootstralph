@@ -1148,3 +1148,50 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-042: Create main TUI App component and entry point
+
+### Completed
+- Created `src/tui/App.tsx` with full TUI application layout using OpenTUI + SolidJS
+- Created `src/tui/index.tsx` with TUI entry point, start/stop functions, and convenience APIs
+
+### Features - App.tsx
+- **App component**: Main TUI layout with flexbox structure
+  - Uses `@jsxImportSource @opentui/solid` pragma for OpenTUI JSX types
+  - Header with optional title (hidden in compact mode)
+  - LogPane (flex: 1) - scrollable log output
+  - StatusBar - current task and progress display
+  - InputBar - command input with suggestions
+  - Footer with keyboard shortcuts (hidden in compact mode)
+  - Responsive layout: compact mode for terminals < 20 rows or < 60 cols
+- **MinimalApp component**: Streamlined variant for simple use cases
+- **FullApp component**: All features enabled variant
+- **useGlobalKeyboard hook**: Global keyboard shortcut handler
+  - Ctrl+C: Abort/Exit
+  - Ctrl+P: Pause/Resume toggle
+  - Ctrl+L: Clear logs
+  - Ctrl+A: Toggle auto-scroll
+- **AppProps interface**: Configuration with exactOptionalPropertyTypes support
+
+### Features - index.tsx (Entry Point)
+- **startTui(options)**: Start the TUI with full configuration
+  - Accepts PRD, maxIterations, debug mode, all AppProps
+  - Returns TuiInstance with stop(), store, exitPromise
+  - Handles exactOptionalPropertyTypes by building props conditionally
+- **startMinimalTui(onCommand)**: Start minimal TUI variant
+- **stopTui()**: Stop and cleanup the TUI
+- **isTuiRunning()**: Check if TUI is currently running
+- **Convenience functions**: tuiLog, tuiStartTask, tuiCompleteTask, tuiSkipTask, tuiPause, tuiResume, tuiLoadPrd, tuiUpdatePrd, tuiIncrementIteration, tuiClearLogs
+- **Re-exports**: All components, store, and types for external use
+
+### Technical Details
+- Uses `render()` from @opentui/solid (returns Promise<void>, not renderer instance)
+- `useKeyboard(callback)` takes callback directly (not event emitter pattern)
+- `useTerminalDimensions()` returns Accessor<{width, height}> for reactive resize handling
+- KeyEvent type imported from @opentui/core for type-safe keyboard handling
+- File renamed from index.ts to index.tsx for JSX support
+- Props built conditionally to satisfy exactOptionalPropertyTypes
+- Exit promise pattern for controlled TUI shutdown
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+
