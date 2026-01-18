@@ -3070,3 +3070,129 @@ limiter.isDegraded('anthropic');
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-018: Add Pair Vibe metrics and logging
+
+### Completed
+- Created `src/ralph/pair-vibe-metrics.ts` with PairVibeMetricsService class
+- Comprehensive metrics tracking for Pair Vibe Mode sessions
+
+### Features
+
+1. **PairVibeMetricsService Class**
+   - Collects and persists metrics during Pair Vibe Mode sessions
+   - Auto-saves to `.agents/metrics/pair-vibe-{timestamp}.json`
+   - Handles all PairVibeEvent types for metric updates
+
+2. **Per-Step Metrics (DetailedStepMetrics)**
+   - Token usage breakdown (review, execution, consensus)
+   - Duration tracking (review, execution, consensus)
+   - Web search count per step
+   - Findings and consensus decision tracking
+   - Model attribution (review model, execution model)
+   - Passed without review flag
+
+3. **Model Pricing (MODEL_PRICING)**
+   - Claude Sonnet 4: $3/M input, $15/M output
+   - Claude Opus 4: $15/M input, $75/M output
+   - GPT-4o: $2.50/M input, $10/M output
+   - GPT-4.1: $2/M input, $8/M output
+   - o1/o3/o3-mini pricing per review-008 findings
+   - 90% cache discount for Anthropic prompt caching
+
+4. **Cost Tracking**
+   - Real-time cost calculation from token usage
+   - Breakdown by role: executor, reviewer, consensus, webSearch
+   - Web search cost: $0.008/query (Tavily pricing per review-002)
+   - `recordTokenUsage()` for external cost tracking
+
+5. **Phase Timing**
+   - Tracks time spent in each PairVibePhase
+   - Records start/end timestamps and duration
+   - `phaseTimings` array in DetailedPairVibeMetrics
+
+6. **Reviewer Ahead Distance**
+   - `reviewerAheadSamples` array with timestamp and distance
+   - Running average calculation (`averageReviewerAhead`)
+   - `recordReviewerAhead()` for engine integration
+
+7. **Session Summary (generateSummary)**
+   - Human-readable summary for end-of-session display
+   - Duration, progress, cost breakdown
+   - Consensus statistics (triggered, rounds, outcomes)
+   - Review statistics (completed, timeouts, findings)
+   - Reliability info (rate limits, circuit trips, degraded time)
+   - Performance hints based on metrics analysis
+
+8. **Console Formatting (formatSummaryForConsole)**
+   - ASCII box formatting for terminal display
+   - Organized sections with clear headings
+   - Cost breakdown with proper alignment
+   - Performance hints with bullet points
+
+9. **Sycophancy Risk Detection**
+   - Tracks consensus rounds with high similarity (>95%)
+   - Flags fast consensus (<30s in round 1)
+   - `sycophancyRiskCount` metric
+
+10. **Circuit Breaker Events**
+    - Records provider, state (open/half-open/closed), timestamp
+    - Supports reliability analysis
+
+11. **Cost Estimation (estimateCostMultiplier)**
+    - Pre-session cost multiplier estimation
+    - Based on expected consensus rate
+    - Low/medium/high friction categories
+
+### API
+
+```typescript
+// Create metrics service
+const metricsService = createPairVibeMetricsService({
+  metricsDir: '.agents/metrics',
+  config: pairVibeConfig,
+  autoSave: true,
+  autoSaveInterval: 30000,
+});
+
+// Start collection
+metricsService.start();
+
+// Handle events from PairVibeEngine
+metricsService.handleEvent(event);
+
+// Record token usage (from LLM responses)
+metricsService.recordTokenUsage('step-1', 'executor', {
+  inputTokens: 1000,
+  outputTokens: 500,
+  cachedInputTokens: 800,
+});
+
+// Record reviewer ahead distance
+metricsService.recordReviewerAhead(3);
+
+// Get current metrics
+const metrics = metricsService.getMetrics();
+
+// Generate end-of-session summary
+const summary = metricsService.generateSummary();
+console.log(metricsService.formatSummaryForConsole(summary));
+
+// Stop and save
+await metricsService.stop('completed');
+```
+
+### Types Added
+- `TokenUsage`: inputTokens, outputTokens, cachedInputTokens
+- `PhaseTiming`: phase, startedAt, endedAt, durationMs
+- `DetailedStepMetrics`: extends StepMetrics with token usage, models, findings
+- `DetailedPairVibeMetrics`: extends PairVibeMetrics with detailed tracking
+- `PairVibeSessionSummary`: summary for display
+- `PairVibeMetricsServiceOptions`: service configuration
+
+### Constants
+- `MODEL_PRICING`: Per-model token pricing
+- `WEB_SEARCH_COST_PER_QUERY`: $0.008 (Tavily)
+
+### Type check: PASSED
+### Tests: 729/729 PASSED
