@@ -2516,3 +2516,54 @@ for consensus mode. Provider-agnostic design with automatic strategy selection p
 
 ### Type check: PASSED
 ### Tests: All 672 existing tests pass
+
+## 2026-01-18 - impl-008: Implement PairVibeEngine orchestrator
+
+### Completed
+- Created `src/ralph/pair-vibe-engine.ts` with the main Pair Vibe Mode orchestrator
+- Implements PairVibeEngine class that coordinates concurrent Reviewer and Executor execution
+- Spawns Reviewer as concurrent async task via runReviewerLoop()
+- Main Executor loop checks for findings and enters consensus mode when needed
+- Full pause/resume/stop controls with graceful state management
+- Emits structured PairVibeEvent events for TUI integration
+
+### Features
+1. **Concurrent Reviewer Loop**
+   - Runs ahead of Executor by configurable maxLookAhead (default 3 steps)
+   - Pauses during consensus mode per impl-005
+   - Handles timeout gracefully (2 minutes per edge-001)
+
+2. **Main Executor Loop**
+   - Checks if step has findings before execution
+   - Enters consensus mode when findings.length > 0
+   - Waits for review with timeout (proceeds without if needed)
+   - Tracks step progress through status lifecycle
+
+3. **Consensus Integration**
+   - Pauses Reviewer during consensus
+   - Uses ConsensusRunner for multi-round resolution
+   - Records consensus results in step.consensus field
+
+4. **Edge Case Handling**
+   - edge-001: Wait for review timeout (2 minutes)
+   - edge-008: Cap concurrent consensus at 1 (sequential processing)
+   - edge-009: Proceed without review when timeout occurs
+
+5. **Metrics Tracking**
+   - PairVibeMetrics with session stats
+   - StepMetrics per step (review, execution, consensus durations)
+   - Average reviewer ahead distance
+
+6. **External Adapters**
+   - executeStep callback for existing Ralph engine integration
+   - savePrd callback for PRD persistence
+
+### Exports
+- `PairVibeEngine` class with full API
+- `createPairVibeEngine()` factory function
+- `canEnablePairVibeMode()` helper
+- `getDefaultPairVibeConfig()` helper
+- Types: `PairVibeEngineOptions`, `PairVibeEngineResult`, `ExecuteStepResult`, `EngineState`
+
+### Type check: PASSED
+### Tests: PASSED (672/672)
