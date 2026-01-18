@@ -1,6 +1,15 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { createRoot } from 'solid-js';
 import { store, type LogEntry, type Progress, type CurrentTask } from '../../src/tui/state/store.js';
+import {
+  getSourceColor,
+  isPairVibeSource,
+  getSourcePrefix,
+  isConsensusStart,
+  isConsensusEnd,
+  groupLogsWithConsensus,
+  type PairVibeSource,
+} from '../../src/tui/components/LogPane.js';
 
 // ============================================================================
 // LogPane Component Helper Function Tests
@@ -1414,6 +1423,297 @@ describe('StatusBar Pair Vibe helper functions', () => {
     it('should return gray for unknown phase', () => {
       expect(getPairVibePhaseColor('UNKNOWN')).toBe('#888888');
       expect(getPairVibePhaseColor(null)).toBe('#888888');
+    });
+  });
+});
+
+// ============================================================================
+// LogPane Pair Vibe Source Formatting Tests
+// ============================================================================
+
+describe('LogPane Pair Vibe source formatting functions', () => {
+  describe('getSourceColor', () => {
+    it('should return blue for executor source', () => {
+      expect(getSourceColor('executor')).toBe('#55aaff');
+      expect(getSourceColor('Executor')).toBe('#55aaff');
+      expect(getSourceColor('EXECUTOR')).toBe('#55aaff');
+    });
+
+    it('should return blue for claude source (often used as executor)', () => {
+      expect(getSourceColor('claude')).toBe('#55aaff');
+      expect(getSourceColor('Claude')).toBe('#55aaff');
+    });
+
+    it('should return purple for reviewer source', () => {
+      expect(getSourceColor('reviewer')).toBe('#bb88ff');
+      expect(getSourceColor('Reviewer')).toBe('#bb88ff');
+      expect(getSourceColor('REVIEWER')).toBe('#bb88ff');
+    });
+
+    it('should return purple for openai source (often used as reviewer)', () => {
+      expect(getSourceColor('openai')).toBe('#bb88ff');
+      expect(getSourceColor('OpenAI')).toBe('#bb88ff');
+    });
+
+    it('should return orange for consensus source', () => {
+      expect(getSourceColor('consensus')).toBe('#ffaa55');
+      expect(getSourceColor('Consensus')).toBe('#ffaa55');
+    });
+
+    it('should return dimmed gray for search source', () => {
+      expect(getSourceColor('search')).toBe('#666666');
+      expect(getSourceColor('Search')).toBe('#666666');
+    });
+
+    it('should return gray for system source', () => {
+      expect(getSourceColor('system')).toBe('#888888');
+      expect(getSourceColor('System')).toBe('#888888');
+    });
+
+    it('should return null for unknown sources', () => {
+      expect(getSourceColor('unknown')).toBeNull();
+      expect(getSourceColor('random')).toBeNull();
+      expect(getSourceColor(undefined)).toBeNull();
+    });
+  });
+
+  describe('isPairVibeSource', () => {
+    it('should return true for known Pair Vibe sources', () => {
+      expect(isPairVibeSource('executor')).toBe(true);
+      expect(isPairVibeSource('reviewer')).toBe(true);
+      expect(isPairVibeSource('consensus')).toBe(true);
+      expect(isPairVibeSource('search')).toBe(true);
+      expect(isPairVibeSource('claude')).toBe(true);
+      expect(isPairVibeSource('openai')).toBe(true);
+    });
+
+    it('should be case insensitive', () => {
+      expect(isPairVibeSource('Executor')).toBe(true);
+      expect(isPairVibeSource('REVIEWER')).toBe(true);
+      expect(isPairVibeSource('Claude')).toBe(true);
+    });
+
+    it('should return false for unknown sources', () => {
+      expect(isPairVibeSource('unknown')).toBe(false);
+      expect(isPairVibeSource('random')).toBe(false);
+      expect(isPairVibeSource('system')).toBe(false);
+      expect(isPairVibeSource(undefined)).toBe(false);
+    });
+  });
+
+  describe('getSourcePrefix', () => {
+    it('should return [EXE] for executor source', () => {
+      expect(getSourcePrefix('executor')).toBe('[EXE]');
+      expect(getSourcePrefix('claude')).toBe('[EXE]');
+    });
+
+    it('should return [REV] for reviewer source', () => {
+      expect(getSourcePrefix('reviewer')).toBe('[REV]');
+      expect(getSourcePrefix('openai')).toBe('[REV]');
+    });
+
+    it('should return [CON] for consensus source', () => {
+      expect(getSourcePrefix('consensus')).toBe('[CON]');
+    });
+
+    it('should return [SRC] for search source', () => {
+      expect(getSourcePrefix('search')).toBe('[SRC]');
+    });
+
+    it('should return [SYS] for system source', () => {
+      expect(getSourcePrefix('system')).toBe('[SYS]');
+    });
+
+    it('should return truncated uppercase prefix for unknown sources', () => {
+      expect(getSourcePrefix('unknown')).toBe('[UNK]');
+      expect(getSourcePrefix('random')).toBe('[RAN]');
+    });
+
+    it('should return empty string for undefined source', () => {
+      expect(getSourcePrefix(undefined)).toBe('');
+    });
+  });
+});
+
+// ============================================================================
+// LogPane Consensus Grouping Tests
+// ============================================================================
+
+describe('LogPane consensus detection and grouping functions', () => {
+  // Helper to create a mock log entry
+  function createLogEntry(
+    id: string,
+    message: string,
+    source?: string
+  ): LogEntry {
+    return {
+      id,
+      timestamp: new Date(),
+      level: 'info',
+      message,
+      source,
+    };
+  }
+
+  describe('isConsensusStart', () => {
+    it('should return true for consensus started messages', () => {
+      const entry = createLogEntry('log-1', 'Consensus started for step-001', 'consensus');
+      expect(isConsensusStart(entry)).toBe(true);
+    });
+
+    it('should return true for entering consensus messages', () => {
+      const entry = createLogEntry('log-2', 'Entering consensus mode', 'consensus');
+      expect(isConsensusStart(entry)).toBe(true);
+    });
+
+    it('should be case insensitive', () => {
+      const entry = createLogEntry('log-3', 'CONSENSUS STARTED', 'Consensus');
+      expect(isConsensusStart(entry)).toBe(true);
+    });
+
+    it('should return false for non-consensus sources', () => {
+      const entry = createLogEntry('log-4', 'Consensus started', 'executor');
+      expect(isConsensusStart(entry)).toBe(false);
+    });
+
+    it('should return false for other consensus messages', () => {
+      const entry = createLogEntry('log-5', 'Waiting for proposals', 'consensus');
+      expect(isConsensusStart(entry)).toBe(false);
+    });
+  });
+
+  describe('isConsensusEnd', () => {
+    it('should return true for consensus completed messages', () => {
+      const entry = createLogEntry('log-1', 'Consensus completed', 'consensus');
+      expect(isConsensusEnd(entry)).toBe(true);
+    });
+
+    it('should return true for consensus reached messages', () => {
+      const entry = createLogEntry('log-2', 'Consensus reached on approach A', 'consensus');
+      expect(isConsensusEnd(entry)).toBe(true);
+    });
+
+    it('should return true for consensus timeout messages', () => {
+      const entry = createLogEntry('log-3', 'Consensus timeout - proceeding with executor', 'consensus');
+      expect(isConsensusEnd(entry)).toBe(true);
+    });
+
+    it('should return true for executor wins messages', () => {
+      const entry = createLogEntry('log-4', 'Executor wins - tie breaker applied', 'consensus');
+      expect(isConsensusEnd(entry)).toBe(true);
+    });
+
+    it('should return false for non-consensus sources', () => {
+      const entry = createLogEntry('log-5', 'Consensus completed', 'executor');
+      expect(isConsensusEnd(entry)).toBe(false);
+    });
+  });
+
+  describe('groupLogsWithConsensus', () => {
+    it('should return regular entries when no consensus groups exist', () => {
+      const logs = [
+        createLogEntry('log-1', 'Starting execution', 'executor'),
+        createLogEntry('log-2', 'Review complete', 'reviewer'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+
+      expect(result).toHaveLength(2);
+      expect(result[0]?.type).toBe('entry');
+      expect(result[1]?.type).toBe('entry');
+    });
+
+    it('should group consensus entries together', () => {
+      const logs = [
+        createLogEntry('log-1', 'Normal log', 'executor'),
+        createLogEntry('log-2', 'Consensus started', 'consensus'),
+        createLogEntry('log-3', 'Proposal A submitted', 'consensus'),
+        createLogEntry('log-4', 'Proposal B submitted', 'consensus'),
+        createLogEntry('log-5', 'Consensus reached', 'consensus'),
+        createLogEntry('log-6', 'Resuming execution', 'executor'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+
+      expect(result).toHaveLength(3);
+      expect(result[0]?.type).toBe('entry');
+      expect(result[1]?.type).toBe('group');
+      expect(result[2]?.type).toBe('entry');
+
+      const group = result[1] as { type: 'group'; group: { entries: LogEntry[]; summary: string } };
+      expect(group.group.entries).toHaveLength(4);
+      expect(group.group.summary).toBe('Consensus reached');
+    });
+
+    it('should handle multiple consensus groups', () => {
+      const logs = [
+        createLogEntry('log-1', 'Consensus started', 'consensus'),
+        createLogEntry('log-2', 'Consensus completed', 'consensus'),
+        createLogEntry('log-3', 'Normal log', 'executor'),
+        createLogEntry('log-4', 'Entering consensus', 'consensus'),
+        createLogEntry('log-5', 'Executor wins', 'consensus'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+
+      expect(result).toHaveLength(3);
+      expect(result[0]?.type).toBe('group');
+      expect(result[1]?.type).toBe('entry');
+      expect(result[2]?.type).toBe('group');
+    });
+
+    it('should mark groups as collapsed when in collapsedGroups set', () => {
+      const logs = [
+        createLogEntry('log-1', 'Consensus started', 'consensus'),
+        createLogEntry('log-2', 'Consensus completed', 'consensus'),
+      ];
+
+      const collapsedSet = new Set(['log-1']);
+      const result = groupLogsWithConsensus(logs, collapsedSet);
+
+      expect(result).toHaveLength(1);
+      const group = result[0] as { type: 'group'; group: { isExpanded: boolean } };
+      expect(group.group.isExpanded).toBe(false);
+    });
+
+    it('should mark groups as expanded when not in collapsedGroups set', () => {
+      const logs = [
+        createLogEntry('log-1', 'Consensus started', 'consensus'),
+        createLogEntry('log-2', 'Consensus completed', 'consensus'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+
+      expect(result).toHaveLength(1);
+      const group = result[0] as { type: 'group'; group: { isExpanded: boolean } };
+      expect(group.group.isExpanded).toBe(true);
+    });
+
+    it('should generate correct summary for timeout', () => {
+      const logs = [
+        createLogEntry('log-1', 'Consensus started', 'consensus'),
+        createLogEntry('log-2', 'Consensus timeout reached', 'consensus'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+      const group = result[0] as { type: 'group'; group: { summary: string } };
+      expect(group.group.summary).toBe('Consensus timeout');
+    });
+
+    it('should generate correct summary for executor wins', () => {
+      const logs = [
+        createLogEntry('log-1', 'Consensus started', 'consensus'),
+        createLogEntry('log-2', 'Executor wins - no alignment', 'consensus'),
+      ];
+
+      const result = groupLogsWithConsensus(logs, new Set());
+      const group = result[0] as { type: 'group'; group: { summary: string } };
+      expect(group.group.summary).toBe('Executor decision');
+    });
+
+    it('should handle empty logs array', () => {
+      const result = groupLogsWithConsensus([], new Set());
+      expect(result).toHaveLength(0);
     });
   });
 });

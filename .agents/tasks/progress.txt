@@ -2638,3 +2638,70 @@ for consensus mode. Provider-agnostic design with automatic strategy selection p
 
 ### Type check: PASSED
 ### Tests: 693/693 PASSED
+
+## 2026-01-18 - impl-011: Add Pair Vibe log formatting to LogPane
+
+### Completed
+- Extended `src/tui/components/LogPane.tsx` with Pair Vibe Mode log formatting
+- Implemented source-based coloring for Pair Vibe Mode sources
+- Added collapsible consensus discussion sections
+- Added 36 new tests for all new helper functions
+
+### Implementation Details (per impl-011 requirements)
+
+#### 1. Source-Based Coloring
+- `getSourceColor(source)`: Returns color for Pair Vibe sources
+  - Executor/Claude: Blue (#55aaff)
+  - Reviewer/OpenAI: Purple (#bb88ff)
+  - Consensus: Orange (#ffaa55)
+  - Search: Dimmed gray (#666666)
+  - System: Gray (#888888)
+  - Unknown sources: null (fall back to level color)
+
+#### 2. Source Prefixes
+- `getSourcePrefix(source)`: Returns prefix for Pair Vibe sources
+  - Executor/Claude: [EXE]
+  - Reviewer/OpenAI: [REV]
+  - Consensus: [CON]
+  - Search: [SRC]
+  - System: [SYS]
+  - Unknown: Truncated uppercase (e.g., [UNK])
+
+#### 3. Pair Vibe Source Detection
+- `isPairVibeSource(source)`: Checks if source is a known Pair Vibe source
+- Case-insensitive matching for: executor, reviewer, consensus, search, claude, openai
+
+#### 4. Consensus Detection
+- `isConsensusStart(entry)`: Detects "consensus started" or "entering consensus" messages
+- `isConsensusEnd(entry)`: Detects "consensus completed/reached/timeout" or "executor wins"
+
+#### 5. Consensus Grouping
+- `groupLogsWithConsensus(logs, collapsedGroups)`: Groups log entries into:
+  - Regular entries: `{ type: 'entry', entry: LogEntry }`
+  - Consensus groups: `{ type: 'group', group: ConsensusGroup }`
+- ConsensusGroup includes: id, entries, isExpanded, summary
+- Summary extracted from end marker: "Consensus reached", "Consensus timeout", "Executor decision"
+
+#### 6. CollapsibleConsensusSection Component
+- Shows header with expand/collapse indicator (▶/▼)
+- Orange color (#ffaa55) for consensus theme
+- Summary text when collapsed (e.g., "▶ [CON] Consensus reached")
+- Indented entries when expanded
+
+#### 7. LogPane Updates
+- Uses `store.isPairVibeActive` to detect Pair Vibe Mode
+- In Pair Vibe Mode: Groups logs with consensus sections, uses source-based coloring
+- In normal mode: Standard level-based coloring (backwards compatible)
+- Tracks collapsed consensus groups with local signal state
+
+### New Exports
+- `PairVibeSource` type: Union of known source strings
+- `getSourceColor(source)`: Get color for source
+- `isPairVibeSource(source)`: Check if source is Pair Vibe related
+- `getSourcePrefix(source)`: Get display prefix for source
+- `isConsensusStart(entry)`: Check if entry starts consensus
+- `isConsensusEnd(entry)`: Check if entry ends consensus
+- `groupLogsWithConsensus(logs, collapsed)`: Group logs with consensus sections
+
+### Type check: PASSED
+### Tests: 729/729 PASSED (36 new tests added)
