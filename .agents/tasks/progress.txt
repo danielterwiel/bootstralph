@@ -1195,3 +1195,45 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-043: Implement slash command parser
+
+### Completed
+- Created `src/tui/commands/types.ts` with comprehensive type definitions for slash commands
+- Created `src/tui/commands/parser.ts` with full command parsing implementation
+- Created `src/tui/commands/index.ts` for module exports
+
+### Features - types.ts
+- **CommandName type**: Union of all supported command names (issue, pause, resume, skip, status, note, priority, abort, help, clear)
+- **CommandCategory type**: Categories for grouping (control, prd, info, system)
+- **ParsedCommand interface**: Complete parsed result with isCommand, name, rawArgs, args array, isValid, category
+- **CommandDefinition interface**: Metadata including usage, description, examples, arg requirements
+- **Command-specific args interfaces**: IssueCommandArgs, NoteCommandArgs, PriorityCommandArgs, SkipCommandArgs, AbortCommandArgs, StatusCommandArgs
+- **CommandResult interface**: Execution result with success, message, error, data
+- **ParseError interface**: Error info with type, message, command, usage
+
+### Features - parser.ts
+- **COMMAND_DEFINITIONS**: Complete definitions for all 10 commands with usage, examples, arg limits
+- **VALID_COMMAND_NAMES**: Array of valid command names
+- **getCommandCategory()**: Get category from command name
+- **isValidCommand()**: Type guard for command validation
+- **getCommandDefinition()**: Get full definition by name
+- **tokenize()**: Parse input respecting quoted strings (single and double quotes)
+- **parseCommand()**: Main parser function extracting name, rawArgs, args array
+- **validateCommand()**: Validate arg count against command requirements
+- **parseAndValidate()**: Combined parse + validate in one call
+- **Command-specific parsers**: parseIssueArgs, parseNoteArgs, parsePriorityArgs, parseSkipArgs, parseAbortArgs, parseStatusArgs
+- **getCategoryColor()**: Get hex color for UI styling (yellow=control, cyan=prd, green=info, magenta=system)
+- **getHelpText()**: Generate help text for one or all commands grouped by category
+- **getCommandSuggestions()**: Get matching commands for autocomplete
+- **formatCommandResult()**: Format command result for display
+
+### Technical Details
+- Proper handling of exactOptionalPropertyTypes for optional args
+- Task ID pattern matching for /note command (impl-XXX, us-XXX, review-XXX)
+- Flag parsing for /abort (--force, -f) and /status (-v, --verbose)
+- Unlimited args (-1 maxArgs) for description/reason commands
+- Re-exports all types from types.ts for single import point
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

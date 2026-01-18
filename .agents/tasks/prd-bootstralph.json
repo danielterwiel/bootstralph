@@ -740,8 +740,9 @@
       "id": "impl-043",
       "phase": 5,
       "task": "Implement slash command parser",
-      "files": ["src/tui/commands/parser.ts", "src/tui/commands/types.ts"],
-      "status": "pending",
+      "files": ["src/tui/commands/parser.ts", "src/tui/commands/types.ts", "src/tui/commands/index.ts"],
+      "status": "completed",
+      "passes": true,
       "description": "Parse input starting with /. Extract command name and args. Support: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort."
     },
     {
