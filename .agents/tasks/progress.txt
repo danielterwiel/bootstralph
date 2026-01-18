@@ -1576,3 +1576,63 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-051: Implement Claude runner with output streaming
+
+### Completed
+- Created `src/ralph/claude-runner.ts` with full Claude Code execution support
+- Runs `docker sandbox run claude` via execa with real-time output streaming
+- Streams stdout/stderr to TUI log pane with level detection
+- Detects completion promise for loop termination
+
+### Features
+- **ClaudeRunner class**: Main class for running Claude with streaming output
+  - Configurable options: useDocker, permissionMode, provider, model, timeout
+  - Builds command arguments for docker sandbox or native claude CLI
+  - Streams output line-by-line to TUI store with log level detection
+  - Detects completion promise (`<promise>COMPLETE</promise>`)
+  - Event-based API: stdout, stderr, start, complete, completionDetected, error
+  - Kill support with signal parameter (SIGTERM default)
+
+- **Log Level Detection**:
+  - error: Lines containing "error" or "failed"
+  - warn: Lines containing "warn"
+  - success: Lines containing "success", "completed", or "✓"
+  - debug: Lines containing "debug"
+  - stdout/stderr: Default levels based on stream
+
+- **Convenience Functions**:
+  - `runClaude(options)` - Run Claude and return result
+  - `runRalphIteration(options)` - Run a single Ralph loop iteration
+  - `isDockerSandboxAvailable()` - Check if docker sandbox is available
+  - `isDockerRunning()` - Check if Docker daemon is running
+  - `isClaudeCliAvailable()` - Check if native claude CLI exists
+  - `detectExecutionMode()` - Detect best execution mode
+
+- **Singleton Support for TUI**:
+  - `getActiveRunner()` - Get currently running instance
+  - `runClaudeTracked(options)` - Run and track as active runner
+  - `killActiveRunner(signal)` - Kill the active runner
+  - `hasActiveRunner()` - Check if there's an active runner
+
+### ClaudeRunResult Interface
+- success: boolean - Whether run completed successfully
+- output: string - Full output from Claude
+- completionDetected: boolean - Whether completion promise was found
+- exitCode: number | null - Process exit code
+- durationMs: number - Duration in milliseconds
+- killed: boolean - Whether process was killed
+- signal?: string - Signal that killed process
+- error?: string - Error message if failed
+
+### Technical Details
+- Uses execa v9 with buffer: false for streaming
+- Handles exactOptionalPropertyTypes by using class properties instead of options object
+- Proper TypeScript typing for execa result shape
+- Supports both Anthropic (default) and OpenAI providers
+- Permission modes: default, acceptEdits, full
+- Timeout support with automatic cancellation
+- Environment variable passthrough support
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

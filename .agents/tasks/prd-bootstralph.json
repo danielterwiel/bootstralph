@@ -813,7 +813,8 @@
       "phase": 5,
       "task": "Implement Claude runner with output streaming",
       "files": ["src/ralph/claude-runner.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Run 'docker sandbox run claude' via execa. Stream stdout/stderr to log pane in real-time. Handle process lifecycle. Detect completion promise."
     },
     {
