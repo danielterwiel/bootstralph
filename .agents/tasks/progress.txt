@@ -1095,3 +1095,56 @@ npm publish --access public
 
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+## 2026-01-18 - impl-041: Create InputBar component with command input
+
+### Completed
+- Created `src/tui/components/InputBar.tsx` with full command input implementation using OpenTUI
+- Uses OpenTUI Input element for keyboard capture (not Textarea as originally planned - Input is simpler for single-line commands)
+- Integrates with TUI state store for history and pause state
+
+### Features
+- **InputBar component**: Main command input with full functionality
+  - Uses `@jsxImportSource @opentui/solid` pragma for OpenTUI JSX types
+  - Submit on Enter via onSubmit handler
+  - History navigation with up/down arrows (navigates through store.inputHistory)
+  - Saves current input when navigating back in history, restores on down arrow past index 0
+  - Visual feedback for slash commands with color coding:
+    - Control commands (pause, resume, skip, abort): Yellow
+    - PRD modification commands (issue, note, priority): Cyan
+    - Info commands (status, help): Green
+    - Invalid commands: Red
+  - Valid command indicator in hint bar
+  - Prompt color reflects state: Green (active), Yellow (paused), Gray (disabled)
+  - Escape key clears input
+
+- **InputBarWithSuggestions component**: InputBar with command autocomplete dropdown
+  - Shows filtered command suggestions when typing "/" without space
+  - Displays up to 5 matching commands
+  - Available commands: issue, pause, resume, skip, status, note, priority, abort, help, clear
+
+- **CompactInputBar component**: Minimal single-line variant
+  - No border, single row height
+  - Prompt + input display only
+  - Suitable for space-constrained layouts
+
+### Props Interface
+- `onSubmit?: (input: string) => void` - Callback when command is submitted
+- `placeholder?: string` - Placeholder text when empty
+- `borderColor?: string` - Custom border color (hex string)
+- `bgColor?: string` - Custom background color
+- `disabled?: boolean` - Whether input is disabled
+- `prompt?: string` - Prompt prefix (default: ">")
+
+### Technical Details
+- Uses OpenTUI's InputRenderable (not TextareaRenderable) for simpler single-line input
+- Hidden input element positioned off-screen captures keyboard events
+- Visual display uses separate text elements for colored command preview
+- onKeyDown handler receives KeyEvent from @opentui/core
+- onSubmit receives the value directly from Input component
+- History index -1 means "not navigating history"
+- createMemo for parsed input, command colors, and validation status
+- createEffect for auto-focus on mount
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

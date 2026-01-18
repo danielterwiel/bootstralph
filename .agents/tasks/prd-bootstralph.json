@@ -723,8 +723,9 @@
       "phase": 5,
       "task": "Create InputBar component with command input",
       "files": ["src/tui/components/InputBar.tsx"],
-      "status": "pending",
-      "description": "Persistent text input using OpenTUI TextareaRenderable. Submit on Enter. History navigation with up/down arrows. Visual feedback for slash commands."
+      "status": "completed",
+      "passes": true,
+      "description": "Persistent text input using OpenTUI InputRenderable. Submit on Enter. History navigation with up/down arrows. Visual feedback for slash commands."
     },
     {
       "id": "impl-042",
