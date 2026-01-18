@@ -46,7 +46,8 @@
       "category": "api-detection",
       "task": "Verify API key detection approach",
       "check": "How should we detect ANTHROPIC_API_KEY and OPENAI_API_KEY? Environment variables only, or also check for config files?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Environment variables only is the correct approach. Reasons: (1) API keys should never be in config files that might be committed, (2) env vars can be loaded from .env via dotenv/direnv/shell sourcing, (3) this is the standard pattern used by both Anthropic and OpenAI SDKs, (4) existing ralph.sh already does this correctly. For TypeScript impl: use process.env, validate format without API calls (Anthropic: sk-ant-*, OpenAI: sk-* but not sk-ant-)."
     },
     {
       "id": "review-002",

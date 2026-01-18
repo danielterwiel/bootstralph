@@ -1902,3 +1902,29 @@ PRD COMPLETED after 1 iterations
 
 ### Type check: PASSED
 ### Tests: 79 passed
+## 2026-01-18T13:19:08+01:00
+PRD COMPLETED after 3 iterations
+
+## 2026-01-18 - review-001: Verify API key detection approach (Pair Vibe Mode)
+
+### Review Task Completed
+- Investigated best approach for detecting ANTHROPIC_API_KEY and OPENAI_API_KEY
+
+### Finding
+**Environment variables only** is the correct approach:
+1. API keys should NEVER be stored in config files that might be committed to version control
+2. Environment variables can be loaded from `.env` files via `dotenv`, `direnv`, or shell sourcing
+3. This is the standard pattern used by both Anthropic and OpenAI SDKs
+4. The existing `ralph.sh` implementation already follows this pattern correctly
+5. Adding config file detection would introduce security risks (accidentally checked-in keys)
+
+### Implementation Notes for src/ralph/api-keys.ts
+- Use `process.env.ANTHROPIC_API_KEY` and `process.env.OPENAI_API_KEY`
+- Validate key format without making API calls:
+  - Anthropic keys: start with `sk-ant-`
+  - OpenAI keys: start with `sk-` but NOT `sk-ant-`
+- Return structured object with detected providers and validation status
+
+### No action required - finding confirms existing approach is correct
+
+### Type check: PASSED
