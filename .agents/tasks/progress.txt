@@ -1385,3 +1385,44 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-047: Implement /skip command handler
+
+### Completed
+- Created `src/tui/commands/skip.ts` with full /skip command implementation
+- Integrates with PrdManager for marking tasks as skipped in PRD
+- Integrates with TUI store for updating current task and progress
+
+### Features
+- **executeSkipCommand(options)**: Main /skip execution function
+  - Validates input if provided as raw string
+  - Checks for current task (returns error if none)
+  - Checks for loaded PRD (returns error if none)
+  - Calls PrdManager.markSkipped() which adds timestamped skip note
+  - Calls store.skipTask() to clear current task in TUI
+  - Updates store progress from PRD manager
+  - Logs success/error to TUI log pane
+
+- **handleSkipCommand(input)**: Convenience for raw /skip command
+- **skipCurrentTask(reason, options)**: Programmatic skip without parsing
+- **validateSkipInput(input)**: Pre-validation for UI
+  - Validates input without executing
+  - Returns parsed args if valid
+  - Useful for input field validation before submission
+- **getSkipHelp()**: Returns help text for the command
+
+### Technical Details
+- Handles exactOptionalPropertyTypes by conditionally building result objects
+- Parses optional reason from rawArgs (supports multiple words, quoted strings)
+- Uses PrdManager.markSkipped() which handles both implementation_tasks and userStories formats
+- Skip note includes timestamp: "[2026-01-18 00:27:45] Skipped by user: reason"
+- Updates TUI store progress via setProgress() after successful skip
+- All errors logged to store with "error" level for TUI display
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executeSkipCommand, handleSkipCommand, skipCurrentTask, validateSkipInput, getSkipHelp
+  - SkipCommandOptions type
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

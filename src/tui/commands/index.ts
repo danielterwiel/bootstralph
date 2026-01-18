@@ -51,6 +51,15 @@ export {
 } from "./pause.js";
 export type { PauseCommandOptions } from "./pause.js";
 
+export {
+  executeSkipCommand,
+  handleSkipCommand,
+  skipCurrentTask,
+  validateSkipInput,
+  getSkipHelp,
+} from "./skip.js";
+export type { SkipCommandOptions } from "./skip.js";
+
 // Export types
 export type {
   CommandName,

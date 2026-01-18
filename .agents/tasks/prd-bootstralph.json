@@ -777,7 +777,8 @@
       "phase": 5,
       "task": "Implement /skip command handler",
       "files": ["src/tui/commands/skip.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Mark current task as completed with note 'Skipped by user'. Move to next task. Useful when Claude is stuck."
     },
     {
