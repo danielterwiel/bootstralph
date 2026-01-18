@@ -2069,3 +2069,43 @@ sleep = random(0, min(cap, base * 2^attempt))
 - [AWS Builders Library - Timeouts, retries and backoff](https://aws.amazon.com/builders-library/timeouts-retries-and-backoff-with-jitter/)
 
 ### Type check: PASSED
+
+## 2026-01-18 - review-006: Research sycophancy mitigation
+
+### Completed
+- Researched CONSENSAGENT paper (ACL 2025) on dynamic prompt refinement for sycophancy mitigation
+- Researched anonymization-based approaches from "Measuring and Mitigating Identity Bias in Multi-Agent Debate"
+- Compared implementation complexity and effectiveness of both approaches
+- Identified Identity Bias Coefficient (IBC) as a diagnostic metric
+
+### Finding Summary
+**Recommend SIMPLER ANONYMIZATION over CONSENSAGENT's dynamic prompt refinement.**
+
+#### Anonymization Approach (Recommended)
+- Remove identity markers from consensus prompts so agents cannot distinguish "self" from "peer"
+- Present proposals as "Proposal A" and "Proposal B" without attribution
+- Research shows dramatic bias reduction (e.g., Qwen-32B IBC dropped from 0.608 to 0.024)
+- Requires no model retraining or architectural changes
+- Simple to implement: just change prompt labels during consensus phase
+
+#### CONSENSAGENT Approach (More Complex)
+- Dynamic prompt refinement based on agent interactions
+- Achieves SOTA on benchmark reasoning datasets
+- Adds significant implementation complexity (tracking interaction patterns, adjusting prompts)
+- Better suited for research settings than production systems
+
+#### Implementation for Pair Vibe Mode
+1. **Label proposals neutrally**: "Proposal A/B" not "Claude/OpenAI" or "Executor/Reviewer"
+2. **Require explicit reasoning**: Flag suspiciously quick consensus (< 30 seconds)
+3. **Minimum reasoning length**: Reject one-line agreements
+4. **Detect copying**: Check for verbatim overlap between proposals
+5. **Log IBC metric**: `IBC = conformity_rate_vanilla - conformity_rate_anonymized` for diagnostics
+6. **Future enhancement**: Consider CONSENSAGENT if anonymization proves insufficient
+
+### Sources
+- [CONSENSAGENT - ACL Anthology](https://aclanthology.org/2025.findings-acl.1141/)
+- [When Identity Skews Debate: Anonymization for Bias-Reduced Multi-Agent Reasoning](https://arxiv.org/html/2510.07517)
+- [Measuring and Mitigating Identity Bias in Multi-Agent Debate via Anonymization](https://openreview.net/forum?id=XxBR2KNWNh)
+- [GitHub - llm_multiagent_debate](https://github.com/composable-models/llm_multiagent_debate)
+
+### Type check: PASSED

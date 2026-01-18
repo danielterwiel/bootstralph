@@ -86,7 +86,8 @@
       "category": "sycophancy",
       "task": "Research sycophancy mitigation",
       "check": "The CONSENSAGENT paper proposes dynamic prompt refinement. Should we implement their approach or use simpler anonymization?",
-      "status": "pending"
+      "status": "completed",
+      "finding": "Recommend SIMPLER ANONYMIZATION over CONSENSAGENT's dynamic prompt refinement. Rationale: (1) ANONYMIZATION APPROACH: Remove identity markers from consensus prompts so agents cannot distinguish 'self' from 'peer'. Present proposals as 'Proposal A' and 'Proposal B' without attribution. Research shows this dramatically reduces identity bias (e.g., Qwen-32B IBC dropped from 0.608 to 0.024). Requires no model retraining or architectural changes. (2) CONSENSAGENT APPROACH: Dynamic prompt refinement based on agent interactions. More complex to implement, requires tracking interaction patterns and adjusting prompts accordingly. Achieves SOTA on benchmark datasets but adds significant complexity. (3) RECOMMENDATION FOR PAIR VIBE: Use anonymization as primary strategy - it's simpler, effective, and directly addresses our edge-006 case. Implementation: During consensus, label proposals as 'Proposal A/B' not 'Claude/OpenAI', require explicit reasoning for agreement (flag suspiciously quick consensus), and use Identity Bias Coefficient (IBC = conformity_rate_vanilla - conformity_rate_anonymized) as diagnostic metric. (4) ADDITIONAL SAFEGUARDS: Require minimum reasoning length in consensus responses, detect verbatim copying between proposals, log consensus duration (flag if < 30 seconds). (5) FUTURE ENHANCEMENT: Consider CONSENSAGENT's dynamic refinement if anonymization proves insufficient, but start simple."
     },
     {
       "id": "review-007",
