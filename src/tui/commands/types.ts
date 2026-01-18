@@ -18,7 +18,8 @@ export type CommandName =
   | "abort"
   | "help"
   | "clear"
-  | "consensus";
+  | "consensus"
+  | "reviewer";
 
 /**
  * Command categories for grouping and styling
@@ -129,6 +130,16 @@ export interface StatusCommandArgs {
 export interface ConsensusCommandArgs {
   /** Reason for triggering consensus */
   reason: string;
+}
+
+/**
+ * /reviewer command arguments
+ */
+export interface ReviewerCommandArgs {
+  /** The subcommand (status, pause, resume, skip) */
+  subcommand: "status" | "pause" | "resume" | "skip";
+  /** Step ID for skip subcommand */
+  stepId?: string;
 }
 
 /**

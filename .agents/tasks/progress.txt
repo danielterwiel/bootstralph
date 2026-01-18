@@ -2789,3 +2789,93 @@ Examples:
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## impl-013: Implement /reviewer command
+
+**Completed:** 2026-01-18T13:58:00.000Z
+
+### Summary
+Implemented `/reviewer` command with 4 subcommands to control the Reviewer in Pair Vibe Mode. This is useful when the Reviewer is slow or stuck.
+
+### Subcommands
+- `/reviewer status` - Shows Reviewer state, current step being reviewed, and count of reviewed steps
+- `/reviewer pause` - Pauses look-ahead review
+- `/reviewer resume` - Resumes look-ahead review
+- `/reviewer skip <step-id>` - Skips reviewing a specific step (marks it as reviewed without actually reviewing)
+
+### Files Changed
+
+#### 1. New File: src/tui/commands/reviewer.ts
+Created complete reviewer command handler with:
+- `ReviewerSubcommand` type for subcommands
+- `ReviewerCommandOptions` interface
+- `ReviewerStatusInfo` interface with state, currentStep, reviewedCount, reviewedSteps
+- `parseReviewerArgs()` function to parse subcommand and arguments
+- `executeStatus()` - Shows state and progress
+- `executePause()` - Pauses the ReviewerRunner
+- `executeResume()` - Resumes the ReviewerRunner
+- `executeSkip()` - Skips reviewing a step
+- `executeReviewerCommand()` - Main handler
+- `handleReviewerCommand()` - Convenience wrapper
+- `canUseReviewerCommands()` - Checks if commands are available
+- `getReviewerStatus()` - Gets status directly without logs
+- `getReviewerHelp()` - Returns help text
+- `formatState()` - Formats ReviewerState for display
+
+#### 2. Types Update (src/tui/commands/types.ts)
+- Added `"reviewer"` to `CommandName` union type
+- Added `ReviewerCommandArgs` interface with subcommand and optional stepId
+
+#### 3. Parser Update (src/tui/commands/parser.ts)
+- Added `ReviewerCommandArgs` to imports
+- Added `reviewer` command definition to `COMMAND_DEFINITIONS`:
+  - category: "control"
+  - requiresArgs: true
+  - minArgs: 1, maxArgs: 2
+  - Examples for all 4 subcommands
+- Added `parseReviewerArgs()` function
+- Added `ReviewerCommandArgs` to re-exports
+- Updated module docstring to include /reviewer
+
+#### 4. Index Exports (src/tui/commands/index.ts)
+- Added `parseReviewerArgs` to parser exports
+- Added reviewer command exports:
+  - `executeReviewerCommand`
+  - `handleReviewerCommand`
+  - `canUseReviewerCommands`
+  - `getReviewerStatus`
+  - `getReviewerHelp`
+- Added type exports: `ReviewerCommandOptions`, `ReviewerSubcommand`, `ReviewerStatusInfo`
+- Added `ReviewerCommandArgs` to type exports
+
+#### 5. Ralph Command Integration (src/commands/ralph.ts)
+- Imported `handleReviewerCommand` from commands
+- Added `"reviewer"` case to command switch in `handleTuiCommand()`
+
+#### 6. Test Updates (tests/tui/parser.test.ts)
+- Updated command count expectations from 11 to 12
+- Added `'reviewer'` to expected commands list
+
+### Usage
+```
+/reviewer status              # Show Reviewer progress and state
+/reviewer pause               # Pause look-ahead review
+/reviewer resume              # Resume look-ahead review
+/reviewer skip <step-id>      # Skip reviewing a specific step
+```
+
+Examples:
+- `/reviewer status` - See what Reviewer is doing
+- `/reviewer pause` - Stop Reviewer when it's consuming too many API calls
+- `/reviewer resume` - Continue reviewing
+- `/reviewer skip impl-015` - Skip a step that doesn't need review
+
+### Validation
+- Only works when Pair Vibe Mode is active
+- Engine must be available (getPairVibeEngine returns non-null)
+- ReviewerRunner accessed via engine.getReviewerRunner()
+- Pause/resume respect current state (can't pause if already paused, etc.)
+- Skip marks step as reviewed without actual review
+
+### Type check: PASSED
+### Tests: 729/729 PASSED

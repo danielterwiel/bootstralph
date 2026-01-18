@@ -50,6 +50,7 @@ import {
   handleNoteCommand,
   handlePriorityCommand,
   handleConsensusCommand,
+  handleReviewerCommand,
   getHelpText,
 } from "../tui/commands/index.js";
 import { store } from "../tui/state/store.js";
@@ -619,6 +620,10 @@ async function handleTuiCommand(input: string): Promise<void> {
 
     case "consensus":
       await handleConsensusCommand(input);
+      break;
+
+    case "reviewer":
+      await handleReviewerCommand(input);
       break;
 
     default:

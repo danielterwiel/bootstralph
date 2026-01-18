@@ -22,6 +22,7 @@ export {
   parseAbortArgs,
   parseStatusArgs,
   parseConsensusArgs,
+  parseReviewerArgs,
   getCategoryColor,
   getHelpText,
   getCommandSuggestions,
@@ -98,6 +99,19 @@ export {
 } from "./consensus.js";
 export type { ConsensusCommandOptions } from "./consensus.js";
 
+export {
+  executeReviewerCommand,
+  handleReviewerCommand,
+  canUseReviewerCommands,
+  getReviewerStatus,
+  getReviewerHelp,
+} from "./reviewer.js";
+export type {
+  ReviewerCommandOptions,
+  ReviewerSubcommand,
+  ReviewerStatusInfo,
+} from "./reviewer.js";
+
 // Export types
 export type {
   CommandName,
@@ -112,5 +126,6 @@ export type {
   AbortCommandArgs,
   StatusCommandArgs,
   ConsensusCommandArgs,
+  ReviewerCommandArgs,
   CommandResult,
 } from "./types.js";

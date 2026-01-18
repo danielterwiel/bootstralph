@@ -232,8 +232,10 @@
       "phase": 3,
       "task": "Implement /reviewer command",
       "files": ["src/tui/commands/reviewer.ts"],
-      "status": "pending",
-      "description": "Commands to control Reviewer: /reviewer status (show progress), /reviewer pause (pause look-ahead), /reviewer resume, /reviewer skip <step-id> (skip reviewing a step). Useful when Reviewer is slow or stuck."
+      "status": "completed",
+      "description": "Commands to control Reviewer: /reviewer status (show progress), /reviewer pause (pause look-ahead), /reviewer resume, /reviewer skip <step-id> (skip reviewing a step). Useful when Reviewer is slow or stuck.",
+      "completedAt": "2026-01-18T13:58:00.000Z",
+      "notes": "Implemented /reviewer command with 4 subcommands: status (shows state, current step, reviewed count), pause (pauses look-ahead review), resume (resumes review), skip <step-id> (skips reviewing a step). Added to CommandName type, parser, and ralph.ts command handler. Integrated with store.getPairVibeEngine().getReviewerRunner(). Updated tests for 12 commands. Type check: PASSED. Tests: 729/729 PASSED."
     },
     {
       "id": "impl-014",

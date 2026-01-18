@@ -2,7 +2,7 @@
  * Slash Command Parser
  *
  * Parses input starting with / and extracts command name and arguments.
- * Supports: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort, /help, /clear, /consensus
+ * Supports: /issue, /pause, /resume, /skip, /status, /note, /priority, /abort, /help, /clear, /consensus, /reviewer
  */
 
 import type {
@@ -18,6 +18,7 @@ import type {
   AbortCommandArgs,
   StatusCommandArgs,
   ConsensusCommandArgs,
+  ReviewerCommandArgs,
 } from "./types.js";
 
 /**
@@ -135,6 +136,21 @@ export const COMMAND_DEFINITIONS: Record<CommandName, CommandDefinition> = {
     examples: [
       "/consensus I have concerns about this approach",
       "/consensus Need to discuss security implications",
+    ],
+  },
+  reviewer: {
+    name: "reviewer",
+    category: "control",
+    description: "Control the Reviewer (Pair Vibe Mode only)",
+    usage: "/reviewer <status|pause|resume|skip <step-id>>",
+    requiresArgs: true,
+    minArgs: 1,
+    maxArgs: 2,
+    examples: [
+      "/reviewer status",
+      "/reviewer pause",
+      "/reviewer resume",
+      "/reviewer skip impl-015",
     ],
   },
 };
@@ -453,6 +469,46 @@ export function parseConsensusArgs(parsed: ParsedCommand): ConsensusCommandArgs 
 }
 
 /**
+ * Valid reviewer subcommands
+ */
+const REVIEWER_SUBCOMMANDS = ["status", "pause", "resume", "skip"] as const;
+type ReviewerSubcommand = (typeof REVIEWER_SUBCOMMANDS)[number];
+
+/**
+ * Check if string is a valid reviewer subcommand
+ */
+function isValidReviewerSubcommand(value: string): value is ReviewerSubcommand {
+  return REVIEWER_SUBCOMMANDS.includes(value as ReviewerSubcommand);
+}
+
+/**
+ * Parse /reviewer command arguments
+ */
+export function parseReviewerArgs(parsed: ParsedCommand): ReviewerCommandArgs | null {
+  if (parsed.name !== "reviewer" || parsed.args.length === 0) {
+    return null;
+  }
+
+  const subcommand = parsed.args[0]?.toLowerCase();
+  if (!subcommand || !isValidReviewerSubcommand(subcommand)) {
+    return null;
+  }
+
+  const result: ReviewerCommandArgs = { subcommand };
+
+  // Skip requires a step ID
+  if (subcommand === "skip") {
+    const stepId = parsed.args[1];
+    if (!stepId) {
+      return null; // Missing step ID
+    }
+    result.stepId = stepId;
+  }
+
+  return result;
+}
+
+/**
  * Get color for command category (for UI styling)
  */
 export function getCategoryColor(category: CommandCategory | null): string {
@@ -555,4 +611,5 @@ export type {
   AbortCommandArgs,
   StatusCommandArgs,
   ConsensusCommandArgs,
+  ReviewerCommandArgs,
 } from "./types.js";
