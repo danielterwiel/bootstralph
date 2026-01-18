@@ -2271,3 +2271,27 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: 672 PASSED (all existing tests still pass)
+
+## 2026-01-18 - impl-002: Extend UserStory type with review fields
+
+### Completed
+- Added `ConsensusRecord` interface to `src/ralph/prd-schema.ts`
+  - Fields: executorProposal, reviewerProposal, aligned, finalDecision, decidedBy, rounds, timestamp
+  - Optional fields: status ('completed' | 'cancelled' | 'timeout'), notes
+  - decidedBy enum: 'consensus' | 'executor' | 'reviewer' | 'user'
+- Extended `UserStory` interface with Pair Vibe Mode fields:
+  - `findings?: string[] | null` - null=not reviewed, []=clean, [...]= issues found
+  - `consensus?: ConsensusRecord | null` - consensus record when findings exist
+- Updated `PRD_JSON_SCHEMA` with full validation for new fields
+  - findings: array of strings or null
+  - consensus: object with required and optional properties, or null
+
+### Technical Details
+- All new fields are optional for backwards compatibility
+- Existing PRDs without these fields will continue to work
+- JSON schema validates decidedBy against enum values
+- JSON schema validates status against enum values
+- Supports edge-007 (cancelled consensus) via status field
+
+### Type check: PASSED
+### Tests: PASSED (672/672)

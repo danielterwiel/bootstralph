@@ -122,8 +122,10 @@
       "phase": 1,
       "task": "Extend UserStory type with review fields",
       "files": ["src/ralph/prd-schema.ts"],
-      "status": "pending",
-      "description": "Add new fields: findings (string[] | null), consensus ({ executorProposal, reviewerProposal, aligned, finalDecision, decidedBy, rounds, timestamp }). Update JSON schema. Ensure backwards compatibility with existing PRDs."
+      "status": "completed",
+      "description": "Add new fields: findings (string[] | null), consensus ({ executorProposal, reviewerProposal, aligned, finalDecision, decidedBy, rounds, timestamp }). Update JSON schema. Ensure backwards compatibility with existing PRDs.",
+      "completedAt": "2026-01-18T13:01:30.000Z",
+      "notes": "Added ConsensusRecord interface with executorProposal, reviewerProposal, aligned, finalDecision, decidedBy, rounds, timestamp, status, and notes fields. Extended UserStory with optional findings (string[] | null) and consensus (ConsensusRecord | null) fields. Updated PRD_JSON_SCHEMA with full validation for new fields. Backwards compatible - all new fields are optional."
     },
     {
       "id": "impl-003",

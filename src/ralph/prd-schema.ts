@@ -11,6 +11,50 @@
  */
 
 /**
+ * Record of a consensus resolution during Pair Vibe Mode.
+ * Captures proposals from both models and how alignment was reached.
+ */
+export interface ConsensusRecord {
+  /** Proposal from the Executor model */
+  executorProposal: string;
+
+  /** Proposal from the Reviewer model */
+  reviewerProposal: string;
+
+  /** Whether the models reached alignment */
+  aligned: boolean;
+
+  /** The final decision that was adopted */
+  finalDecision: string;
+
+  /**
+   * Who made the final decision:
+   * - 'consensus': Both models agreed
+   * - 'executor': Executor won after max rounds (they're most invested)
+   * - 'reviewer': Reviewer's proposal was adopted
+   * - 'user': User intervened to decide
+   */
+  decidedBy: "consensus" | "executor" | "reviewer" | "user";
+
+  /** Number of consensus rounds before resolution (1-3 typically) */
+  rounds: number;
+
+  /** ISO timestamp when consensus was reached */
+  timestamp: string;
+
+  /**
+   * Status of the consensus process:
+   * - 'completed': Consensus finished normally
+   * - 'cancelled': User cancelled during consensus
+   * - 'timeout': Consensus timed out
+   */
+  status?: "completed" | "cancelled" | "timeout";
+
+  /** Additional notes about the consensus process */
+  notes?: string;
+}
+
+/**
  * Individual user story within a PRD
  */
 export interface UserStory {
@@ -46,6 +90,20 @@ export interface UserStory {
 
   /** Optional GitHub issue number linked to this story */
   githubIssue?: number;
+
+  /**
+   * Findings from Pair Vibe Mode Reviewer.
+   * - null: Not yet reviewed
+   * - []: Reviewed with no issues found (clean)
+   * - [...]: Reviewed with issues that may need consensus
+   */
+  findings?: string[] | null;
+
+  /**
+   * Consensus record from Pair Vibe Mode when findings exist.
+   * Records the proposals from both models and how alignment was reached.
+   */
+  consensus?: ConsensusRecord | null;
 }
 
 /**
@@ -228,6 +286,42 @@ export const PRD_JSON_SCHEMA = {
           startedAt: { type: "string", format: "date-time" },
           completedAt: { type: "string", format: "date-time" },
           githubIssue: { type: "integer" },
+          findings: {
+            type: ["array", "null"],
+            items: { type: "string" },
+            description:
+              "Findings from Pair Vibe Mode Reviewer. null=not reviewed, []=clean, [...]= issues found",
+          },
+          consensus: {
+            type: ["object", "null"],
+            description: "Consensus record from Pair Vibe Mode",
+            properties: {
+              executorProposal: { type: "string" },
+              reviewerProposal: { type: "string" },
+              aligned: { type: "boolean" },
+              finalDecision: { type: "string" },
+              decidedBy: {
+                type: "string",
+                enum: ["consensus", "executor", "reviewer", "user"],
+              },
+              rounds: { type: "integer", minimum: 1 },
+              timestamp: { type: "string", format: "date-time" },
+              status: {
+                type: "string",
+                enum: ["completed", "cancelled", "timeout"],
+              },
+              notes: { type: "string" },
+            },
+            required: [
+              "executorProposal",
+              "reviewerProposal",
+              "aligned",
+              "finalDecision",
+              "decidedBy",
+              "rounds",
+              "timestamp",
+            ],
+          },
         },
       },
       minItems: 1,
