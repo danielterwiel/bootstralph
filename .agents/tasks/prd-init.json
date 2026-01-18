@@ -858,7 +858,8 @@
       "phase": 5,
       "task": "Write integration tests for TUI components",
       "files": ["tests/tui/components.test.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Test LogPane rendering, StatusBar updates, InputBar command handling. Mock OpenTUI primitives if needed."
     }
   ]

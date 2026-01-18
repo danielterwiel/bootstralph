@@ -576,9 +576,28 @@ export class RalphEngine extends EventEmitter {
       this.emit("iterationComplete", result);
       this.onIterationComplete?.(result);
 
-      // Check for completion
+      // Check for completion - verify PRD is actually complete, don't just trust Claude's claim
       if (result.completionDetected) {
-        this.log("Completion promise detected!", "success");
+        // IMPORTANT: Verify PRD is actually complete before trusting completion promise
+        // Claude sometimes outputs the completion promise prematurely
+        if (this.prdManager?.isComplete()) {
+          this.log("Completion promise detected and verified!", "success");
+          await this.appendProgress(`PRD COMPLETED after ${this.currentIteration} iterations`);
+          this.emit("prdComplete");
+          this.onPrdComplete?.();
+          return this.createResult("prd_complete");
+        } else {
+          const progress = this.prdManager?.getProgress();
+          this.log(
+            `⚠ Claude claimed completion but PRD is ${progress?.completed}/${progress?.total}. Continuing...`,
+            "warn"
+          );
+        }
+      }
+
+      // Also check actual completion status (Claude might complete without saying so)
+      if (this.prdManager?.isComplete()) {
+        this.log("PRD is complete!", "success");
         await this.appendProgress(`PRD COMPLETED after ${this.currentIteration} iterations`);
         this.emit("prdComplete");
         this.onPrdComplete?.();
