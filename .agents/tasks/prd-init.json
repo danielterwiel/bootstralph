@@ -831,7 +831,8 @@
       "phase": 5,
       "task": "Integrate TUI with ralph command",
       "files": ["src/commands/ralph.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Add --tui flag (default: true). When TUI mode, import and start TUI app. Keep --no-tui for simple mode. Maintain backward compatibility with ralph.sh."
     },
     {

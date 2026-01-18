@@ -2,10 +2,12 @@
  * Ralph Command - Execute Ralph Loop with PRD selection
  *
  * Usage:
- *   bootstralph ralph                    # Select from incomplete PRDs
+ *   bootstralph ralph                    # Select from incomplete PRDs (TUI mode)
  *   bootstralph ralph --prd <file>       # Use specific PRD
  *   bootstralph ralph --iterations 10    # Set max iterations
  *   bootstralph ralph --afk              # Run in AFK mode (unattended)
+ *   bootstralph ralph --no-tui           # Disable TUI (use simple spinner mode)
+ *   bootstralph ralph --tui              # Enable TUI (default)
  */
 
 import * as p from "@clack/prompts";
@@ -20,6 +22,30 @@ import {
   DEFAULT_COMPLETION_PROMISE,
 } from "../ralph/prd-schema.js";
 import { getIncompletePrds, loadPrd, listPrdFiles } from "./prd.js";
+import {
+  startTui,
+  stopTui,
+  tuiLog,
+} from "../tui/index.js";
+import {
+  startRalphEngine,
+  abortRalphEngine,
+  pauseRalphEngine,
+  resumeRalphEngine,
+  type RalphEngineOptions,
+} from "../ralph/engine.js";
+import {
+  parseCommand,
+  handleIssueCommand,
+  handlePauseCommand,
+  handleResumeCommand,
+  handleSkipCommand,
+  handleStatusCommand,
+  handleNoteCommand,
+  handlePriorityCommand,
+  getHelpText,
+} from "../tui/commands/index.js";
+import { store } from "../tui/state/store.js";
 
 /** Default max iterations for AFK mode */
 const DEFAULT_MAX_ITERATIONS = 10;
@@ -32,6 +58,8 @@ interface RalphOptions {
   iterations: number;
   afk: boolean;
   verbose: boolean;
+  /** Enable TUI mode (default: true) */
+  tui: boolean;
 }
 
 /**
@@ -42,6 +70,7 @@ function parseRalphArgs(args: string[]): RalphOptions {
     iterations: DEFAULT_MAX_ITERATIONS,
     afk: false,
     verbose: false,
+    tui: true, // TUI enabled by default
   };
 
   for (let i = 0; i < args.length; i++) {
@@ -64,6 +93,10 @@ function parseRalphArgs(args: string[]): RalphOptions {
       options.afk = true;
     } else if (arg === "--verbose" || arg === "-v") {
       options.verbose = true;
+    } else if (arg === "--tui") {
+      options.tui = true;
+    } else if (arg === "--no-tui") {
+      options.tui = false;
     } else if (!arg.startsWith("-")) {
       // Treat as PRD file if it looks like one
       if (arg.includes("prd-") || arg.endsWith(".json")) {
@@ -325,12 +358,191 @@ async function runInteractiveMode(
 }
 
 /**
+ * Handle TUI slash commands
+ */
+async function handleTuiCommand(input: string): Promise<void> {
+  const parsed = parseCommand(input);
+
+  if (!parsed.isCommand) {
+    // Not a slash command - just log the input
+    tuiLog(`> ${input}`, "info", "user");
+    return;
+  }
+
+  if (!parsed.isValid) {
+    tuiLog(`Unknown command: ${parsed.name}`, "error", "system");
+    tuiLog('Type /help for available commands', "info", "system");
+    return;
+  }
+
+  // Route to appropriate handler
+  switch (parsed.name) {
+    case "issue":
+      await handleIssueCommand(input);
+      break;
+
+    case "pause":
+      await handlePauseCommand(input);
+      pauseRalphEngine();
+      break;
+
+    case "resume":
+      await handleResumeCommand(input);
+      resumeRalphEngine();
+      break;
+
+    case "skip":
+      await handleSkipCommand(input);
+      break;
+
+    case "status":
+      await handleStatusCommand(input);
+      break;
+
+    case "note":
+      await handleNoteCommand(input);
+      break;
+
+    case "priority":
+      await handlePriorityCommand(input);
+      break;
+
+    case "abort":
+      tuiLog("Aborting Ralph engine...", "warn", "system");
+      abortRalphEngine();
+      break;
+
+    case "help":
+      const helpText = getHelpText();
+      tuiLog(helpText, "info", "system");
+      break;
+
+    case "clear":
+      store.clearLogs();
+      break;
+
+    default:
+      tuiLog(`Command not implemented: ${parsed.name}`, "warn", "system");
+  }
+}
+
+/**
+ * Run Ralph in TUI mode with full interactive interface
+ */
+async function runTuiMode(
+  prdFile: string,
+  prd: Prd,
+  maxIterations: number,
+  verbose: boolean
+): Promise<void> {
+  // Resolve the full PRD path
+  const tasksDir = path.resolve(process.cwd(), AGENTS_TASKS_DIR);
+  const fullPrdPath = prdFile.startsWith("/")
+    ? prdFile
+    : path.join(tasksDir, prdFile);
+
+  // Start the TUI
+  // Note: startTui returns a TuiInstance but we control it via store/engine
+  startTui({
+    prd,
+    prdFile,
+    maxIterations,
+    onCommand: handleTuiCommand,
+    showPrdInfo: true,
+    showSuggestions: true,
+    title: `Ralph: ${prd.name}`,
+    debug: verbose,
+  });
+
+  // Log startup message
+  tuiLog(`Starting Ralph loop for: ${prd.name}`, "info", "system");
+  tuiLog(`Max iterations: ${maxIterations}`, "info", "system");
+  tuiLog('Type /help for available commands', "info", "system");
+
+  // Build engine options
+  const engineOptions: RalphEngineOptions = {
+    prdFile: fullPrdPath,
+    maxIterations,
+    logToStore: true,
+    verbose,
+    onIterationComplete: (result) => {
+      if (verbose) {
+        tuiLog(
+          `Iteration ${result.iteration} completed in ${result.durationMs}ms`,
+          result.success ? "success" : "warn",
+          "engine"
+        );
+      }
+    },
+    onTaskStart: (task) => {
+      const title = "task" in task ? task.task : task.title;
+      tuiLog(`Starting task: ${task.id} - ${title}`, "info", "engine");
+    },
+    onTaskComplete: (task) => {
+      const title = "task" in task ? task.task : task.title;
+      tuiLog(`Completed task: ${task.id} - ${title}`, "success", "engine");
+    },
+    onPrdComplete: () => {
+      tuiLog("PRD COMPLETE! All tasks have passed.", "success", "engine");
+    },
+    onStop: (reason) => {
+      tuiLog(`Ralph engine stopped: ${reason}`, "info", "engine");
+    },
+  };
+
+  // Handle Ctrl+C gracefully
+  const handleSignal = () => {
+    tuiLog("Received interrupt signal, shutting down...", "warn", "system");
+    abortRalphEngine();
+    stopTui();
+    process.exit(0);
+  };
+
+  process.on("SIGINT", handleSignal);
+  process.on("SIGTERM", handleSignal);
+
+  try {
+    // Run the Ralph engine
+    const result = await startRalphEngine(engineOptions);
+
+    // Log final result
+    if (result.prdComplete) {
+      tuiLog(
+        `PRD completed after ${result.iterationsRun} iterations!`,
+        "success",
+        "system"
+      );
+    } else {
+      tuiLog(
+        `Ralph stopped: ${result.stopReason} after ${result.iterationsRun} iterations`,
+        "warn",
+        "system"
+      );
+    }
+
+    // Wait a bit for user to see the result before exiting
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    tuiLog(`Engine error: ${errorMessage}`, "error", "system");
+  } finally {
+    // Cleanup
+    process.off("SIGINT", handleSignal);
+    process.off("SIGTERM", handleSignal);
+    stopTui();
+  }
+}
+
+/**
  * Handle the 'ralph' command
  */
 export async function handleRalph(args: string[]): Promise<void> {
-  p.intro("bootstralph ralph - Execute Ralph Loop");
-
   const options = parseRalphArgs(args);
+
+  // Only show intro banner for non-TUI modes
+  if (!options.tui || options.afk) {
+    p.intro("bootstralph ralph - Execute Ralph Loop");
+  }
 
   // Get the PRD to work on
   let prdFile: string;
@@ -373,10 +585,18 @@ export async function handleRalph(args: string[]): Promise<void> {
 
   // Run in appropriate mode
   if (options.afk) {
+    // AFK mode always uses simple spinner mode (no TUI)
     await runAfkMode(prdFile, prd, options.iterations, options.verbose);
+  } else if (options.tui) {
+    // TUI mode with full interactive interface
+    await runTuiMode(prdFile, prd, options.iterations, options.verbose);
   } else {
+    // Simple interactive mode (legacy behavior)
     await runInteractiveMode(prdFile, prd, options.verbose);
   }
 
-  p.outro("Ralph session ended");
+  // Only show outro for non-TUI modes
+  if (!options.tui || options.afk) {
+    p.outro("Ralph session ended");
+  }
 }

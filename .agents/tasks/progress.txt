@@ -1698,3 +1698,50 @@ PRD COMPLETED after 18 iterations
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 ## 2026-01-18T11:54:44+01:00
 PRD COMPLETED after 1 iterations
+
+## 2026-01-18 - impl-053: Integrate TUI with ralph command
+
+### Completed
+- Updated `src/commands/ralph.ts` with full TUI mode integration
+- Added `--tui` flag (default: true) and `--no-tui` flag for backward compatibility
+- Implemented `runTuiMode()` function that:
+  - Starts the TUI with PRD info, title, and max iterations
+  - Handles slash commands via `handleTuiCommand()` function
+  - Integrates with RalphEngine via `startRalphEngine()`
+  - Handles Ctrl+C gracefully with signal handlers
+  - Displays startup messages and completion/error results
+  - Cleans up TUI and listeners on exit
+
+### Features
+- **Command Routing**: Routes slash commands to appropriate handlers:
+  - /issue → handleIssueCommand
+  - /pause → handlePauseCommand + pauseRalphEngine
+  - /resume → handleResumeCommand + resumeRalphEngine
+  - /skip → handleSkipCommand
+  - /status → handleStatusCommand
+  - /note → handleNoteCommand
+  - /priority → handlePriorityCommand
+  - /abort → abortRalphEngine
+  - /help → displays help text
+  - /clear → clears logs
+- **Engine Integration**: Uses RalphEngineOptions callbacks:
+  - onIterationComplete (verbose logging)
+  - onTaskStart (log task starting)
+  - onTaskComplete (log task completion)
+  - onPrdComplete (log PRD completion)
+  - onStop (log stop reason)
+- **Backward Compatibility**:
+  - AFK mode (`--afk`) always uses simple spinner mode (no TUI)
+  - `--no-tui` reverts to legacy interactive mode
+  - Intro/outro banners only shown for non-TUI modes
+
+### Technical Details
+- Imports TUI functions: startTui, stopTui, tuiLog
+- Imports engine functions: startRalphEngine, abortRalphEngine, pauseRalphEngine, resumeRalphEngine
+- Imports command handlers from tui/commands/index.js
+- Imports store from tui/state/store.js for /clear command
+- Resolves full PRD path based on AGENTS_TASKS_DIR
+- Waits 2 seconds after completion for user to see result before exiting
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
