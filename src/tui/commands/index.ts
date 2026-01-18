@@ -69,6 +69,16 @@ export {
 } from "./status.js";
 export type { StatusCommandOptions, StatusInfo } from "./status.js";
 
+export {
+  executeNoteCommand,
+  handleNoteCommand,
+  addNote,
+  addNoteToCurrentTask,
+  validateNoteInput,
+  getNoteHelp,
+} from "./note.js";
+export type { NoteCommandOptions } from "./note.js";
+
 // Export types
 export type {
   CommandName,

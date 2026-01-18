@@ -1483,3 +1483,49 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-049: Implement /note command handler
+
+### Completed
+- Created `src/tui/commands/note.ts` with full /note command implementation
+- Integrates with PrdManager for updating task notes
+- Integrates with TUI store for current task retrieval and logging
+
+### Features
+- **executeNoteCommand(options)**: Main /note execution function
+  - Validates input if provided as raw string
+  - Checks for loaded PRD (returns error if none)
+  - Supports optional task ID to specify which task to add note to
+  - If no task ID provided, uses current task from store
+  - Appends note with timestamp to task's notes field
+  - Logs success/error to TUI log pane
+
+- **handleNoteCommand(input)**: Convenience for raw /note command
+- **addNote(content, options)**: Programmatic note addition with options
+  - Supports taskId, append, and prdManager options
+- **addNoteToCurrentTask(content, append)**: Simple helper for current task notes
+- **validateNoteInput(input)**: Pre-validation for UI
+  - Validates input without executing
+  - Returns parsed args if valid
+  - Useful for input field validation before submission
+- **getNoteHelp()**: Returns help text for the command
+
+### Usage Examples
+- `/note User requested this feature` - Adds note to current task
+- `/note impl-045 Blocked by API rate limits` - Adds note to specific task
+- `/note "Multiple words in quotes work too"` - Supports quoted content
+
+### Technical Details
+- Handles exactOptionalPropertyTypes by conditionally building options objects
+- Uses parseNoteArgs() which detects task ID patterns (impl-XXX, us-XXX, review-XXX)
+- Notes are appended with timestamp: `[2026-01-18 00:34:15] Note content`
+- Default append=true to preserve existing notes
+- All errors logged to store with "error" level for TUI display
+
+### Updated Exports
+- Added exports to src/tui/commands/index.ts:
+  - executeNoteCommand, handleNoteCommand, addNote, addNoteToCurrentTask, validateNoteInput, getNoteHelp
+  - NoteCommandOptions type
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+
