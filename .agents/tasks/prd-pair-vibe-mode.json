@@ -142,8 +142,10 @@
       "phase": 1,
       "task": "Create web search service for Reviewer",
       "files": ["src/ralph/web-search.ts"],
-      "status": "pending",
-      "description": "Implement WebSearchService class that searches for: best practices for technology, known issues with specific versions, alternative approaches. Support Tavily API (primary) with fallback to Brave Search API. Include caching to avoid duplicate searches. Env vars: TAVILY_API_KEY, BRAVE_SEARCH_API_KEY."
+      "status": "completed",
+      "description": "Implement WebSearchService class that searches for: best practices for technology, known issues with specific versions, alternative approaches. Support Tavily API (primary) with fallback to Brave Search API. Include caching to avoid duplicate searches. Env vars: TAVILY_API_KEY, BRAVE_SEARCH_API_KEY.",
+      "completedAt": "2026-01-18T13:06:30.000Z",
+      "notes": "Implemented WebSearchService class with Tavily API (primary) and Brave Search API (fallback). Features: 15-minute cache with query hash keys, configurable timeouts (30s default per review-007), search depth options (basic/advanced), domain filtering. Includes searchQueries helper functions for common Reviewer use cases (bestPractices, knownIssues, alternatives, security, performance). Emits PairVibeEvent for search lifecycle (started/completed/failed). All types properly exported."
     },
     {
       "id": "impl-005",

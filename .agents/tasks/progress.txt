@@ -2337,3 +2337,45 @@ consensus is needed. Proceed?
 
 ### Type check: PASSED
 ### Tests: 672 PASSED
+
+## 2026-01-18 - impl-004: Create web search service for Reviewer
+
+### Completed
+- Created `src/ralph/web-search.ts` with WebSearchService class for Reviewer's web search capabilities
+- Dual-provider support per review-002 findings:
+  - **Tavily API (primary)**: $0.008/credit, designed for AI agents
+  - **Brave Search API (fallback)**: $5/1000 requests, privacy-focused
+- Core interfaces:
+  - `WebSearchResult`: title, url, snippet, score, publishedDate
+  - `WebSearchResponse`: query, results, provider, cached flag, durationMs, error
+  - `WebSearchOptions`: maxResults, searchDepth (basic/advanced), domain filters, timeout
+- Caching system:
+  - 15-minute TTL per review-002 recommendation
+  - Cache key based on normalized query hash + options
+  - Methods: `clearExpiredCache()`, `clearCache()`, `getCacheStats()`
+- Timeout handling per review-007:
+  - 30 second default timeout for individual search calls
+  - AbortController for fetch cancellation
+  - Proper error messages for timeouts
+- Event integration:
+  - Emits `web-search-started`, `web-search-completed`, `web-search-failed` events
+  - Uses PairVibeEvent types from pair-vibe-types.ts
+- Query builders for common Reviewer use cases:
+  - `searchQueries.bestPractices(tech, context)`: "{tech} best practices {context} 2025"
+  - `searchQueries.knownIssues(tech, version?)`: Known bugs and problems
+  - `searchQueries.alternatives(approach, goal)`: Alternative approaches comparison
+  - `searchQueries.security(tech, operation)`: Security vulnerabilities, OWASP
+  - `searchQueries.performance(tech, operation)`: Performance optimization benchmarks
+- Helper functions:
+  - `createWebSearchService()`: Factory function
+  - `isWebSearchAvailable()`: Check if any provider configured
+
+### Technical Details
+- Uses native fetch API (no external HTTP dependencies)
+- Tavily: POST to api.tavily.com/search with JSON body
+- Brave: GET to api.search.brave.com/res/v1/web/search with X-Subscription-Token header
+- Properly handles exactOptionalPropertyTypes TypeScript setting
+- Environment variables: TAVILY_API_KEY, BRAVE_SEARCH_API_KEY
+
+### Type check: PASSED
+### Tests: 672 PASSED
