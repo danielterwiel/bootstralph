@@ -2248,3 +2248,26 @@ consensus is needed. Proceed?
 - [Tavily Credits & Pricing](https://docs.tavily.com/documentation/api-credits)
 
 ### Type check: N/A (research task)
+
+## 2026-01-18 - impl-001: Create API key detector utility (Pair Vibe Mode)
+
+### Completed
+- Created `src/ralph/api-keys.ts` with API key detection for Pair Vibe Mode
+- Detects ANTHROPIC_API_KEY and OPENAI_API_KEY from environment variables
+- Validates key format without making API calls:
+  - Anthropic: sk-ant-* prefix, minimum 20 chars
+  - OpenAI: sk-* prefix (excluding sk-ant-*), minimum 20 chars
+- Exported functions: detectApiKeys(), validateApiKey(), hasValidApiKey(), getAvailableProviders(), canEnablePairVibeMode(), getEnvVarName()
+- Exported types: ApiProvider, ApiKeyValidation, ApiKeyDetectionResult
+
+### Technical Details
+- Follows review-001 findings: environment variables only (no config files for security)
+- Standard pattern used by both Anthropic and OpenAI SDKs
+- Returns structured result with:
+  - availableProviders: list of providers with valid keys
+  - validations: detailed validation result per provider
+  - canEnablePairVibe: boolean for 2+ providers
+  - summary: user-friendly message
+
+### Type check: PASSED
+### Tests: 672 PASSED (all existing tests still pass)
