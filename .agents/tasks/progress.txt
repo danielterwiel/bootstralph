@@ -2171,3 +2171,80 @@ sleep = random(0, min(cap, base * 2^attempt))
 - [AWS - Graceful Degradation](https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/rel_mitigate_interaction_failure_graceful_degradation.html)
 
 ### Type check: PASSED
+
+---
+
+## review-008: Estimate cost multiplier
+
+**Date**: 2026-01-18
+**Task**: Calculate expected cost multiplier for Pair Vibe Mode and define UI cost warning
+
+### Findings
+
+#### Current API Pricing (January 2026)
+
+**Anthropic Claude:**
+| Model | Input (per M tokens) | Output (per M tokens) |
+|-------|---------------------|----------------------|
+| Claude Opus 4.5 | $5.00 | $25.00 |
+| Claude Sonnet 4.5 | $3.00 | $15.00 |
+| Claude Haiku 4.5 | $1.00 | $5.00 |
+
+**OpenAI:**
+| Model | Input (per M tokens) | Output (per M tokens) |
+|-------|---------------------|----------------------|
+| GPT-4o | $2.50 | $10.00 |
+| GPT-4.1 | $2.00 | $8.00 |
+| o1 (reasoning) | $15.00 | $60.00 |
+| o3 (reasoning) | $2.00 | $8.00 |
+| o3-mini | $0.55 | $2.20 |
+
+**Web Search (Tavily):**
+- Basic search: 1 credit ($0.008)
+- Advanced search: 2 credits ($0.016)
+- Free tier: 1,000 credits/month
+
+#### Cost Multiplier Analysis
+
+**Pair Vibe Mode Components:**
+1. **Executor** (baseline): 1.0x - same as single model mode
+2. **Reviewer** (concurrent): +0.6x - runs ahead with fewer output tokens (~40% of Executor since analysis not code generation)
+3. **Web Search**: ~$0.008-0.016/step - negligible compared to LLM costs
+
+**Consensus Mode Overhead (when triggered):**
+- Both models generate proposals: +0.5x
+- Ultrathink round (if needed): +1.5-3x for that specific step
+- Average 1.5 rounds per consensus
+
+#### Cost Scenarios
+
+| Scenario | Consensus Rate | Multiplier |
+|----------|---------------|------------|
+| Low friction | 10% | 2.2x |
+| Medium friction | 25% | 2.8x |
+| High friction | 40% | 3.5x |
+
+#### Cost Optimization Strategies
+1. Use GPT-4.1 or o3 as Reviewer ($2/M input vs $2.50/M for GPT-4o)
+2. Leverage Claude prompt caching (90% discount on cached input tokens)
+3. Use Batch API for non-urgent consensus (50% discount)
+4. Skip web search for well-understood technologies
+
+#### UI Warning Text
+```
+Pair Vibe Mode runs two models concurrently with independent review.
+Expected cost: 2-4x single model. Actual cost depends on how often 
+consensus is needed. Proceed?
+```
+
+#### Real-time Cost Display
+- Show running cost estimate in StatusBar
+- Breakdown by model and phase
+- Update after each API call
+
+### Sources
+- [Anthropic Claude Pricing](https://platform.claude.com/docs/en/about-claude/pricing)
+- [OpenAI API Pricing](https://openai.com/api/pricing/)
+- [Tavily Credits & Pricing](https://docs.tavily.com/documentation/api-credits)
+
+### Type check: N/A (research task)

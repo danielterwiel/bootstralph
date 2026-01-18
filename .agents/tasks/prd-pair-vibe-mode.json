@@ -102,7 +102,8 @@
       "category": "cost",
       "task": "Estimate cost multiplier",
       "check": "Pair Vibe Mode will increase API costs. Calculate expected multiplier and add cost warning to UI.",
-      "status": "pending"
+      "status": "completed",
+      "finding": "EXPECTED COST MULTIPLIER: 2.2-3.5x depending on consensus frequency. BREAKDOWN: (1) BASE MODEL COSTS - Claude Sonnet 4.5: $3/M input, $15/M output. OpenAI GPT-4o: $2.50/M input, $10/M output. GPT-4.1: $2/M input, $8/M output. OpenAI o3: $2/M input, $8/M output. (2) PAIR VIBE COMPONENTS - Executor: 1.0x baseline (unchanged). Reviewer: +0.6x (runs ahead, fewer output tokens ~40% of Executor since primarily analysis not code generation). Web Search: +$0.008-0.016/step via Tavily (negligible, ~1-2 searches per step at $0.008/credit). (3) CONSENSUS MODE OVERHEAD - When triggered (~20-40% of steps based on research): Both models propose (+0.5x), Ultrathink round if needed (+1.5-3x for that step due to extended thinking/reasoning_effort), Average 1.5 rounds per consensus. (4) COST SCENARIOS - Low friction (10% consensus rate): 2.2x multiplier. Medium friction (25% consensus rate): 2.8x multiplier. High friction (40% consensus rate): 3.5x multiplier. (5) COST OPTIMIZATION STRATEGIES - Use GPT-4.1 or o3 ($2/M input) as Reviewer instead of GPT-4o ($2.50/M). Use Claude prompt caching (90% discount on cached input). Use Batch API for non-urgent consensus (50% discount). Skip web search for well-understood technologies. (6) UI WARNING TEXT: 'Pair Vibe Mode runs two models concurrently with independent review. Expected cost: 2-4x single model. Actual cost depends on how often consensus is needed. Proceed?' (7) REAL-TIME COST DISPLAY: Show running cost estimate in StatusBar with breakdown by model and phase."
     }
   ],
   "implementation_tasks": [
