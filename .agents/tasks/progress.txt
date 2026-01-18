@@ -1745,3 +1745,88 @@ PRD COMPLETED after 1 iterations
 
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+## 2026-01-18T12:29:05+01:00
+PRD COMPLETED after 1 iterations
+
+## 2026-01-18 - impl-054: Write unit tests for command parser
+
+### Completed
+- Created `tests/tui/parser.test.ts` with 113 comprehensive unit tests
+- Tests cover all exported functions from `src/tui/commands/parser.ts`
+
+### Test Coverage
+
+#### COMMAND_DEFINITIONS (6 tests)
+- All 10 command definitions exist with required properties
+- Correct categories assigned (prd, control, info, system)
+- Correct arg requirements (requiresArgs, minArgs, maxArgs)
+- Commands with unlimited args have maxArgs = -1
+
+#### VALID_COMMAND_NAMES (1 test)
+- Contains all 10 valid command names
+
+#### Helper Functions (6 tests)
+- isValidCommand: Returns true/false for valid/invalid commands
+- getCommandCategory: Returns correct category or null
+- getCommandDefinition: Returns definition or null
+
+#### tokenize (10 tests)
+- Empty string handling
+- Simple space-separated args
+- Multiple spaces between args
+- Double-quoted strings
+- Single-quoted strings
+- Mixed quotes
+- Unclosed quotes
+- Complex quoted strings with spaces
+
+#### parseCommand (12 tests)
+- Non-command input detection
+- Empty and whitespace-only input
+- Commands without args
+- Commands with simple and quoted args
+- Command case insensitivity
+- Leading/trailing whitespace trimming
+- Unknown command detection
+- All 10 valid command types
+
+#### validateCommand (10 tests)
+- Non-commands return null
+- Unknown commands return error
+- Missing required args return error
+- Too many args return error
+- Valid commands return null
+- Unlimited args commands accept many args
+
+#### parseAndValidate (3 tests)
+- Combined parse and validate in one call
+
+#### Command-Specific Parsers (28 tests)
+- parseIssueArgs: Non-issue, no args, description parsing
+- parseNoteArgs: Task ID patterns (impl-XXX, us-XXX, US-XXX, review-XXX), content without ID
+- parsePriorityArgs: Arg count validation, numeric validation, negative/zero priority
+- parseSkipArgs: Optional reason parsing
+- parseAbortArgs: Force flags (--force, -f), reason with force
+- parseStatusArgs: Verbose flags (-v, --verbose), taskId parsing
+
+#### UI Helper Functions (11 tests)
+- getCategoryColor: Returns correct hex colors for each category
+- getHelpText: Specific command help, all commands grouped by category
+- getCommandSuggestions: Prefix filtering, empty for non-commands
+- formatCommandResult: Success/error formatting
+
+#### Edge Cases (8 tests)
+- Command with only spaces after name
+- Special characters (#, @) in args
+- URLs in args
+- Emoji in args
+- Newlines in quoted strings
+- Tab characters
+- Multiple consecutive slashes
+- Slash in args
+
+#### Integration Tests (6 tests)
+- Complete flow for issue, note, priority, abort, status commands
+
+### Type check: PASSED
+### Tests: 514 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e + 113 parser)

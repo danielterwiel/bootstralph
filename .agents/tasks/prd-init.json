@@ -840,7 +840,8 @@
       "phase": 5,
       "task": "Write unit tests for command parser",
       "files": ["tests/tui/parser.test.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Test parsing of all slash commands. Test edge cases: empty args, quoted strings, invalid commands."
     },
     {
