@@ -3252,3 +3252,112 @@ Created `src/ralph/cost-estimator.ts` for pre-session cost estimation in Pair Vi
 
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-020: Write unit tests for ReviewerRunner
+
+### Completed
+- Created `tests/ralph/reviewer-runner.test.ts` with 65 comprehensive unit tests
+- Tests cover all requirements from PRD impl-020 specification
+
+### Test Categories
+
+1. **Initialization and State Tests** (5 tests)
+   - Idle state initialization
+   - Null current step initially
+   - Empty reviewed steps set
+   - Zero reviewed count
+   - Default web search service creation
+
+2. **Look-Ahead Execution Tests** (7 tests)
+   - Starting review from ahead of executor index
+   - Respecting MAX_STEPS_AHEAD limit (5 steps)
+   - Skipping already reviewed steps (findings !== undefined)
+   - Emitting caughtUp event when done
+   - Returning to idle state after catching up
+   - Throwing error if started while already running
+
+3. **Findings Population Tests** (6 tests)
+   - Populating empty findings when LLM finds no issues
+   - Populating findings when LLM finds issues
+   - Emitting consensus-needed event when findings exist
+   - Not emitting consensus-needed when findings empty
+   - Tracking reviewed steps
+   - Emitting PairVibe events during review
+
+4. **Cancellation and Pause/Resume Tests** (11 tests)
+   - Pause when requested
+   - Emit paused event with reason
+   - Emit PairVibe paused event
+   - Resume from paused state
+   - Emit resumed event
+   - No pause if not running
+   - No resume if not paused
+   - Stop execution when stop() called
+   - Wait for consensus when running
+   - Return immediately from waitForConsensus if not running
+   - consensusCompleted() transitions from waiting to running
+
+5. **Web Search Mocking Tests** (6 tests)
+   - Calling web search service during review
+   - Passing search results to LLM client
+   - Proceeding without search when not available
+   - Proceeding without search when disabled in config
+   - Extracting findings heuristically when LLM unavailable
+   - Emitting web-search-started event
+
+6. **Timeout Handling Tests** (5 tests)
+   - Timing out review after configured duration
+   - Emitting reviewer-timeout event
+   - Still marking step as reviewed after timeout
+   - Using default timeout when not configured
+   - Measuring duration correctly
+
+7. **Error Recovery Tests** (5 tests)
+   - Handling LLM client errors gracefully
+   - Handling web search errors gracefully
+   - Still tracking step as reviewed after error
+   - Clearing current step after error
+   - Emitting stepCompleted even on error
+
+8. **Reset and Skip Tests** (3 tests)
+   - Resetting all state
+   - Skipping specific steps
+   - Not reviewing skipped steps
+
+9. **Search Query Generation Tests** (5 tests)
+   - Generating queries for React-related steps
+   - Generating security queries for auth-related steps
+   - Generating performance queries for performance-related steps
+   - Limiting queries to 3
+   - Generating default query when no tech detected
+
+10. **Factory Function Tests** (3 tests)
+    - Creating ReviewerRunner via createReviewerRunner
+    - Creating default LLM client via createDefaultReviewerLLMClient
+    - Extracting findings from search results in default LLM client
+
+11. **LLM Client Setter Tests** (1 test)
+    - Allowing setting LLM client after construction
+
+12. **PairVibe Event Emission Tests** (5 tests)
+    - Emitting reviewer-started event
+    - Emitting reviewer-completed event with findings status
+    - Emitting consensus-started event when findings exist
+    - Not emitting events when no event handler provided
+    - Emitting resumed event
+
+13. **Edge Cases Tests** (5 tests)
+    - Handling empty steps array
+    - Handling executor at end of steps
+    - Handling step with null findings (not reviewed)
+    - Handling concurrent start calls correctly
+    - Preserving reviewed steps across multiple start calls
+
+### Technical Details
+- Uses Vitest with fake timers for timeout testing
+- Mock implementations for WebSearchService and ReviewerLLMClient
+- Event collection helpers for testing EventEmitter behavior
+- Comprehensive PairVibeEvent emission verification
+
+### Type check: PASSED
+### Tests: 794/794 PASSED
