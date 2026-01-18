@@ -264,31 +264,8 @@ select_prd() {
     return
   fi
 
-  # Multiple PRDs - use TypeScript TUI selector
-  local script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-  local selector_script="$script_dir/src/scripts/select-prd.ts"
-
-  # Check if the script exists and bun is available
-  if [ -f "$selector_script" ] && command -v bun &> /dev/null; then
-    # Use a temp file to capture the result so the TUI has TTY access
-    local temp_file=$(mktemp)
-    trap "rm -f '$temp_file'" EXIT
-
-    # Run the TypeScript selector with TTY access, output goes to temp file
-    bun run "$selector_script" > "$temp_file"
-    local exit_code=$?
-
-    local selected=$(cat "$temp_file")
-    rm -f "$temp_file"
-
-    if [ $exit_code -ne 0 ] || [ -z "$selected" ]; then
-      print_color "$RED" "Selection cancelled" >&2
-      exit 1
-    fi
-
-    echo "$AGENTS_TASKS_DIR/$selected"
-  else
-    # Fallback to basic bash selection if TypeScript selector not available
+  # Use basic bash selection (TypeScript TUI selector disabled - OpenTUI hangs in some terminals)
+  if true; then
     # Note: All messages go to stderr so stdout only has the selected PRD path
     echo "" >&2
     print_color "$BLUE" "Multiple incomplete PRDs found:" >&2

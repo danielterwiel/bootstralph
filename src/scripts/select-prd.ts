@@ -3,11 +3,12 @@
  * PRD Selector Script - Interactive PRD selection using OpenTUI
  *
  * This script is called by ralph.sh to present a nice TUI for selecting PRDs.
- * It outputs the selected PRD filename to stdout for the bash script to use.
+ * When --output is provided, writes the selected filename to that file.
+ * Otherwise, outputs to stdout.
  *
  * Usage:
- *   bun run src/scripts/select-prd.ts
- *   # Returns: prd-example.json (or exits with code 1 if cancelled)
+ *   bun run src/scripts/select-prd.ts --output /tmp/result.txt
+ *   # Writes selected filename to /tmp/result.txt (or exits with code 1 if cancelled)
  */
 
 import {
@@ -37,6 +38,34 @@ interface PrdInfo {
 }
 
 const AGENTS_TASKS_DIR = ".agents/tasks";
+
+/**
+ * Parse command line arguments
+ */
+function parseArgs(): { outputFile: string | null } {
+  const args = process.argv.slice(2);
+  let outputFile: string | null = null;
+
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === "--output" && args[i + 1]) {
+      outputFile = args[i + 1]!;
+      i++;
+    }
+  }
+
+  return { outputFile };
+}
+
+/**
+ * Write the result to the appropriate destination
+ */
+async function writeResult(result: string, outputFile: string | null): Promise<void> {
+  if (outputFile) {
+    await fs.writeFile(outputFile, result, "utf-8");
+  } else {
+    console.log(result);
+  }
+}
 
 /**
  * Load and parse a PRD file
@@ -138,6 +167,7 @@ async function getIncompletePrds(): Promise<PrdInfo[]> {
  * Main selector function
  */
 async function main(): Promise<void> {
+  const { outputFile } = parseArgs();
   const incompletePrds = await getIncompletePrds();
 
   if (incompletePrds.length === 0) {
@@ -154,7 +184,7 @@ async function main(): Promise<void> {
 
   // If only one PRD, select it automatically
   if (incompletePrds.length === 1) {
-    console.log(incompletePrds[0]!.filename);
+    await writeResult(incompletePrds[0]!.filename, outputFile);
     process.exit(0);
   }
 
@@ -222,9 +252,9 @@ async function main(): Promise<void> {
   // Handle selection
   select.on(
     SelectRenderableEvents.ITEM_SELECTED,
-    (_index: number, option: SelectOption) => {
+    async (_index: number, option: SelectOption) => {
       renderer.destroy();
-      console.log(option.value as string);
+      await writeResult(option.value as string, outputFile);
       process.exit(0);
     }
   );
