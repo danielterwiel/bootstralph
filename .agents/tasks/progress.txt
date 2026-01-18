@@ -1237,3 +1237,62 @@ npm publish --access public
 ### Type check: PASSED
 ### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
 
+## 2026-01-18 - impl-044: Implement PRD manager for CRUD operations
+
+### Completed
+- Created `src/ralph/prd-manager.ts` with comprehensive PRD management functionality
+- Supports both standard UserStory format and extended implementation_tasks format
+- Auto-save with configurable debounce (default 500ms)
+
+### Features
+- **PrdManager class**: Main class for CRUD operations
+  - `load(filePath)` - Load PRD from JSON file
+  - `save()` - Save PRD with pretty formatting
+  - `flush()` - Force immediate save, clearing debounce timer
+  - `isDirty()` - Check if changes are pending save
+
+- **Task Retrieval**:
+  - `getAllTasks()` - Get all tasks (implementation_tasks or userStories)
+  - `getTask(id)` - Get task by ID
+  - `getNextTask()` - Get next pending task with highest priority
+  - `getPendingTasks()` - Get all pending tasks
+  - `getCompletedTasks()` - Get all completed tasks
+
+- **Progress Tracking**:
+  - `getProgress()` - Get progress statistics (total, completed, remaining, percentage)
+  - `isComplete()` - Check if PRD is complete
+
+- **CRUD Operations**:
+  - `addIssue(options)` - Add new task with auto-generated ID
+  - `updateNote(options)` - Update task note with timestamp, optional append mode
+  - `updatePriority(options)` - Update task priority/phase
+  - `markComplete(taskId)` - Mark task as completed with timestamp
+  - `markSkipped(taskId, reason?)` - Mark task as skipped with reason note
+  - `startTask(taskId)` - Mark task as in_progress with start timestamp
+  - `updateStatus(status)` - Update overall PRD status
+
+- **Review Tasks**:
+  - `getReviewTasks()` - Get all review tasks
+  - `getPendingReviewTasks()` - Get pending review tasks
+  - `updateReviewFinding(id, finding, actionRequired?)` - Update review task finding
+
+- **Static Helpers**:
+  - `PrdManager.fileExists(path)` - Check if file exists
+  - `PrdManager.findPrdFiles(dir)` - Find PRD files in directory
+  - `PrdManager.create(name, description, dir?)` - Create new PRD file
+
+- **Singleton Support**:
+  - `getDefaultPrdManager()` - Get singleton instance
+  - `resetDefaultPrdManager()` - Reset singleton (for testing)
+
+### Technical Details
+- Uses `| null` pattern instead of `| undefined` for exactOptionalPropertyTypes compliance
+- ID generation uses same prefix as existing tasks (e.g., `impl-057` continues from `impl-056`)
+- Notes include ISO timestamp prefix: `[2026-01-18 00:18:45] Note text`
+- Supports both `review_tasks` and `reviewTasks` property names
+- Triggers `onUpdate` callback after each mutation for TUI integration
+- Cleanup via `destroy()` method flushes pending saves
+
+### Type check: PASSED
+### Tests: 401 passed (114 compatibility + 104 filters + 107 scaffolders + 76 e2e)
+

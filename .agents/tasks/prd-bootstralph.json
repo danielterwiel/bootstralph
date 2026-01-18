@@ -750,7 +750,8 @@
       "phase": 5,
       "task": "Implement PRD manager for CRUD operations",
       "files": ["src/ralph/prd-manager.ts"],
-      "status": "pending",
+      "status": "completed",
+      "passes": true,
       "description": "Class to load/save PRD, add issues (generate ID, set priority), update notes, change priority, mark complete/skip. Auto-save with 500ms debounce."
     },
     {

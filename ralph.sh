@@ -12,10 +12,18 @@
 #   ./ralph.sh afk [iterations]   # AFK mode with specified iterations
 #   ./ralph.sh list               # List all PRDs and their status
 #   ./ralph.sh --prd <file>       # Use specific PRD file
+#   ./ralph.sh --provider openai  # Force OpenAI provider
 #
 # Environment variables:
+#   ANTHROPIC_API_KEY    - Anthropic API key (for Claude models)
+#   OPENAI_API_KEY       - OpenAI API key (for GPT models)
 #   RALPH_MAX_ITERATIONS - Default max iterations (default: 10)
 #   RALPH_VERBOSE        - Enable verbose output (default: false)
+#
+# Provider selection:
+#   - If only ANTHROPIC_API_KEY is set, uses Claude (Anthropic)
+#   - If only OPENAI_API_KEY is set, uses GPT-4o (OpenAI)
+#   - If both are set, prompts user to choose
 
 set -e
 
@@ -24,6 +32,8 @@ AGENTS_TASKS_DIR=".agents/tasks"
 DEFAULT_ITERATIONS="${RALPH_MAX_ITERATIONS:-10}"
 VERBOSE="${RALPH_VERBOSE:-false}"
 COMPLETION_PROMISE="<promise>COMPLETE</promise>"
+SELECTED_PROVIDER=""
+FORCE_PROVIDER=""
 
 # Colors for output
 RED='\033[0;31m'
@@ -37,6 +47,80 @@ print_color() {
   local color=$1
   shift
   echo -e "${color}$*${NC}"
+}
+
+# Detect available API keys and select provider
+detect_and_select_provider() {
+  # If provider was forced via --provider flag, use it
+  if [ -n "$FORCE_PROVIDER" ]; then
+    SELECTED_PROVIDER="$FORCE_PROVIDER"
+    case $FORCE_PROVIDER in
+      anthropic)
+        print_color "$GREEN" "Using ANTHROPIC_API_KEY (forced)"
+        ;;
+      openai)
+        print_color "$GREEN" "Using OPENAI_API_KEY (forced)"
+        ;;
+    esac
+    return
+  fi
+
+  local has_openai=false
+  local has_anthropic=false
+
+  if [ -n "$OPENAI_API_KEY" ]; then
+    has_openai=true
+  fi
+
+  if [ -n "$ANTHROPIC_API_KEY" ]; then
+    has_anthropic=true
+  fi
+
+  # Neither key set
+  if [ "$has_openai" = false ] && [ "$has_anthropic" = false ]; then
+    print_color "$RED" "Error: No API key found in environment"
+    echo "Set one of: ANTHROPIC_API_KEY or OPENAI_API_KEY"
+    exit 1
+  fi
+
+  # Only Anthropic key set
+  if [ "$has_anthropic" = true ] && [ "$has_openai" = false ]; then
+    SELECTED_PROVIDER="anthropic"
+    print_color "$GREEN" "Using ANTHROPIC_API_KEY"
+    return
+  fi
+
+  # Only OpenAI key set
+  if [ "$has_openai" = true ] && [ "$has_anthropic" = false ]; then
+    SELECTED_PROVIDER="openai"
+    print_color "$GREEN" "Using OPENAI_API_KEY"
+    return
+  fi
+
+  # Both keys set - prompt user to choose
+  echo ""
+  print_color "$BLUE" "Multiple API keys detected. Select provider:"
+  echo ""
+  echo "  [1] Anthropic (ANTHROPIC_API_KEY)"
+  echo "  [2] OpenAI (OPENAI_API_KEY)"
+  echo ""
+  read -p "Select provider [1-2]: " provider_choice
+
+  case $provider_choice in
+    1)
+      SELECTED_PROVIDER="anthropic"
+      print_color "$GREEN" "Using ANTHROPIC_API_KEY"
+      ;;
+    2)
+      SELECTED_PROVIDER="openai"
+      print_color "$GREEN" "Using OPENAI_API_KEY"
+      ;;
+    *)
+      print_color "$RED" "Invalid selection. Defaulting to Anthropic."
+      SELECTED_PROVIDER="anthropic"
+      print_color "$GREEN" "Using ANTHROPIC_API_KEY"
+      ;;
+  esac
 }
 
 # Ensure tasks directory exists
@@ -206,6 +290,23 @@ select_prd() {
   echo "${prd_array[$selection]}"
 }
 
+# Get the model flag based on selected provider
+get_model_flag() {
+  case $SELECTED_PROVIDER in
+    openai)
+      # Use OpenAI's latest GPT model
+      echo "--model gpt-4o"
+      ;;
+    anthropic)
+      # Default Claude model (no flag needed, or specify explicitly)
+      echo ""
+      ;;
+    *)
+      echo ""
+      ;;
+  esac
+}
+
 # Run a single Ralph iteration
 run_iteration() {
   local prd_file=$1
@@ -222,9 +323,11 @@ run_iteration() {
 
   if [ "$VERBOSE" = "true" ]; then
     echo "Prompt: $prompt"
+    echo "Provider: $SELECTED_PROVIDER"
   fi
 
-  docker sandbox run claude --permission-mode acceptEdits -p "$prompt"
+  local model_flag=$(get_model_flag)
+  docker sandbox run claude --permission-mode acceptEdits $model_flag -p "$prompt"
 }
 
 # Run AFK mode
@@ -334,6 +437,18 @@ main() {
         VERBOSE="true"
         shift
         ;;
+      --provider)
+        case $2 in
+          anthropic|openai)
+            FORCE_PROVIDER=$2
+            ;;
+          *)
+            print_color "$RED" "Invalid provider: $2 (use 'anthropic' or 'openai')"
+            exit 1
+            ;;
+        esac
+        shift 2
+        ;;
       --help|-h)
         echo "Usage: $0 [command] [options]"
         echo ""
@@ -343,9 +458,10 @@ main() {
         echo "  list          List all PRDs and their status"
         echo ""
         echo "Options:"
-        echo "  --prd, -p     Specify PRD file to use"
-        echo "  --verbose, -v Enable verbose output"
-        echo "  --help, -h    Show this help"
+        echo "  --prd, -p       Specify PRD file to use"
+        echo "  --provider      Force provider (anthropic or openai)"
+        echo "  --verbose, -v   Enable verbose output"
+        echo "  --help, -h      Show this help"
         exit 0
         ;;
       *)
@@ -379,6 +495,9 @@ main() {
     print_color "$GREEN" "PRD '$name' is already complete!"
     exit 0
   fi
+
+  # Detect and select AI provider
+  detect_and_select_provider
 
   # Run appropriate mode
   case $mode in
