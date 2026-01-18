@@ -262,8 +262,10 @@
       "phase": 4,
       "task": "Implement rate limit handler with backoff",
       "files": ["src/ralph/rate-limiter.ts"],
-      "status": "pending",
-      "description": "Create RateLimiter class with: exponential backoff with jitter, per-provider rate tracking, Retry-After header respect, circuit breaker for repeated failures, graceful degradation (warn and continue with single model if one provider fails)."
+      "status": "completed",
+      "description": "Create RateLimiter class with: exponential backoff with jitter, per-provider rate tracking, Retry-After header respect, circuit breaker for repeated failures, graceful degradation (warn and continue with single model if one provider fails).",
+      "completedAt": "2026-01-18T14:08:00.000Z",
+      "notes": "Implemented RateLimiter class with full spec compliance per review-005 findings. Features: (1) Full Jitter exponential backoff per AWS best practice: sleep = random(0, min(cap, base * 2^attempt)) with base 1s, cap 60s, max 6 attempts. (2) Per-provider rate limit tracking with Anthropic headers (anthropic-ratelimit-*) and OpenAI headers (x-ratelimit-*). (3) Retry-After header parsing (seconds and ISO 8601 date formats). (4) Token bucket algorithm for proactive rate limiting. (5) Circuit breaker pattern: 5 consecutive 429s in 60s = circuit open for 2 minutes, half-open with 1 test request. (6) Graceful degradation via markDegraded()/isDegraded()/clearDegraded(). (7) PairVibeEvent emission for rate-limit-hit, rate-limit-recovered, circuit-open, circuit-half-open, circuit-closed, degraded-mode. (8) execute() wrapper with automatic retry and header extraction. (9) Global singleton via getGlobalRateLimiter(). Type check: PASSED. Tests: 729/729 PASSED."
     },
     {
       "id": "impl-017",

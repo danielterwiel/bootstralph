@@ -2958,3 +2958,80 @@ Examples:
 ### Bash syntax check: PASSED
 ### Type check: PASSED
 ### Tests: 729/729 PASSED
+
+## 2026-01-18 - impl-016: Implement rate limit handler with backoff
+
+### Completed
+- Created `src/ralph/rate-limiter.ts` with RateLimiter class
+- Implemented per-provider rate limiting with full spec compliance per review-005 findings
+
+### Features
+1. **Full Jitter Exponential Backoff** (AWS best practice)
+   - Formula: `sleep = random(0, min(cap, base * 2^attempt))`
+   - Base delay: 1 second
+   - Maximum cap: 60 seconds
+   - Maximum attempts: 6
+
+2. **Per-Provider Rate Limit Tracking**
+   - Anthropic headers: `anthropic-ratelimit-{requests,tokens}-{limit,remaining,reset}`
+   - OpenAI headers: `x-ratelimit-{limit,remaining,reset}-{requests,tokens}`
+   - Automatic parsing of ISO 8601 and relative time formats
+
+3. **Retry-After Header Respect**
+   - Parses both seconds format (e.g., "60") and HTTP-date format
+   - Used as backoff delay when available
+
+4. **Token Bucket Algorithm**
+   - Proactive rate limiting to avoid hitting limits
+   - Per-provider token buckets with automatic refill
+   - shouldWait() method for pre-request checking
+
+5. **Circuit Breaker Pattern**
+   - Three states: closed, open, half-open
+   - Opens after 5 consecutive 429 errors within 60s
+   - Stays open for 2 minutes (per review-005)
+   - Half-open allows 1 test request before closing
+
+6. **Graceful Degradation**
+   - markDegraded(provider, reason) / isDegraded(provider) / clearDegraded(provider)
+   - getAvailableProviders() returns non-degraded, non-circuit-open providers
+   - Supports continuing with single model when one provider fails
+
+7. **Event Emission**
+   - PairVibeEvent types: rate-limit-hit, rate-limit-recovered
+   - Circuit breaker events: circuit-open, circuit-half-open, circuit-closed
+   - Degradation events: degraded-mode
+
+### API
+```typescript
+// Create rate limiter
+const limiter = createRateLimiter(backoffConfig?, circuitConfig?);
+
+// Or use global singleton
+const limiter = getGlobalRateLimiter();
+
+// Initialize provider
+limiter.initProvider('anthropic');
+
+// Execute with rate limiting
+const result = await limiter.execute('anthropic', async () => {
+  return await callApi();
+}, {
+  extractHeaders: (response) => response.headers,
+  is429Error: (error) => error.status === 429,
+  getRetryAfter: (error) => error.headers['retry-after'],
+});
+
+// Check circuit state
+limiter.getCircuitState('anthropic'); // 'closed' | 'open' | 'half-open'
+
+// Check degraded status
+limiter.isDegraded('anthropic');
+```
+
+### Configuration
+- BackoffConfig: baseDelayMs (1000), maxDelayMs (60000), maxAttempts (6), useJitter (true)
+- CircuitBreakerConfig: failureThreshold (5), failureWindowMs (60000), resetTimeoutMs (120000), halfOpenRequests (1)
+
+### Type check: PASSED
+### Tests: 729/729 PASSED
