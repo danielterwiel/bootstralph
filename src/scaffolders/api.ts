@@ -8,6 +8,7 @@ import * as p from "@clack/prompts";
 import { execa } from "execa";
 import path from "node:path";
 import fs from "fs-extra";
+import type { ScaffoldResult } from "./base.js";
 import type {
   ORM,
   AuthProvider,
@@ -47,14 +48,6 @@ export interface ApiScaffoldOptions {
   preCommit?: PreCommitTool;
   /** Package manager to use */
   packageManager?: "bun" | "pnpm" | "npm" | "yarn";
-}
-
-export interface ScaffoldResult {
-  success: boolean;
-  projectPath: string;
-  errors?: string[];
-  warnings?: string[];
-  nextSteps?: string[];
 }
 
 // ============================================================================

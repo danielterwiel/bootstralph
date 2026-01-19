@@ -8,6 +8,7 @@ import * as p from "@clack/prompts";
 import { execa, type Options as ExecaOptions } from "execa";
 import path from "node:path";
 import fs from "fs-extra";
+import type { ScaffoldResult } from "./base.js";
 import type {
   Styling,
   StateManagement,
@@ -57,14 +58,6 @@ export interface ReactRouterScaffoldOptions {
   packageManager?: "bun" | "pnpm" | "npm" | "yarn";
   /** Template to use (from remix-run/react-router-templates) */
   template?: string;
-}
-
-export interface ScaffoldResult {
-  success: boolean;
-  projectPath: string;
-  errors?: string[];
-  warnings?: string[];
-  nextSteps?: string[];
 }
 
 // ============================================================================

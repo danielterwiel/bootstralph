@@ -8,6 +8,7 @@ import * as p from "@clack/prompts";
 import { execa, type Options as ExecaOptions } from "execa";
 import path from "node:path";
 import fs from "fs-extra";
+import type { ScaffoldResult } from "./base.js";
 import type {
   Styling,
   StateManagement,
@@ -60,14 +61,6 @@ export interface ExpoScaffoldOptions {
   packageManager?: "bun" | "pnpm" | "npm" | "yarn";
   /** Whether this is a universal (web + mobile) project */
   universal?: boolean;
-}
-
-export interface ScaffoldResult {
-  success: boolean;
-  projectPath: string;
-  errors?: string[];
-  warnings?: string[];
-  nextSteps?: string[];
 }
 
 // ============================================================================
