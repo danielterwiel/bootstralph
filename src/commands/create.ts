@@ -39,7 +39,6 @@ import { scaffoldReactRouter, type ReactRouterScaffoldOptions } from "../scaffol
 import { scaffoldAstro, type AstroScaffoldOptions } from "../scaffolders/astro.js";
 import { scaffoldApi, type ApiScaffoldOptions, type ApiFramework } from "../scaffolders/api.js";
 import { generateLefthook } from "../generators/lefthook.js";
-import { generateRalphSkill } from "../generators/ralph-skill.js";
 import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
 import { addPackageScripts } from "../generators/package-scripts.js";
 import { sync } from "./sync.js";
@@ -324,27 +323,23 @@ export async function handleCreate(
     p.log.step("Generating lefthook configuration...");
     await generateLefthook(stackConfig, projectPath);
 
-    // Step 10: Generate Ralph skill
-    p.log.step("Generating Ralph skill...");
-    await generateRalphSkill(stackConfig, projectPath);
-
-    // Step 11: Generate bootsralph config
+    // Step 10: Generate bootsralph config
     p.log.step("Generating bootsralph configuration...");
     await generateBootsralphConfig(stackConfig, projectPath);
 
-    // Step 12: Add package scripts
+    // Step 11: Add package scripts
     p.log.step("Adding package scripts...");
     await addPackageScripts(projectPath);
 
-    // Step 13: Run lefthook install
+    // Step 12: Run lefthook install
     p.log.step("Installing lefthook...");
     await execa("lefthook", ["install"], { cwd: projectPath });
 
-    // Step 14: Sync skills
+    // Step 13: Sync skills
     p.log.step("Syncing skills...");
     await sync({ quiet: true, cwd: projectPath });
 
-    // Step 15: Display warnings and next steps
+    // Step 14: Display warnings and next steps
     if (scaffoldResult.warnings && scaffoldResult.warnings.length > 0) {
       p.log.warn("Warnings:");
       for (const warning of scaffoldResult.warnings) {

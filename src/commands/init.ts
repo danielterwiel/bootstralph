@@ -27,7 +27,6 @@ import type {
   PreCommitTool,
 } from "../compatibility/matrix.js";
 import { generateLefthook } from "../generators/lefthook.js";
-import { generateRalphSkill } from "../generators/ralph-skill.js";
 import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
 import { addPackageScripts } from "../generators/package-scripts.js";
 import { sync } from "./sync.js";
@@ -522,22 +521,17 @@ export async function handleInit(): Promise<InitResult | undefined> {
     const lefthookPath = await generateLefthook(stackConfig, projectPath);
     filesWritten.push(lefthookPath);
 
-    // Step 2: Generate Ralph skill
-    p.log.step("Generating Ralph skill...");
-    const ralphSkillPath = await generateRalphSkill(stackConfig, projectPath);
-    filesWritten.push(ralphSkillPath);
-
-    // Step 3: Generate bootsralph config
+    // Step 2: Generate bootsralph config
     p.log.step("Generating bootsralph configuration...");
     const bootsralphConfigPath = await generateBootsralphConfig(stackConfig, projectPath);
     filesWritten.push(bootsralphConfigPath);
 
-    // Step 4: Add package scripts (merge mode to preserve existing scripts)
+    // Step 3: Add package scripts (merge mode to preserve existing scripts)
     p.log.step("Adding package scripts...");
     const packageJsonPath = await addPackageScripts(projectPath, { merge: true });
     filesWritten.push(packageJsonPath);
 
-    // Step 5: Run lefthook install
+    // Step 4: Run lefthook install
     p.log.step("Installing lefthook...");
     try {
       // Use package manager runner to execute lefthook
@@ -550,7 +544,7 @@ export async function handleInit(): Promise<InitResult | undefined> {
       p.log.warn(`Failed to run lefthook install: ${errorMsg}`);
     }
 
-    // Step 6: Sync skills (verbose for debugging)
+    // Step 5: Sync skills (verbose for debugging)
     p.log.step("Syncing skills...");
     try {
       await sync({ quiet: false, cwd: projectPath });

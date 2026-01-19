@@ -306,6 +306,570 @@
       "skill": "tamagui",
       "source": "secondsky/claude-skills/plugins/tamagui/skills/tamagui",
       "packages": ["tamagui", "@tamagui/core", "@tamagui/config"]
+    },
+    {
+      "skill": "pptx",
+      "source": "anthropics/skills/skills/pptx",
+      "packages": ["pptxgenjs", "officegen"]
+    },
+    {
+      "skill": "canvas-design",
+      "source": "anthropics/skills/skills/canvas-design",
+      "packages": ["fabric", "konva", "paper", "easeljs", "pixi.js", "pixijs"]
+    },
+    {
+      "skill": "algorithmic-art",
+      "source": "anthropics/skills/skills/algorithmic-art",
+      "packages": ["p5", "three", "matter-js", "pts", "canvas-sketch"]
+    },
+    {
+      "skill": "doc-coauthoring",
+      "source": "anthropics/skills/skills/doc-coauthoring",
+      "packages": ["yjs", "@liveblocks/client", "@liveblocks/react", "automerge", "@automerge/automerge", "@tiptap/extension-collaboration"]
+    },
+    {
+      "skill": "slack-integration",
+      "source": "anthropics/skills/skills/slack-gif-creator",
+      "packages": ["@slack/web-api", "@slack/bolt", "@slack/socket-mode"]
+    },
+    {
+      "skill": "react-best-practices",
+      "source": "vercel-labs/agent-skills/skills/react-best-practices",
+      "packages": ["react", "react-dom"],
+      "frameworks": ["nextjs", "react-router"]
+    },
+    {
+      "skill": "google-gemini-api",
+      "source": "secondsky/claude-skills/plugins/google-gemini-api/skills/google-gemini-api",
+      "packages": ["@google/generative-ai", "@google-cloud/aiplatform"]
+    },
+    {
+      "skill": "elevenlabs",
+      "source": "secondsky/claude-skills/plugins/elevenlabs-agents/skills/elevenlabs-agents",
+      "packages": ["elevenlabs", "@11labs/client"]
+    },
+    {
+      "skill": "nuxt-content",
+      "source": "secondsky/claude-skills/plugins/nuxt-content/skills/nuxt-content",
+      "packages": ["@nuxt/content"]
+    },
+    {
+      "skill": "nuxt-seo",
+      "source": "secondsky/claude-skills/plugins/nuxt-seo/skills/nuxt-seo",
+      "packages": ["@nuxtjs/seo", "@nuxtjs/sitemap", "@nuxtjs/robots"]
+    },
+    {
+      "skill": "nuxt-ui",
+      "source": "secondsky/claude-skills/plugins/nuxt-ui-v4/skills/nuxt-ui-v4",
+      "packages": ["@nuxt/ui", "@nuxt/ui-pro"]
+    },
+    {
+      "skill": "pinia",
+      "source": "secondsky/claude-skills/plugins/pinia-v3/skills/pinia-v3",
+      "packages": ["pinia", "@pinia/nuxt"]
+    },
+    {
+      "skill": "shadcn-vue",
+      "source": "secondsky/claude-skills/plugins/shadcn-vue/skills/shadcn-vue",
+      "packages": ["radix-vue", "shadcn-vue", "@vueuse/core"]
+    },
+    {
+      "skill": "sveltekit",
+      "source": "secondsky/claude-skills/plugins/sveltia-cms/skills/sveltia-cms",
+      "packages": ["@sveltejs/kit", "@sveltejs/adapter-auto", "@sveltejs/adapter-node", "@sveltejs/adapter-vercel"],
+      "configFiles": ["svelte.config.js", "svelte.config.ts"]
+    },
+    {
+      "skill": "bun-runtime",
+      "source": "secondsky/claude-skills/plugins/bun/skills/bun",
+      "configFiles": ["bun.lockb", "bunfig.toml"]
+    },
+    {
+      "skill": "hugo",
+      "source": "secondsky/claude-skills/plugins/hugo/skills/hugo",
+      "configFiles": ["hugo.toml", "hugo.yaml", "hugo.json"]
+    },
+    {
+      "skill": "content-collections",
+      "source": "secondsky/claude-skills/plugins/content-collections/skills/content-collections",
+      "packages": ["@content-collections/core", "@content-collections/mdx"]
+    },
+    {
+      "skill": "oauth-passport",
+      "source": "secondsky/claude-skills/plugins/oauth-implementation/skills/oauth-implementation",
+      "packages": ["passport", "passport-oauth2", "passport-google-oauth20", "passport-github2", "arctic"]
+    },
+    {
+      "skill": "lucia-auth",
+      "source": "secondsky/claude-skills/plugins/better-auth/skills/better-auth",
+      "packages": ["lucia", "@lucia-auth/adapter-prisma", "@lucia-auth/adapter-drizzle"]
+    },
+    {
+      "skill": "next-auth",
+      "source": "secondsky/claude-skills/plugins/clerk-auth/skills/clerk-auth",
+      "packages": ["next-auth", "@auth/core", "@auth/prisma-adapter", "@auth/drizzle-adapter"]
+    },
+    {
+      "skill": "fastify",
+      "source": "secondsky/claude-skills/plugins/hono-routing/skills/hono-routing",
+      "packages": ["fastify", "@fastify/cors", "@fastify/swagger"]
+    },
+    {
+      "skill": "express",
+      "source": "secondsky/claude-skills/plugins/api-design-principles/skills/api-design-principles",
+      "packages": ["express", "express-validator", "helmet"]
+    },
+    {
+      "skill": "nestjs",
+      "source": "secondsky/claude-skills/plugins/architecture-patterns/skills/architecture-patterns",
+      "packages": ["@nestjs/core", "@nestjs/common", "@nestjs/platform-express"]
+    },
+    {
+      "skill": "mongoose-mongodb",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["mongoose", "mongodb"]
+    },
+    {
+      "skill": "typeorm",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["typeorm"],
+      "configFiles": ["ormconfig.json", "ormconfig.js"]
+    },
+    {
+      "skill": "sequelize",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["sequelize", "sequelize-typescript"]
+    },
+    {
+      "skill": "redis",
+      "source": "secondsky/claude-skills/plugins/vercel-kv/skills/vercel-kv",
+      "packages": ["redis", "ioredis", "@upstash/redis"]
+    },
+    {
+      "skill": "stripe-payments",
+      "source": "secondsky/claude-skills/plugins/payment-gateway-integration/skills/payment-gateway-integration",
+      "packages": ["stripe", "@stripe/stripe-js", "@stripe/react-stripe-js"]
+    },
+    {
+      "skill": "resend-email",
+      "source": "secondsky/claude-skills/plugins/api-design-principles/skills/api-design-principles",
+      "packages": ["resend", "@react-email/components", "react-email"]
+    },
+    {
+      "skill": "recharts",
+      "source": "secondsky/claude-skills/plugins/kpi-dashboard-design/skills/kpi-dashboard-design",
+      "packages": ["recharts"]
+    },
+    {
+      "skill": "d3-visualization",
+      "source": "secondsky/claude-skills/plugins/kpi-dashboard-design/skills/kpi-dashboard-design",
+      "packages": ["d3", "d3-array", "d3-scale", "d3-shape"]
+    },
+    {
+      "skill": "chartjs",
+      "source": "secondsky/claude-skills/plugins/kpi-dashboard-design/skills/kpi-dashboard-design",
+      "packages": ["chart.js", "react-chartjs-2", "vue-chartjs"]
+    },
+    {
+      "skill": "threejs-3d",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["three", "@react-three/fiber", "@react-three/drei"]
+    },
+    {
+      "skill": "react-spring",
+      "source": "secondsky/claude-skills/plugins/motion/skills/motion",
+      "packages": ["@react-spring/web", "@react-spring/three", "react-spring"]
+    },
+    {
+      "skill": "gsap-animation",
+      "source": "secondsky/claude-skills/plugins/motion/skills/motion",
+      "packages": ["gsap", "@gsap/react"]
+    },
+    {
+      "skill": "lottie-animation",
+      "source": "secondsky/claude-skills/plugins/motion/skills/motion",
+      "packages": ["lottie-web", "lottie-react", "@lottiefiles/react-lottie-player"]
+    },
+    {
+      "skill": "mdx",
+      "source": "secondsky/claude-skills/plugins/nuxt-content/skills/nuxt-content",
+      "packages": ["@mdx-js/react", "@mdx-js/loader", "@next/mdx", "next-mdx-remote"]
+    },
+    {
+      "skill": "contentlayer",
+      "source": "secondsky/claude-skills/plugins/content-collections/skills/content-collections",
+      "packages": ["contentlayer", "next-contentlayer"]
+    },
+    {
+      "skill": "swr-data-fetching",
+      "source": "secondsky/claude-skills/plugins/tanstack-query/skills/tanstack-query",
+      "packages": ["swr"]
+    },
+    {
+      "skill": "puppeteer-automation",
+      "source": "secondsky/claude-skills/plugins/cloudflare-browser-rendering/skills/cloudflare-browser-rendering",
+      "packages": ["puppeteer", "puppeteer-core"]
+    },
+    {
+      "skill": "cheerio-scraping",
+      "source": "secondsky/claude-skills/plugins/firecrawl-scraper/skills/firecrawl-scraper",
+      "packages": ["cheerio", "jsdom"]
+    },
+    {
+      "skill": "date-fns",
+      "source": "secondsky/claude-skills/plugins/zod/skills/zod",
+      "packages": ["date-fns", "date-fns-tz"]
+    },
+    {
+      "skill": "dayjs",
+      "source": "secondsky/claude-skills/plugins/zod/skills/zod",
+      "packages": ["dayjs"]
+    },
+    {
+      "skill": "jotai-state",
+      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
+      "packages": ["jotai"]
+    },
+    {
+      "skill": "redux-toolkit",
+      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
+      "packages": ["@reduxjs/toolkit", "react-redux", "redux"]
+    },
+    {
+      "skill": "mobx-state",
+      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
+      "packages": ["mobx", "mobx-react", "mobx-react-lite"]
+    },
+    {
+      "skill": "xstate-machines",
+      "source": "secondsky/claude-skills/plugins/architecture-patterns/skills/architecture-patterns",
+      "packages": ["xstate", "@xstate/react"]
+    },
+    {
+      "skill": "rxjs-reactive",
+      "source": "secondsky/claude-skills/plugins/architecture-patterns/skills/architecture-patterns",
+      "packages": ["rxjs"]
+    },
+    {
+      "skill": "sharp-images",
+      "source": "secondsky/claude-skills/plugins/image-optimization/skills/image-optimization",
+      "packages": ["sharp"]
+    },
+    {
+      "skill": "aws-sdk",
+      "source": "secondsky/claude-skills/plugins/api-design-principles/skills/api-design-principles",
+      "packages": ["@aws-sdk/client-s3", "@aws-sdk/client-dynamodb", "@aws-sdk/client-lambda", "aws-sdk"]
+    },
+    {
+      "skill": "cloudflare-d1",
+      "source": "secondsky/claude-skills/plugins/cloudflare-d1/skills/cloudflare-d1",
+      "packages": ["@cloudflare/d1"]
+    },
+    {
+      "skill": "cloudflare-r2",
+      "source": "secondsky/claude-skills/plugins/cloudflare-r2/skills/cloudflare-r2",
+      "packages": ["@cloudflare/r2"]
+    },
+    {
+      "skill": "cloudflare-kv",
+      "source": "secondsky/claude-skills/plugins/cloudflare-kv/skills/cloudflare-kv",
+      "packages": ["@cloudflare/kv"]
+    },
+    {
+      "skill": "cloudflare-durable-objects",
+      "source": "secondsky/claude-skills/plugins/cloudflare-durable-objects/skills/cloudflare-durable-objects",
+      "packages": ["@cloudflare/durable-objects"]
+    },
+    {
+      "skill": "cloudflare-workers-ai",
+      "source": "secondsky/claude-skills/plugins/cloudflare-workers-ai/skills/cloudflare-workers-ai",
+      "packages": ["@cloudflare/ai"]
+    },
+    {
+      "skill": "cloudflare-queues",
+      "source": "secondsky/claude-skills/plugins/cloudflare-queues/skills/cloudflare-queues",
+      "packages": ["@cloudflare/queues"]
+    },
+    {
+      "skill": "cloudflare-vectorize",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["@cloudflare/vectorize"]
+    },
+    {
+      "skill": "vercel-kv",
+      "source": "secondsky/claude-skills/plugins/vercel-kv/skills/vercel-kv",
+      "packages": ["@vercel/kv"]
+    },
+    {
+      "skill": "vercel-blob",
+      "source": "secondsky/claude-skills/plugins/vercel-blob/skills/vercel-blob",
+      "packages": ["@vercel/blob"]
+    },
+    {
+      "skill": "upstash",
+      "source": "secondsky/claude-skills/plugins/vercel-kv/skills/vercel-kv",
+      "packages": ["@upstash/redis", "@upstash/ratelimit", "@upstash/qstash"]
+    },
+    {
+      "skill": "prettier",
+      "source": "secondsky/claude-skills/plugins/eslint/skills/eslint",
+      "devPackages": ["prettier", "prettier-plugin-tailwindcss"],
+      "configFiles": [".prettierrc", ".prettierrc.js", ".prettierrc.json", "prettier.config.js", "prettier.config.mjs"]
+    },
+    {
+      "skill": "commitlint",
+      "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
+      "devPackages": ["@commitlint/cli", "@commitlint/config-conventional"],
+      "configFiles": ["commitlint.config.js", "commitlint.config.ts", ".commitlintrc.json"]
+    },
+    {
+      "skill": "husky-hooks",
+      "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
+      "devPackages": ["husky"],
+      "configFiles": [".husky/pre-commit", ".husky/commit-msg"]
+    },
+    {
+      "skill": "lint-staged",
+      "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
+      "devPackages": ["lint-staged"],
+      "configFiles": [".lintstagedrc", ".lintstagedrc.json", "lint-staged.config.js"]
+    },
+    {
+      "skill": "semantic-release",
+      "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
+      "devPackages": ["semantic-release", "@semantic-release/git", "@semantic-release/changelog"]
+    },
+    {
+      "skill": "github-actions",
+      "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
+      "configFiles": [".github/workflows/ci.yml", ".github/workflows/deploy.yml", ".github/workflows/test.yml"]
+    },
+    {
+      "skill": "firecrawl",
+      "source": "secondsky/claude-skills/plugins/firecrawl-scraper/skills/firecrawl-scraper",
+      "packages": ["@mendable/firecrawl-js", "firecrawl"]
+    },
+    {
+      "skill": "tanstack-form",
+      "source": "secondsky/claude-skills/plugins/react-hook-form-zod/skills/react-hook-form-zod",
+      "packages": ["@tanstack/react-form", "@tanstack/vue-form"]
+    },
+    {
+      "skill": "react-router",
+      "source": "secondsky/claude-skills/plugins/nextjs/skills/nextjs",
+      "packages": ["react-router", "react-router-dom", "@remix-run/router"],
+      "frameworks": ["react-router"]
+    },
+    {
+      "skill": "remix",
+      "source": "secondsky/claude-skills/plugins/nextjs/skills/nextjs",
+      "packages": ["@remix-run/node", "@remix-run/react", "@remix-run/serve"],
+      "configFiles": ["remix.config.js", "remix.config.ts"]
+    },
+    {
+      "skill": "solid-js",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["solid-js", "@solidjs/router", "@solidjs/start"]
+    },
+    {
+      "skill": "qwik",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["@builder.io/qwik", "@builder.io/qwik-city"]
+    },
+    {
+      "skill": "preact",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["preact", "@preact/signals"]
+    },
+    {
+      "skill": "svelte",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["svelte", "svelte-kit"]
+    },
+    {
+      "skill": "angular",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["@angular/core", "@angular/common", "@angular/cli"],
+      "configFiles": ["angular.json"]
+    },
+    {
+      "skill": "ember",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["ember-source", "ember-cli"],
+      "configFiles": ["ember-cli-build.js"]
+    },
+    {
+      "skill": "ionic",
+      "source": "secondsky/claude-skills/plugins/react-native-app/skills/react-native-app",
+      "packages": ["@ionic/react", "@ionic/vue", "@ionic/angular", "@capacitor/core"]
+    },
+    {
+      "skill": "electron",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["electron", "electron-builder"],
+      "devPackages": ["electron"]
+    },
+    {
+      "skill": "tauri",
+      "source": "secondsky/claude-skills/plugins/frontend-design/skills/frontend-design",
+      "packages": ["@tauri-apps/api"],
+      "configFiles": ["tauri.conf.json", "src-tauri/tauri.conf.json"]
+    },
+    {
+      "skill": "pwa",
+      "source": "secondsky/claude-skills/plugins/progressive-web-app/skills/progressive-web-app",
+      "packages": ["workbox-webpack-plugin", "workbox-precaching", "@vite-pwa/vite-plugin-pwa"],
+      "configFiles": ["manifest.json", "manifest.webmanifest"]
+    },
+    {
+      "skill": "opentelemetry",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["@opentelemetry/api", "@opentelemetry/sdk-node", "@opentelemetry/auto-instrumentations-node"]
+    },
+    {
+      "skill": "sentry",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["@sentry/node", "@sentry/react", "@sentry/nextjs", "@sentry/browser"]
+    },
+    {
+      "skill": "datadog",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["dd-trace", "@datadog/browser-rum"]
+    },
+    {
+      "skill": "pino-logging",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["pino", "pino-pretty"]
+    },
+    {
+      "skill": "winston-logging",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["winston"]
+    },
+    {
+      "skill": "casl-authorization",
+      "source": "secondsky/claude-skills/plugins/access-control-rbac/skills/access-control-rbac",
+      "packages": ["@casl/ability", "@casl/react", "@casl/prisma"]
+    },
+    {
+      "skill": "helmet-security",
+      "source": "secondsky/claude-skills/plugins/security-headers-configuration/skills/security-headers-configuration",
+      "packages": ["helmet"]
+    },
+    {
+      "skill": "rate-limiting",
+      "source": "secondsky/claude-skills/plugins/api-rate-limiting/skills/api-rate-limiting",
+      "packages": ["express-rate-limit", "rate-limiter-flexible", "@upstash/ratelimit"]
+    },
+    {
+      "skill": "kysely",
+      "source": "secondsky/claude-skills/plugins/drizzle-orm-d1/skills/drizzle-orm-d1",
+      "packages": ["kysely"]
+    },
+    {
+      "skill": "knex",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["knex"]
+    },
+    {
+      "skill": "better-sqlite3",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["better-sqlite3", "sql.js"]
+    },
+    {
+      "skill": "mikro-orm",
+      "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
+      "packages": ["@mikro-orm/core", "@mikro-orm/postgresql"]
+    },
+    {
+      "skill": "langchain",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["langchain", "@langchain/core", "@langchain/openai", "@langchain/anthropic"]
+    },
+    {
+      "skill": "llamaindex",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["llamaindex"]
+    },
+    {
+      "skill": "pinecone",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["@pinecone-database/pinecone"]
+    },
+    {
+      "skill": "weaviate",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["weaviate-ts-client", "weaviate-client"]
+    },
+    {
+      "skill": "qdrant",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["@qdrant/js-client-rest"]
+    },
+    {
+      "skill": "chroma",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["chromadb"]
+    },
+    {
+      "skill": "milvus",
+      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
+      "packages": ["@zilliz/milvus2-sdk-node"]
+    },
+    {
+      "skill": "replicate",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["replicate"]
+    },
+    {
+      "skill": "huggingface",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["@huggingface/inference", "@huggingface/hub"]
+    },
+    {
+      "skill": "cohere",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["cohere-ai"]
+    },
+    {
+      "skill": "mistral",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["@mistralai/mistralai"]
+    },
+    {
+      "skill": "together-ai",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["together-ai"]
+    },
+    {
+      "skill": "groq",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["groq-sdk"]
+    },
+    {
+      "skill": "perplexity",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["@anthropic-ai/perplexity"]
+    },
+    {
+      "skill": "posthog-analytics",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["posthog-js", "posthog-node"]
+    },
+    {
+      "skill": "mixpanel",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["mixpanel", "mixpanel-browser"]
+    },
+    {
+      "skill": "amplitude",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["@amplitude/analytics-browser", "@amplitude/analytics-node"]
+    },
+    {
+      "skill": "segment",
+      "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
+      "packages": ["@segment/analytics-node", "analytics"]
     }
   ],
   "defaultSkills": [
@@ -316,6 +880,22 @@
     {
       "skill": "systematic-debugging",
       "source": "obra/superpowers/skills/systematic-debugging"
+    },
+    {
+      "skill": "test-driven-development",
+      "source": "obra/superpowers/skills/test-driven-development"
+    },
+    {
+      "skill": "brainstorming",
+      "source": "obra/superpowers/skills/brainstorming"
+    },
+    {
+      "skill": "writing-plans",
+      "source": "obra/superpowers/skills/writing-plans"
+    },
+    {
+      "skill": "executing-plans",
+      "source": "obra/superpowers/skills/executing-plans"
     }
   ]
 }
