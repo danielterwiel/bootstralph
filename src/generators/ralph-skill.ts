@@ -42,18 +42,17 @@ interface RalphSkillTemplateVars {
 /**
  * Get the path to the ralph-skill.md.hbs template
  *
- * Resolves the template path relative to the project root,
- * supporting both development and built/packaged contexts.
+ * Resolves the template path relative to the bundled file location.
+ * In dist: templates are copied to dist/templates/
  */
 function getTemplatePath(): string {
   // In ESM, we need to get the current file's directory
   const currentFilePath = fileURLToPath(import.meta.url);
   const currentDir = dirname(currentFilePath);
 
-  // Navigate from src/generators/ to templates/
-  // In dev: src/generators/ralph-skill.ts -> ../../templates/ralph-skill.md.hbs
-  // In dist: dist/generators/ralph-skill.js -> ../../templates/ralph-skill.md.hbs
-  return join(currentDir, "../../templates/ralph-skill.md.hbs");
+  // Templates are copied to dist/templates/ during build
+  // From dist/index.js -> templates/ralph-skill.md.hbs
+  return join(currentDir, "templates/ralph-skill.md.hbs");
 }
 
 // ============================================================================

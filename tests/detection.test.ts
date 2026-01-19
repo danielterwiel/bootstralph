@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 // Import detection functions and types
 import {
   scanPackageJson,
+  resolveWorkspaces,
   type PackageScanResult,
 } from '../src/detection/package-scanner.js';
 import {
@@ -172,6 +173,270 @@ describe('scanPackageJson', () => {
     expect(result.dependencies).toEqual([]);
     expect(result.devDependencies).toEqual([]);
     expect(result.scripts).toEqual({});
+  });
+});
+
+// ============================================================================
+// Workspace Resolution Tests
+// ============================================================================
+
+describe('resolveWorkspaces', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await createTempDir();
+  });
+
+  afterEach(async () => {
+    await rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('should return empty array when no workspaces field', async () => {
+    await writePackageJson(tempDir, {
+      dependencies: { 'next': '^14.0.0' },
+    });
+
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toEqual([]);
+  });
+
+  it('should return empty array when package.json does not exist', async () => {
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toEqual([]);
+  });
+
+  it('should resolve direct workspace paths', async () => {
+    // Create root package.json with workspaces
+    const pkgJson = {
+      workspaces: ['packages/ui'],
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(pkgJson, null, 2));
+
+    // Create workspace package
+    await mkdir(join(tempDir, 'packages', 'ui'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'ui', 'package.json'),
+      JSON.stringify({ name: '@monorepo/ui' }, null, 2)
+    );
+
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain('packages/ui');
+  });
+
+  it('should resolve glob pattern workspaces', async () => {
+    // Create root package.json with glob workspaces
+    const pkgJson = {
+      workspaces: ['packages/*'],
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(pkgJson, null, 2));
+
+    // Create multiple workspace packages
+    await mkdir(join(tempDir, 'packages', 'ui'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'ui', 'package.json'),
+      JSON.stringify({ name: '@monorepo/ui' }, null, 2)
+    );
+
+    await mkdir(join(tempDir, 'packages', 'utils'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'utils', 'package.json'),
+      JSON.stringify({ name: '@monorepo/utils' }, null, 2)
+    );
+
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toHaveLength(2);
+  });
+
+  it('should handle object-style workspaces field', async () => {
+    // Create root package.json with object workspaces
+    const pkgJson = {
+      workspaces: { packages: ['apps/web'] },
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(pkgJson, null, 2));
+
+    // Create workspace
+    await mkdir(join(tempDir, 'apps', 'web'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'apps', 'web', 'package.json'),
+      JSON.stringify({ name: 'web' }, null, 2)
+    );
+
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toHaveLength(1);
+  });
+
+  it('should skip directories without package.json', async () => {
+    // Create root package.json with glob workspaces
+    const pkgJson = {
+      workspaces: ['packages/*'],
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(pkgJson, null, 2));
+
+    // Create one valid workspace
+    await mkdir(join(tempDir, 'packages', 'ui'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'ui', 'package.json'),
+      JSON.stringify({ name: '@monorepo/ui' }, null, 2)
+    );
+
+    // Create one directory without package.json
+    await mkdir(join(tempDir, 'packages', 'docs'), { recursive: true });
+    await writeFile(join(tempDir, 'packages', 'docs', 'README.md'), '# Docs');
+
+    const result = await resolveWorkspaces(tempDir);
+
+    expect(result).toHaveLength(1);
+    expect(result[0]).toContain('packages/ui');
+  });
+});
+
+// ============================================================================
+// Workspace Integration with Package Scanning
+// ============================================================================
+
+describe('scanPackageJson with workspaces', () => {
+  let tempDir: string;
+
+  beforeEach(async () => {
+    tempDir = await createTempDir();
+  });
+
+  afterEach(async () => {
+    await rm(tempDir, { recursive: true, force: true });
+  });
+
+  it('should aggregate dependencies from workspace packages', async () => {
+    // Create root package.json with workspaces
+    const rootPkg = {
+      name: 'monorepo',
+      workspaces: ['packages/*'],
+      dependencies: {
+        'typescript': '^5.0.0',
+      },
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(rootPkg, null, 2));
+
+    // Create workspace with react
+    await mkdir(join(tempDir, 'packages', 'web'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'web', 'package.json'),
+      JSON.stringify({
+        name: 'web',
+        dependencies: { 'next': '^14.0.0', 'react': '^18.0.0' },
+      }, null, 2)
+    );
+
+    // Create workspace with hono
+    await mkdir(join(tempDir, 'packages', 'api'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'api', 'package.json'),
+      JSON.stringify({
+        name: 'api',
+        dependencies: { 'hono': '^4.0.0' },
+      }, null, 2)
+    );
+
+    const result = await scanPackageJson(tempDir);
+
+    // Should have root + all workspace dependencies
+    expect(result.dependencies).toContain('typescript');
+    expect(result.dependencies).toContain('next');
+    expect(result.dependencies).toContain('react');
+    expect(result.dependencies).toContain('hono');
+  });
+
+  it('should aggregate devDependencies from workspace packages', async () => {
+    // Create root package.json with workspaces
+    const rootPkg = {
+      name: 'monorepo',
+      workspaces: ['packages/*'],
+      devDependencies: {
+        'vitest': '^1.0.0',
+      },
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(rootPkg, null, 2));
+
+    // Create workspace with tailwind
+    await mkdir(join(tempDir, 'packages', 'web'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'web', 'package.json'),
+      JSON.stringify({
+        name: 'web',
+        devDependencies: { 'tailwindcss': '^3.0.0' },
+      }, null, 2)
+    );
+
+    const result = await scanPackageJson(tempDir);
+
+    expect(result.devDependencies).toContain('vitest');
+    expect(result.devDependencies).toContain('tailwindcss');
+  });
+
+  it('should deduplicate dependencies from multiple workspaces', async () => {
+    // Create root package.json with workspaces
+    const rootPkg = {
+      name: 'monorepo',
+      workspaces: ['packages/*'],
+      dependencies: { 'react': '^18.0.0' },
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(rootPkg, null, 2));
+
+    // Both workspaces have react
+    await mkdir(join(tempDir, 'packages', 'web'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'web', 'package.json'),
+      JSON.stringify({
+        name: 'web',
+        dependencies: { 'react': '^18.0.0' },
+      }, null, 2)
+    );
+
+    await mkdir(join(tempDir, 'packages', 'mobile'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'mobile', 'package.json'),
+      JSON.stringify({
+        name: 'mobile',
+        dependencies: { 'react': '^18.0.0' },
+      }, null, 2)
+    );
+
+    const result = await scanPackageJson(tempDir);
+
+    // Should only have react once
+    const reactCount = result.dependencies.filter(d => d === 'react').length;
+    expect(reactCount).toBe(1);
+  });
+
+  it('should still return root scripts (not workspace scripts)', async () => {
+    // Create root package.json with workspaces
+    const rootPkg = {
+      name: 'monorepo',
+      workspaces: ['packages/*'],
+      scripts: { 'dev': 'turbo dev', 'build': 'turbo build' },
+    };
+    await writeFile(join(tempDir, 'package.json'), JSON.stringify(rootPkg, null, 2));
+
+    // Workspace with its own scripts
+    await mkdir(join(tempDir, 'packages', 'web'), { recursive: true });
+    await writeFile(
+      join(tempDir, 'packages', 'web', 'package.json'),
+      JSON.stringify({
+        name: 'web',
+        scripts: { 'dev': 'next dev' },
+      }, null, 2)
+    );
+
+    const result = await scanPackageJson(tempDir);
+
+    // Should only have root scripts
+    expect(result.scripts).toHaveProperty('dev', 'turbo dev');
+    expect(result.scripts).toHaveProperty('build', 'turbo build');
   });
 });
 
@@ -376,9 +641,21 @@ describe('inferStack', () => {
       expect(stack.framework).toBe('expo');
     });
 
-    it('should detect TanStack Start from dependencies', () => {
+    it('should detect TanStack Start from @tanstack/start', () => {
       const packageScan: PackageScanResult = {
         dependencies: ['@tanstack/start'],
+        devDependencies: [],
+        scripts: {},
+      };
+
+      const stack = inferStack(packageScan, []);
+
+      expect(stack.framework).toBe('tanstack-start');
+    });
+
+    it('should detect TanStack Start from @tanstack/react-start', () => {
+      const packageScan: PackageScanResult = {
+        dependencies: ['@tanstack/react-start'],
         devDependencies: [],
         scripts: {},
       };

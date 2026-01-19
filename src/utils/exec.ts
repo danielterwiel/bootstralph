@@ -29,6 +29,10 @@ export interface ExecOptions extends Options {
    * Whether to reject on non-zero exit code (default: true)
    */
   reject?: boolean;
+  /**
+   * Timeout in milliseconds (default: 60000 = 60 seconds)
+   */
+  timeout?: number;
 }
 
 /**
@@ -141,6 +145,8 @@ export async function exec(
       stderr: "pipe",
       // Reject on non-zero exit code by default
       reject: options.reject !== false,
+      // Default timeout of 60 seconds
+      timeout: options.timeout ?? 60000,
       // Pass through user options
       ...options,
     });

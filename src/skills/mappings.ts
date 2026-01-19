@@ -65,20 +65,10 @@ interface SkillMappingsData {
 // ============================================================================
 
 /**
- * Default skills that are always included
+ * Default skills loaded from the mappings file
+ * These skills are always included regardless of detected packages/configs
  */
-export const DEFAULT_SKILLS: RequiredSkill[] = [
-  {
-    skill: "systematic-debugging",
-    source: "github:anthropics/openskills/systematic-debugging",
-    reason: "default",
-  },
-  {
-    skill: "verification-before-completion",
-    source: "github:anthropics/openskills/verification-before-completion",
-    reason: "default",
-  },
-];
+export let DEFAULT_SKILLS: RequiredSkill[] = [];
 
 // ============================================================================
 // Mappings Loader
@@ -100,14 +90,20 @@ export const DEFAULT_SKILLS: RequiredSkill[] = [
  */
 export async function loadMappings(): Promise<SkillMapping[]> {
   // Get the path to the data directory
-  // This module is at src/skills/mappings.ts
-  // Data directory is at data/skill-mappings.json
+  // Data is copied to dist/data/ during build
   const __filename = fileURLToPath(import.meta.url);
   const __dirname = dirname(__filename);
-  const dataPath = join(__dirname, "../../data/skill-mappings.json");
+  const dataPath = join(__dirname, "data/skill-mappings.json");
 
   // Load the mappings data
   const data = await readJson<SkillMappingsData>(dataPath);
+
+  // Update DEFAULT_SKILLS from loaded data
+  DEFAULT_SKILLS = (data.defaultSkills || []).map((s) => ({
+    skill: s.skill,
+    source: s.source,
+    reason: "default",
+  }));
 
   return data.mappings;
 }
@@ -117,15 +113,16 @@ export async function loadMappings(): Promise<SkillMapping[]> {
 // ============================================================================
 
 /**
- * Compute required skills based on dependencies and config files
+ * Compute required skills based on dependencies, config files, and framework
  *
- * Analyzes the project's dependencies (both runtime and dev) and configuration
- * files to determine which OpenSkills should be installed. Always includes
- * DEFAULT_SKILLS in the result.
+ * Analyzes the project's dependencies (both runtime and dev), configuration
+ * files, and detected framework to determine which OpenSkills should be installed.
+ * Always includes DEFAULT_SKILLS in the result.
  *
  * @param deps - Runtime dependencies from package.json
  * @param devDeps - Development dependencies from package.json
  * @param configFiles - Configuration file paths found in the project
+ * @param framework - Optional detected framework name (e.g., "nextjs", "tanstack-start")
  * @returns Promise resolving to array of required skills with reasons
  *
  * @example
@@ -134,7 +131,7 @@ export async function loadMappings(): Promise<SkillMapping[]> {
  * const devDeps = ["typescript", "tailwindcss"];
  * const configFiles = ["next.config.js", "tailwind.config.ts"];
  *
- * const required = await computeRequiredSkills(deps, devDeps, configFiles);
+ * const required = await computeRequiredSkills(deps, devDeps, configFiles, "nextjs");
  * // Returns: [
  * //   { skill: "nextjs", source: "...", reason: "package: next" },
  * //   { skill: "clerk", source: "...", reason: "package: @clerk/nextjs" },
@@ -152,14 +149,16 @@ export async function loadMappings(): Promise<SkillMapping[]> {
  * const required = await computeRequiredSkills(
  *   packageScan.dependencies,
  *   packageScan.devDependencies,
- *   configScan
+ *   configScan,
+ *   "tanstack-start"
  * );
  * ```
  */
 export async function computeRequiredSkills(
   deps: string[],
   devDeps: string[],
-  configFiles: string[]
+  configFiles: string[],
+  framework?: string | null
 ): Promise<RequiredSkill[]> {
   // Load mappings
   const mappings = await loadMappings();
@@ -219,6 +218,14 @@ export async function computeRequiredSkills(
           matchReason = `config: ${matchedFile}`;
           break;
         }
+      }
+    }
+
+    // Check frameworks (if not already matched)
+    if (!matched && framework && mapping.frameworks) {
+      if (mapping.frameworks.includes(framework)) {
+        matched = true;
+        matchReason = `framework: ${framework}`;
       }
     }
 

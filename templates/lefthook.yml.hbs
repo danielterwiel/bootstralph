@@ -47,4 +47,4 @@ pre-commit:
     # Sync skills based on package.json
     skills-sync:
       glob: "package.json"
-      run: npx bootsralph sync --quiet
+      run: {{packageManagerRunner}} bootsralph sync --quiet

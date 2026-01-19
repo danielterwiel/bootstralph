@@ -14,6 +14,7 @@
 
 import { scanPackageJson } from "../detection/package-scanner.js";
 import { scanConfigFiles } from "../detection/config-scanner.js";
+import { inferStack } from "../detection/stack-inferrer.js";
 import { loadManifest, saveManifest } from "./manifest.js";
 import { computeRequiredSkills } from "./mappings.js";
 import { computeDiff } from "./diff.js";
@@ -63,6 +64,20 @@ export interface SyncSkillsOptions {
   projectRoot?: string;
 }
 
+/**
+ * Result of syncSkills operation
+ */
+export interface SyncSkillsResult {
+  /** Number of skills successfully installed */
+  installed: number;
+  /** Number of skills that failed to install */
+  failed: number;
+  /** Number of skills successfully removed */
+  removed: number;
+  /** Names of skills that failed to install */
+  failedSkills: string[];
+}
+
 // ============================================================================
 // Skills Sync Orchestration
 // ============================================================================
@@ -86,19 +101,20 @@ export interface SyncSkillsOptions {
  * @example
  * ```typescript
  * // Sync skills with progress logs
- * await syncSkills();
+ * const result = await syncSkills();
+ * console.log(`Installed: ${result.installed}, Failed: ${result.failed}`);
  * ```
  *
  * @example
  * ```typescript
  * // Sync skills in quiet mode (no logs)
- * await syncSkills({ quiet: true });
+ * const result = await syncSkills({ quiet: true });
  * ```
  *
  * @example
  * ```typescript
  * // Sync skills in a specific project directory
- * await syncSkills({ projectRoot: "/path/to/project" });
+ * const result = await syncSkills({ projectRoot: "/path/to/project" });
  * ```
  *
  * @example
@@ -107,13 +123,15 @@ export interface SyncSkillsOptions {
  * import { syncSkills } from "./skills";
  *
  * // User just ran: bun add next @clerk/nextjs
- * await syncSkills();
- * // Skills are now installed: nextjs, clerk, systematic-debugging, verification-before-completion
+ * const result = await syncSkills();
+ * if (result.failed > 0) {
+ *   console.error(`Failed to install: ${result.failedSkills.join(", ")}`);
+ * }
  * ```
  */
 export async function syncSkills(
   options: SyncSkillsOptions = {}
-): Promise<void> {
+): Promise<SyncSkillsResult> {
   const { quiet = false, projectRoot = process.cwd() } = options;
 
   const log = (...args: unknown[]) => {
@@ -123,72 +141,67 @@ export async function syncSkills(
   };
 
   try {
-    // Step 1: Read package.json
-    log("📦 Reading package.json...");
+    // Analyze project
     const packageScan = await scanPackageJson(projectRoot);
-
-    // Step 2: Detect config files
-    log("🔍 Detecting configuration files...");
     const configFiles = await scanConfigFiles(projectRoot);
-
-    // Step 3: Load current manifest
-    log("📋 Loading skills manifest...");
+    const stack = inferStack(packageScan, configFiles);
     const manifest = await loadManifest(projectRoot);
-
-    // Step 4: Compute required skills
-    log("🧮 Computing required skills...");
     const requiredSkills = await computeRequiredSkills(
       packageScan.dependencies,
       packageScan.devDependencies,
-      configFiles
+      configFiles,
+      stack.framework
     );
-
-    // Step 5: Compute diff
-    log("📊 Computing skills diff...");
     const diff = computeDiff(manifest, requiredSkills);
 
-    // Step 6: Install new/updated skills
-    if (diff.toInstall.length > 0) {
-      log(`⬇️  Installing ${diff.toInstall.length} skill(s)...`);
-      for (const skill of diff.toInstall) {
-        log(`   • ${skill.skill} (${skill.reason})`);
-        await openskillsInstall(skill.source, projectRoot);
+    // Track results
+    const result: SyncSkillsResult = {
+      installed: 0,
+      failed: 0,
+      removed: 0,
+      failedSkills: [],
+    };
 
-        // Update manifest with installed skill
+    // Install new skills
+    for (const skill of diff.toInstall) {
+      try {
+        await openskillsInstall(skill.source, projectRoot);
+        log(`   ✓ ${skill.skill}`);
+        result.installed++;
         manifest.skills[skill.skill] = {
           skill: skill.skill,
           source: skill.source,
           reason: skill.reason,
           installedAt: new Date().toISOString(),
         };
+      } catch {
+        log(`   ✗ ${skill.skill} (failed)`);
+        result.failed++;
+        result.failedSkills.push(skill.skill);
       }
-    } else {
-      log("✓ No new skills to install");
     }
 
-    // Step 7: Remove orphaned skills
-    if (diff.toRemove.length > 0) {
-      log(`🗑️  Removing ${diff.toRemove.length} orphaned skill(s)...`);
-      for (const skill of diff.toRemove) {
-        log(`   • ${skill.skill}`);
+    // Remove orphaned skills
+    for (const skill of diff.toRemove) {
+      try {
         await openskillsUninstall(skill.skill, projectRoot);
-
-        // Update manifest by removing the skill
-        delete manifest.skills[skill.skill];
+        log(`   - ${skill.skill} (removed)`);
+        result.removed++;
+      } catch {
+        // Silent failure for removals
       }
-    } else {
-      log("✓ No orphaned skills to remove");
+      delete manifest.skills[skill.skill];
     }
 
-    // Step 8: Save updated manifest
-    log("💾 Saving manifest...");
+    // Save manifest and regenerate AGENTS.md
     await saveManifest(manifest, projectRoot);
+    try {
+      await openskillsSync(projectRoot);
+    } catch {
+      // Non-fatal - skills are installed, just AGENTS.md wasn't regenerated
+    }
 
-    // Step 9: Regenerate AGENTS.md via openskills sync
-    log("📝 Regenerating AGENTS.md...");
-    await openskillsSync(projectRoot);
-
-    log("✅ Skills sync complete!");
+    return result;
   } catch (error) {
     if (!quiet) {
       console.error("❌ Skills sync failed:", error);

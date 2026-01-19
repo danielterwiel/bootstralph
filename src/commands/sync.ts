@@ -10,11 +10,6 @@
 
 import * as p from "@clack/prompts";
 import { syncSkills } from "../skills/index.js";
-import { loadManifest } from "../skills/manifest.js";
-import { computeDiff } from "../skills/diff.js";
-import { computeRequiredSkills } from "../skills/mappings.js";
-import { scanPackageJson } from "../detection/package-scanner.js";
-import { scanConfigFiles } from "../detection/config-scanner.js";
 
 /**
  * Options for sync command
@@ -65,31 +60,20 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
   }
 
   try {
-    // Get pre-sync state to compute diff
-    const preManifest = await loadManifest(cwd);
-    const packageScan = await scanPackageJson(cwd);
-    const configFiles = await scanConfigFiles(cwd);
-    const requiredSkills = await computeRequiredSkills(
-      packageScan.dependencies,
-      packageScan.devDependencies,
-      configFiles
-    );
-    const diff = computeDiff(preManifest, requiredSkills);
+    // Perform sync (which handles all the internal steps)
+    const result = await syncSkills({ quiet, projectRoot: cwd });
 
-    // Perform sync
-    await syncSkills({ quiet, projectRoot: cwd });
-
-    // Report results
-    const installed = diff.toInstall.length;
-    const removed = diff.toRemove.length;
-
+    // Report results based on actual sync outcome
     if (!quiet) {
       const parts: string[] = [];
-      if (installed > 0) {
-        parts.push(`+${installed} installed`);
+      if (result.installed > 0) {
+        parts.push(`+${result.installed} installed`);
       }
-      if (removed > 0) {
-        parts.push(`-${removed} removed`);
+      if (result.failed > 0) {
+        parts.push(`${result.failed} failed`);
+      }
+      if (result.removed > 0) {
+        parts.push(`-${result.removed} removed`);
       }
 
       if (parts.length > 0) {
@@ -98,7 +82,13 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
         log("\nNo changes needed - skills already up to date");
       }
 
-      p.outro("Done");
+      // Show failed skills if any
+      if (result.failed > 0 && result.failedSkills.length > 0) {
+        p.log.warn(`Failed to install: ${result.failedSkills.join(", ")}`);
+        p.outro("Completed with errors");
+      } else {
+        p.outro("Done");
+      }
     }
   } catch (error) {
     if (!quiet) {

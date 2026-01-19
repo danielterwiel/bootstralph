@@ -1,128 +1,321 @@
 {
   "mappings": [
     {
-      "skill": "react",
-      "source": "github:anthropics/openskills/react",
-      "packages": ["react", "react-dom"]
+      "skill": "frontend-design",
+      "source": "anthropics/skills/skills/frontend-design",
+      "packages": ["react", "react-dom", "vue", "svelte", "next", "@tanstack/start", "@tanstack/react-start", "astro", "solid-js", "preact", "qwik"],
+      "devPackages": ["vite", "@vitejs/plugin-react"],
+      "frameworks": ["nextjs", "tanstack-start", "react-router", "astro", "expo"]
     },
     {
-      "skill": "nextjs",
-      "source": "github:anthropics/openskills/nextjs",
-      "packages": ["next"],
-      "configFiles": ["next.config.js", "next.config.mjs", "next.config.ts"],
-      "frameworks": ["nextjs"]
+      "skill": "web-artifacts-builder",
+      "source": "anthropics/skills/skills/web-artifacts-builder",
+      "packages": ["react", "next", "@tanstack/start", "@tanstack/react-start"],
+      "devPackages": ["tailwindcss"],
+      "frameworks": ["nextjs", "tanstack-start", "react-router"]
     },
     {
-      "skill": "expo",
-      "source": "github:anthropics/openskills/expo",
-      "packages": ["expo"],
-      "configFiles": ["app.json", "app.config.js", "app.config.ts", "expo.config.js", "expo.config.ts"],
-      "frameworks": ["expo"]
+      "skill": "webapp-testing",
+      "source": "anthropics/skills/skills/webapp-testing",
+      "devPackages": ["@playwright/test", "playwright", "cypress"],
+      "configFiles": ["playwright.config.js", "playwright.config.ts", "cypress.config.js", "cypress.config.ts", "cypress.config.mjs"]
     },
     {
-      "skill": "tanstack-start",
-      "source": "github:anthropics/openskills/tanstack-start",
-      "packages": ["@tanstack/start"],
+      "skill": "agent-browser",
+      "source": "vercel-labs/agent-browser/skills/agent-browser",
+      "packages": ["next", "@tanstack/start", "@tanstack/react-start", "@react-router/dev", "astro"],
+      "devPackages": ["@playwright/test", "playwright", "cypress"],
+      "frameworks": ["nextjs", "tanstack-start", "react-router", "astro"],
+      "configFiles": ["playwright.config.js", "playwright.config.ts", "cypress.config.js", "cypress.config.ts"]
+    },
+    {
+      "skill": "mcp-builder",
+      "source": "anthropics/skills/skills/mcp-builder",
+      "packages": ["@modelcontextprotocol/sdk", "@modelcontextprotocol/server-stdio"]
+    },
+    {
+      "skill": "tailwind-v4-shadcn",
+      "source": "secondsky/claude-skills/plugins/tailwind-v4-shadcn/skills/tailwind-v4-shadcn",
+      "packages": ["class-variance-authority", "@radix-ui/react-slot", "clsx", "tailwind-merge"],
+      "devPackages": ["tailwindcss"],
+      "configFiles": ["tailwind.config.js", "tailwind.config.ts", "tailwind.config.mjs", "components.json"]
+    },
+    {
+      "skill": "tanstack-query",
+      "source": "secondsky/claude-skills/plugins/tanstack-query/skills/tanstack-query",
+      "packages": ["@tanstack/react-query", "@tanstack/vue-query", "@tanstack/solid-query", "@tanstack/svelte-query"]
+    },
+    {
+      "skill": "tanstack-router",
+      "source": "secondsky/claude-skills/plugins/tanstack-router/skills/tanstack-router",
+      "packages": ["@tanstack/react-router", "@tanstack/router"],
       "frameworks": ["tanstack-start"]
     },
     {
-      "skill": "astro",
-      "source": "github:anthropics/openskills/astro",
-      "packages": ["astro"],
-      "configFiles": ["astro.config.js", "astro.config.mjs", "astro.config.ts"],
-      "frameworks": ["astro"]
+      "skill": "tanstack-start",
+      "source": "secondsky/claude-skills/plugins/tanstack-start/skills/tanstack-start",
+      "packages": ["@tanstack/start", "@tanstack/react-start"],
+      "frameworks": ["tanstack-start"]
     },
     {
-      "skill": "hono",
-      "source": "github:anthropics/openskills/hono",
-      "packages": ["hono"],
-      "frameworks": ["hono"]
+      "skill": "tanstack-table",
+      "source": "secondsky/claude-skills/plugins/tanstack-table/skills/tanstack-table",
+      "packages": ["@tanstack/react-table", "@tanstack/vue-table", "@tanstack/solid-table", "@tanstack/svelte-table"]
+    },
+    {
+      "skill": "react-hook-form-zod",
+      "source": "secondsky/claude-skills/plugins/react-hook-form-zod/skills/react-hook-form-zod",
+      "packages": ["react-hook-form", "@hookform/resolvers"],
+      "devPackages": ["zod"]
+    },
+    {
+      "skill": "zustand-state-management",
+      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
+      "packages": ["zustand"]
+    },
+    {
+      "skill": "drizzle-orm-d1",
+      "source": "secondsky/claude-skills/plugins/drizzle-orm-d1/skills/drizzle-orm-d1",
+      "packages": ["drizzle-orm"],
+      "devPackages": ["drizzle-kit"],
+      "configFiles": ["drizzle.config.ts", "drizzle.config.js"]
+    },
+    {
+      "skill": "neon-vercel-postgres",
+      "source": "secondsky/claude-skills/plugins/neon-vercel-postgres/skills/neon-vercel-postgres",
+      "packages": ["@neondatabase/serverless", "@vercel/postgres"]
     },
     {
       "skill": "better-auth",
-      "source": "github:anthropics/openskills/better-auth",
-      "packages": ["better-auth"]
+      "source": "secondsky/claude-skills/plugins/better-auth/skills/better-auth",
+      "packages": ["better-auth", "@better-auth/expo", "@better-auth/nextjs"]
     },
     {
-      "skill": "clerk",
-      "source": "github:anthropics/openskills/clerk",
-      "packages": ["@clerk/nextjs", "@clerk/clerk-react", "@clerk/remix"]
+      "skill": "clerk-auth",
+      "source": "secondsky/claude-skills/plugins/clerk-auth/skills/clerk-auth",
+      "packages": ["@clerk/nextjs", "@clerk/clerk-expo", "@clerk/clerk-react", "@clerk/themes"]
+    },
+    {
+      "skill": "vitest-testing",
+      "source": "secondsky/claude-skills/plugins/vitest-testing/skills/vitest-testing",
+      "devPackages": ["vitest", "@vitest/ui", "@vitest/coverage-v8"],
+      "configFiles": ["vitest.config.ts", "vitest.config.js", "vitest.config.mjs"]
+    },
+    {
+      "skill": "playwright-testing",
+      "source": "secondsky/claude-skills/plugins/playwright/skills/playwright",
+      "devPackages": ["@playwright/test", "playwright"],
+      "configFiles": ["playwright.config.ts", "playwright.config.js"]
+    },
+    {
+      "skill": "jest-generator",
+      "source": "secondsky/claude-skills/plugins/jest-generator/skills/jest-generator",
+      "devPackages": ["jest", "@types/jest", "ts-jest"],
+      "configFiles": ["jest.config.js", "jest.config.ts", "jest.config.mjs"]
+    },
+    {
+      "skill": "hono-routing",
+      "source": "secondsky/claude-skills/plugins/hono-routing/skills/hono-routing",
+      "packages": ["hono", "@hono/node-server", "@hono/zod-validator"],
+      "frameworks": ["hono"]
+    },
+    {
+      "skill": "nextjs",
+      "source": "secondsky/claude-skills/plugins/nextjs/skills/nextjs",
+      "packages": ["next"],
+      "configFiles": ["next.config.js", "next.config.ts", "next.config.mjs"],
+      "frameworks": ["nextjs"]
+    },
+    {
+      "skill": "nuxt-v4",
+      "source": "secondsky/claude-skills/plugins/nuxt-v4/skills/nuxt-v4",
+      "packages": ["nuxt", "@nuxt/kit"],
+      "configFiles": ["nuxt.config.ts", "nuxt.config.js"]
+    },
+    {
+      "skill": "ai-sdk-core",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
+      "packages": ["ai", "@ai-sdk/openai", "@ai-sdk/anthropic", "@ai-sdk/google"]
+    },
+    {
+      "skill": "ai-sdk-ui",
+      "source": "secondsky/claude-skills/plugins/ai-sdk-ui/skills/ai-sdk-ui",
+      "packages": ["@ai-sdk/react", "@ai-sdk/svelte", "@ai-sdk/vue", "@ai-sdk/solid"]
+    },
+    {
+      "skill": "claude-api",
+      "source": "secondsky/claude-skills/plugins/claude-api/skills/claude-api",
+      "packages": ["@anthropic-ai/sdk"]
+    },
+    {
+      "skill": "openai-api",
+      "source": "secondsky/claude-skills/plugins/openai-api/skills/openai-api",
+      "packages": ["openai"]
     },
     {
       "skill": "supabase",
-      "source": "github:anthropics/openskills/supabase",
-      "packages": ["@supabase/supabase-js", "@supabase/auth-helpers-nextjs", "@supabase/auth-helpers-react"]
-    },
-    {
-      "skill": "drizzle",
-      "source": "github:anthropics/openskills/drizzle",
-      "packages": ["drizzle-orm"],
-      "devPackages": ["drizzle-kit"],
-      "configFiles": ["drizzle.config.js", "drizzle.config.ts"]
+      "source": "secondsky/claude-skills/plugins/supabase/skills/supabase",
+      "packages": ["@supabase/supabase-js", "@supabase/ssr", "@supabase/auth-helpers-nextjs"]
     },
     {
       "skill": "prisma",
-      "source": "github:anthropics/openskills/prisma",
+      "source": "secondsky/claude-skills/plugins/prisma/skills/prisma",
       "packages": ["@prisma/client"],
       "devPackages": ["prisma"],
       "configFiles": ["prisma/schema.prisma"]
     },
     {
-      "skill": "tailwind",
-      "source": "github:anthropics/openskills/tailwind",
-      "devPackages": ["tailwindcss"],
-      "configFiles": ["tailwind.config.js", "tailwind.config.ts"]
+      "skill": "react-native-app",
+      "source": "secondsky/claude-skills/plugins/react-native-app/skills/react-native-app",
+      "packages": ["react-native", "expo"],
+      "frameworks": ["expo", "react-native-cli"]
     },
     {
-      "skill": "vitest",
-      "source": "github:anthropics/openskills/vitest",
-      "devPackages": ["vitest"],
-      "configFiles": ["vitest.config.js", "vitest.config.ts"]
-    },
-    {
-      "skill": "jest",
-      "source": "github:anthropics/openskills/jest",
-      "devPackages": ["jest"],
-      "configFiles": ["jest.config.js", "jest.config.ts"]
-    },
-    {
-      "skill": "playwright",
-      "source": "github:anthropics/openskills/playwright",
-      "devPackages": ["@playwright/test"],
-      "configFiles": ["playwright.config.js", "playwright.config.ts"]
-    },
-    {
-      "skill": "vercel",
-      "source": "github:anthropics/openskills/vercel",
-      "configFiles": ["vercel.json", ".vercel/project.json"]
-    },
-    {
-      "skill": "cloudflare",
-      "source": "github:anthropics/openskills/cloudflare",
-      "packages": ["@cloudflare/workers-types"],
-      "configFiles": ["wrangler.toml"]
+      "skill": "swift-best-practices",
+      "source": "secondsky/claude-skills/plugins/swift-best-practices/skills/swift-best-practices",
+      "configFiles": ["Package.swift", "*.xcodeproj", "*.xcworkspace"]
     },
     {
       "skill": "turborepo",
-      "source": "github:anthropics/openskills/turborepo",
+      "source": "secondsky/claude-skills/plugins/turborepo/skills/turborepo",
       "devPackages": ["turbo"],
       "configFiles": ["turbo.json"]
     },
     {
-      "skill": "agent-browser",
-      "source": "github:vercel-labs/agent-browser/skills/agent-browser",
-      "packages": ["next", "@tanstack/start", "@react-router/dev", "astro"],
-      "frameworks": ["nextjs", "tanstack-start", "react-router", "astro"]
+      "skill": "graphql-implementation",
+      "source": "secondsky/claude-skills/plugins/graphql-implementation/skills/graphql-implementation",
+      "packages": ["graphql", "@apollo/client", "@apollo/server", "graphql-yoga", "urql"]
+    },
+    {
+      "skill": "websocket-implementation",
+      "source": "secondsky/claude-skills/plugins/websocket-implementation/skills/websocket-implementation",
+      "packages": ["ws", "socket.io", "socket.io-client"]
+    },
+    {
+      "skill": "internationalization-i18n",
+      "source": "secondsky/claude-skills/plugins/internationalization-i18n/skills/internationalization-i18n",
+      "packages": ["i18next", "react-i18next", "next-i18next", "@formatjs/intl", "vue-i18n"]
+    },
+    {
+      "skill": "docx",
+      "source": "anthropics/skills/skills/docx",
+      "packages": ["docx", "mammoth"]
+    },
+    {
+      "skill": "pdf",
+      "source": "anthropics/skills/skills/pdf",
+      "packages": ["pdf-lib", "pdfkit", "@react-pdf/renderer"]
+    },
+    {
+      "skill": "xlsx",
+      "source": "anthropics/skills/skills/xlsx",
+      "packages": ["xlsx", "exceljs", "sheetjs"]
+    },
+    {
+      "skill": "elysia",
+      "source": "secondsky/claude-skills/plugins/elysia/skills/elysia",
+      "packages": ["elysia", "@elysiajs/swagger"],
+      "frameworks": ["elysia"]
+    },
+    {
+      "skill": "cloudflare-workers",
+      "source": "secondsky/claude-skills/plugins/cloudflare-worker-base/skills/cloudflare-worker-base",
+      "devPackages": ["wrangler", "@cloudflare/workers-types"],
+      "configFiles": ["wrangler.toml", "wrangler.json"]
+    },
+    {
+      "skill": "vercel-deployment",
+      "source": "secondsky/claude-skills/plugins/vercel-blob/skills/vercel-blob",
+      "devPackages": ["vercel"],
+      "configFiles": ["vercel.json"]
+    },
+    {
+      "skill": "motion-animation",
+      "source": "secondsky/claude-skills/plugins/motion/skills/motion",
+      "packages": ["motion", "framer-motion"]
+    },
+    {
+      "skill": "zod-validation",
+      "source": "secondsky/claude-skills/plugins/zod/skills/zod",
+      "packages": ["zod"]
+    },
+    {
+      "skill": "trpc",
+      "source": "secondsky/claude-skills/plugins/trpc/skills/trpc",
+      "packages": ["@trpc/server", "@trpc/client", "@trpc/react-query", "@trpc/next"]
+    },
+    {
+      "skill": "storybook",
+      "source": "secondsky/claude-skills/plugins/storybook/skills/storybook",
+      "devPackages": ["storybook", "@storybook/react", "@storybook/vue3", "@storybook/svelte"],
+      "configFiles": [".storybook/main.js", ".storybook/main.ts"]
+    },
+    {
+      "skill": "docker",
+      "source": "secondsky/claude-skills/plugins/docker/skills/docker",
+      "configFiles": ["Dockerfile", "docker-compose.yml", "docker-compose.yaml", ".dockerignore"]
+    },
+    {
+      "skill": "eslint",
+      "source": "secondsky/claude-skills/plugins/eslint/skills/eslint",
+      "devPackages": ["eslint", "@eslint/js"],
+      "configFiles": ["eslint.config.js", "eslint.config.mjs", ".eslintrc.js", ".eslintrc.json", ".eslintrc.cjs"]
+    },
+    {
+      "skill": "biome",
+      "source": "secondsky/claude-skills/plugins/biome/skills/biome",
+      "devPackages": ["@biomejs/biome"],
+      "configFiles": ["biome.json", "biome.jsonc"]
+    },
+    {
+      "skill": "monorepo-pnpm",
+      "source": "secondsky/claude-skills/plugins/pnpm-workspace/skills/pnpm-workspace",
+      "configFiles": ["pnpm-workspace.yaml"]
+    },
+    {
+      "skill": "astro",
+      "source": "secondsky/claude-skills/plugins/astro/skills/astro",
+      "packages": ["astro", "@astrojs/react", "@astrojs/vue", "@astrojs/svelte"],
+      "configFiles": ["astro.config.mjs", "astro.config.js", "astro.config.ts"],
+      "frameworks": ["astro"]
+    },
+    {
+      "skill": "expo",
+      "source": "secondsky/claude-skills/plugins/expo/skills/expo",
+      "packages": ["expo", "expo-router"],
+      "configFiles": ["app.json", "expo.config.js", "expo.config.ts"],
+      "frameworks": ["expo"]
+    },
+    {
+      "skill": "firebase",
+      "source": "secondsky/claude-skills/plugins/firebase/skills/firebase",
+      "packages": ["firebase", "firebase-admin", "@react-native-firebase/app"]
+    },
+    {
+      "skill": "convex",
+      "source": "secondsky/claude-skills/plugins/convex/skills/convex",
+      "packages": ["convex"]
+    },
+    {
+      "skill": "nativewind",
+      "source": "secondsky/claude-skills/plugins/nativewind/skills/nativewind",
+      "packages": ["nativewind"],
+      "devPackages": ["tailwindcss"]
+    },
+    {
+      "skill": "tamagui",
+      "source": "secondsky/claude-skills/plugins/tamagui/skills/tamagui",
+      "packages": ["tamagui", "@tamagui/core", "@tamagui/config"]
     }
   ],
   "defaultSkills": [
     {
-      "skill": "systematic-debugging",
-      "source": "github:anthropics/openskills/systematic-debugging"
+      "skill": "verification-before-completion",
+      "source": "obra/superpowers/skills/verification-before-completion"
     },
     {
-      "skill": "verification-before-completion",
-      "source": "github:anthropics/openskills/verification-before-completion"
+      "skill": "systematic-debugging",
+      "source": "obra/superpowers/skills/systematic-debugging"
     }
   ]
 }

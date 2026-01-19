@@ -8,13 +8,17 @@
 import { exec } from "../utils/exec.js";
 import { rm } from "node:fs/promises";
 import { join } from "node:path";
+import {
+  detectPackageManager,
+  getPackageManagerRunnerString,
+} from "../utils/package-manager.js";
 
 // ============================================================================
 // Types
 // ============================================================================
 
 /**
- * Installed skill information from 'npx openskills list'
+ * Installed skill information from openskills list command
  */
 export interface OpenSkillInfo {
   /** Skill identifier/name */
@@ -30,11 +34,10 @@ export interface OpenSkillInfo {
 /**
  * Install a skill using OpenSkills CLI
  *
- * Runs 'npx openskills install <source>' to install a skill from a source URL
- * or path. The source can be a GitHub URL, local path, or any valid OpenSkills
- * source identifier.
+ * Runs the package manager's runner (bunx, pnpm dlx, yarn dlx, npx) with
+ * 'openskills install <source>' to install a skill from GitHub.
  *
- * @param source - OpenSkills source URL or path
+ * @param source - GitHub source path (e.g., "anthropics/skills/skills/frontend-design")
  * @param projectRoot - Project root directory (defaults to current directory)
  * @returns Promise resolving when install completes
  * @throws ExecCommandError if the install command fails
@@ -42,27 +45,24 @@ export interface OpenSkillInfo {
  * @example
  * ```typescript
  * // Install from GitHub
- * await openskillsInstall("github:anthropics/openskills/nextjs");
- * ```
- *
- * @example
- * ```typescript
- * // Install from local path
- * await openskillsInstall("./my-custom-skill");
- * ```
- *
- * @example
- * ```typescript
- * // Install in specific project directory
- * await openskillsInstall("github:anthropics/openskills/nextjs", "/path/to/project");
+ * await openskillsInstall("anthropics/skills/skills/frontend-design");
  * ```
  */
 export async function openskillsInstall(
   source: string,
   projectRoot: string = process.cwd()
 ): Promise<void> {
-  await exec(`npx openskills install ${source}`, {
+  // Detect the package manager and use its runner
+  const pm = await detectPackageManager(projectRoot);
+  const runner = getPackageManagerRunnerString(pm);
+
+  // Build command based on package manager
+  // npx needs --yes to auto-confirm, bunx doesn't
+  const npxYes = pm === "npm" || pm === "yarn" ? "--yes " : "";
+  const command = `${runner} ${npxYes}openskills install ${source} -y`;
+  await exec(command, {
     cwd: projectRoot,
+    timeout: 120000, // 2 minute timeout for install
   });
 }
 
@@ -73,8 +73,8 @@ export async function openskillsInstall(
 /**
  * Sync skills using OpenSkills CLI
  *
- * Runs 'npx openskills sync -y' to synchronize skills, automatically confirming
- * any prompts with the -y flag.
+ * Runs the package manager's runner with 'openskills sync -y' to synchronize
+ * skills and generate AGENTS.md.
  *
  * @param projectRoot - Project root directory (defaults to current directory)
  * @returns Promise resolving when sync completes
@@ -85,18 +85,20 @@ export async function openskillsInstall(
  * // Sync skills in current directory
  * await openskillsSync();
  * ```
- *
- * @example
- * ```typescript
- * // Sync skills in specific project directory
- * await openskillsSync("/path/to/project");
- * ```
  */
 export async function openskillsSync(
   projectRoot: string = process.cwd()
 ): Promise<void> {
-  await exec("npx openskills sync -y", {
+  // Detect the package manager and use its runner
+  const pm = await detectPackageManager(projectRoot);
+  const runner = getPackageManagerRunnerString(pm);
+
+  // Build command based on package manager
+  const npxYes = pm === "npm" || pm === "yarn" ? "--yes " : "";
+  const command = `${runner} ${npxYes}openskills sync -y`;
+  await exec(command, {
     cwd: projectRoot,
+    timeout: 120000, // 2 minute timeout for sync
   });
 }
 
@@ -107,8 +109,8 @@ export async function openskillsSync(
 /**
  * List installed skills using OpenSkills CLI
  *
- * Runs 'npx openskills list' and parses the output to return an array of
- * installed skill information.
+ * Runs the package manager's runner with 'openskills list' and parses
+ * the output to return an array of installed skill information.
  *
  * @param projectRoot - Project root directory (defaults to current directory)
  * @returns Promise resolving to array of installed skills
@@ -132,8 +134,15 @@ export async function openskillsSync(
 export async function openskillsList(
   projectRoot: string = process.cwd()
 ): Promise<OpenSkillInfo[]> {
-  const result = await exec("npx openskills list", {
+  // Detect the package manager and use its runner
+  const pm = await detectPackageManager(projectRoot);
+  const runner = getPackageManagerRunnerString(pm);
+
+  // Build command based on package manager
+  const npxYes = pm === "npm" || pm === "yarn" ? "--yes " : "";
+  const result = await exec(`${runner} ${npxYes}openskills list`, {
     cwd: projectRoot,
+    timeout: 60000, // 1 minute timeout
   });
 
   // Parse the output to extract skill information

@@ -34,6 +34,12 @@ import { sync } from "./sync.js";
 import { runWizard } from "../prompts/index.js";
 import type { StackConfig } from "../types.js";
 import { execa } from "execa";
+import { resolveWorkspaces } from "../detection/package-scanner.js";
+import {
+  detectPackageManager as detectPackageManagerUtil,
+  getPackageManagerRunner,
+  type PackageManager,
+} from "../utils/package-manager.js";
 
 // ============================================================================
 // Types
@@ -76,6 +82,55 @@ interface PackageJson {
   dependencies?: Record<string, string>;
   devDependencies?: Record<string, string>;
   scripts?: Record<string, string>;
+  workspaces?: string[] | { packages: string[] };
+  packageManager?: string;
+}
+
+/**
+ * Read and aggregate package.json from root and all workspaces
+ *
+ * Dependencies from workspaces are merged into the root package.json,
+ * allowing detection to find packages used anywhere in the monorepo.
+ */
+async function readAggregatedPackageJson(projectPath: string): Promise<PackageJson | null> {
+  const rootPkg = await readPackageJson(projectPath);
+  if (!rootPkg) return null;
+
+  // Resolve workspaces and aggregate their dependencies
+  const workspaceDirs = await resolveWorkspaces(projectPath);
+
+  if (workspaceDirs.length === 0) {
+    return rootPkg;
+  }
+
+  // Create aggregated package with merged dependencies
+  const aggregated: PackageJson = {
+    dependencies: { ...rootPkg.dependencies },
+    devDependencies: { ...rootPkg.devDependencies },
+  };
+  if (rootPkg.name) aggregated.name = rootPkg.name;
+  if (rootPkg.scripts) aggregated.scripts = rootPkg.scripts;
+
+  for (const workspaceDir of workspaceDirs) {
+    const workspacePkg = await readPackageJson(workspaceDir);
+    if (workspacePkg) {
+      // Merge workspace dependencies
+      if (workspacePkg.dependencies) {
+        aggregated.dependencies = {
+          ...aggregated.dependencies,
+          ...workspacePkg.dependencies,
+        };
+      }
+      if (workspacePkg.devDependencies) {
+        aggregated.devDependencies = {
+          ...aggregated.devDependencies,
+          ...workspacePkg.devDependencies,
+        };
+      }
+    }
+  }
+
+  return aggregated;
 }
 
 async function readPackageJson(projectPath: string): Promise<PackageJson | null> {
@@ -97,14 +152,11 @@ function hasDependency(pkg: PackageJson, name: string): boolean {
   return !!(pkg.dependencies?.[name] || pkg.devDependencies?.[name]);
 }
 
+// Use the shared detectPackageManager utility
 async function detectPackageManager(
   projectPath: string
-): Promise<"bun" | "pnpm" | "npm" | "yarn"> {
-  if (await fs.pathExists(path.join(projectPath, "bun.lockb"))) return "bun";
-  if (await fs.pathExists(path.join(projectPath, "bun.lock"))) return "bun";
-  if (await fs.pathExists(path.join(projectPath, "pnpm-lock.yaml"))) return "pnpm";
-  if (await fs.pathExists(path.join(projectPath, "yarn.lock"))) return "yarn";
-  return "npm";
+): Promise<PackageManager> {
+  return detectPackageManagerUtil(projectPath);
 }
 
 // ============================================================================
@@ -227,7 +279,8 @@ async function detectPreCommit(pkg: PackageJson, projectPath: string): Promise<P
 // ============================================================================
 
 async function detectProjectConfig(projectPath: string): Promise<DetectedConfig | null> {
-  const pkg = await readPackageJson(projectPath);
+  // Use aggregated package.json to detect dependencies from all workspaces
+  const pkg = await readAggregatedPackageJson(projectPath);
   if (!pkg) return null;
 
   const projectName = pkg.name ?? path.basename(projectPath);
@@ -487,19 +540,24 @@ export async function handleInit(): Promise<InitResult | undefined> {
     // Step 5: Run lefthook install
     p.log.step("Installing lefthook...");
     try {
-      await execa("lefthook", ["install"], { cwd: projectPath });
-    } catch (_error) {
-      warnings.push("Failed to run lefthook install. You may need to install lefthook first.");
-      p.log.warn("Failed to run lefthook install. You may need to install lefthook first.");
+      // Use package manager runner to execute lefthook
+      const [cmd, ...prefixArgs] = getPackageManagerRunner(finalConfig.packageManager);
+      // Use --force to overwrite existing hooks (handles pre-commit.old already exists error)
+      await execa(cmd, [...prefixArgs, "lefthook", "install", "--force"], { cwd: projectPath });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      warnings.push(`Failed to run lefthook install: ${errorMsg}`);
+      p.log.warn(`Failed to run lefthook install: ${errorMsg}`);
     }
 
-    // Step 6: Sync skills
+    // Step 6: Sync skills (verbose for debugging)
     p.log.step("Syncing skills...");
     try {
-      await sync({ quiet: true, cwd: projectPath });
-    } catch (_error) {
-      warnings.push("Failed to sync skills. Run 'bootsralph sync' manually.");
-      p.log.warn("Failed to sync skills. Run 'bootsralph sync' manually.");
+      await sync({ quiet: false, cwd: projectPath });
+    } catch (error) {
+      const errorMsg = error instanceof Error ? error.message : String(error);
+      warnings.push(`Failed to sync skills: ${errorMsg}`);
+      p.log.warn(`Failed to sync skills: ${errorMsg}`);
     }
 
     // Display success message

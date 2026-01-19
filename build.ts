@@ -1,4 +1,4 @@
-import { rm } from "node:fs/promises";
+import { rm, cp } from "node:fs/promises";
 
 // Clean dist directory
 await rm("./dist", { recursive: true, force: true });
@@ -33,5 +33,9 @@ const esmContent = await esmFile.text();
 if (!esmContent.startsWith("#!/usr/bin/env")) {
   await Bun.write("./dist/index.js", `#!/usr/bin/env node\n${esmContent}`);
 }
+
+// Copy templates and data to dist
+await cp("./templates", "./dist/templates", { recursive: true });
+await cp("./data", "./dist/data", { recursive: true });
 
 console.log("Build complete!");

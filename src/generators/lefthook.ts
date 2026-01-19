@@ -10,6 +10,7 @@ import { readFile, writeFile } from "../utils/fs.js";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import type { StackConfig } from "../types.js";
+import { getPackageManagerRunnerString } from "../utils/package-manager.js";
 
 // ============================================================================
 // Types
@@ -23,6 +24,7 @@ export type { StackConfig } from "../types.js";
  */
 interface LefthookTemplateVars {
   packageManager: string;
+  packageManagerRunner: string;
   linting: boolean;
   formatting: boolean;
   hasTypeScript: boolean;
@@ -36,18 +38,17 @@ interface LefthookTemplateVars {
 /**
  * Get the path to the lefthook.yml.hbs template
  *
- * Resolves the template path relative to the project root,
- * supporting both development and built/packaged contexts.
+ * Resolves the template path relative to the bundled file location.
+ * In dist: templates are copied to dist/templates/
  */
 function getTemplatePath(): string {
   // In ESM, we need to get the current file's directory
   const currentFilePath = fileURLToPath(import.meta.url);
   const currentDir = dirname(currentFilePath);
 
-  // Navigate from src/generators/ to templates/
-  // In dev: src/generators/lefthook.ts -> ../../templates/lefthook.yml.hbs
-  // In dist: dist/generators/lefthook.js -> ../../templates/lefthook.yml.hbs
-  return join(currentDir, "../../templates/lefthook.yml.hbs");
+  // Templates are copied to dist/templates/ during build
+  // From dist/index.js -> templates/lefthook.yml.hbs
+  return join(currentDir, "templates/lefthook.yml.hbs");
 }
 
 // ============================================================================
@@ -111,6 +112,7 @@ export async function generateLefthook(
   // Step 3: Map StackConfig.tooling to template variables
   const templateVars: LefthookTemplateVars = {
     packageManager: config.packageManager,
+    packageManagerRunner: getPackageManagerRunnerString(config.packageManager),
     linting: config.tooling?.linting ?? false,
     formatting: config.tooling?.formatting ?? false,
     hasTypeScript: config.tooling?.hasTypeScript ?? false,

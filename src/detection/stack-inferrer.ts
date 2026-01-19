@@ -114,7 +114,7 @@ const FRAMEWORK_RULES = {
     requiredPackage: true,
   },
   "tanstack-start": {
-    packages: ["@tanstack/start"],
+    packages: ["@tanstack/start", "@tanstack/react-start"],
     configs: [],
     requiredPackage: true,
   },
