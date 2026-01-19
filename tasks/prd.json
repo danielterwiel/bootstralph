@@ -642,7 +642,7 @@
         "bun run format passes"
       ],
       "priority": 29,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "dependsOn": [
         "US-009",
@@ -652,7 +652,8 @@
         "US-023",
         "US-016",
         "US-025"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-030",
@@ -670,14 +671,15 @@
         "bun run format passes"
       ],
       "priority": 30,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "dependsOn": [
         "US-010",
         "US-017",
         "US-028",
         "US-029"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-031",
@@ -696,11 +698,12 @@
         "bun test passes"
       ],
       "priority": 31,
-      "passes": false,
+      "passes": true,
       "notes": "",
       "dependsOn": [
         "US-009"
-      ]
+      ],
+      "completionNotes": "Completed by agent"
     },
     {
       "id": "US-032",
@@ -862,6 +865,6 @@
     }
   ],
   "metadata": {
-    "updatedAt": "2026-01-19T13:10:21.750Z"
+    "updatedAt": "2026-01-19T13:30:22.644Z"
   }
 }
