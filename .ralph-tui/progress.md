@@ -53,6 +53,17 @@ For framework CLI wrappers that scaffold new projects:
 
 Example: `src/scaffolders/base.ts`, `src/scaffolders/index.ts`, `src/scaffolders/nextjs.ts`
 
+### Shared Types Pattern
+For types used across multiple modules:
+1. Define shared types once in `src/types.ts` (single source of truth)
+2. Export type-only exports: `export type { TypeName } from "../types.js"`
+3. Import with type modifier: `import type { TypeName } from "../types.js"`
+4. Modules can re-export types for convenience while using central definition
+5. Use optional chaining (`?.`) when accessing optional nested properties
+6. All imports must use `.js` extensions (ESM requirement)
+
+Example: `StackConfig` and `PackageManager` types are defined in `src/types.ts` and imported by generators, prompts, and scaffolders
+
 ---
 
 ## 2026-01-19 - US-021
@@ -204,5 +215,25 @@ ial prompts with context passing between steps\n- Includes helper functions for 
 
 **Notes:**
 ex.ts created with scaffold export** - Created with comprehensive barrel exports\n\n✅ **Uses exec utility** - Scaffolders use `execa` from the execa package (which the exec utility also re-exports)\n\n✅ **bun run typecheck passes** - Confirmed passing\n\n✅ **bun run lint passes** - Confirmed passing (warnings only in test files)\n\n✅ **bun run format passes** - Confirmed passing\n\nAll acceptance criteria have been met! The scaffolders module from v1 has been successfully copied and adapted.\n\n
+
+---
+
+## 2026-01-19 - US-027
+- **What was implemented:** Created central types file and updated all imports to use consistent paths
+- **Files changed:**
+  - `src/types.ts` (created) - central types file with StackConfig and PackageManager
+  - `src/generators/bootsralph-config.ts` - updated to import and re-export StackConfig from types.ts
+  - `src/generators/ralph-skill.ts` - updated to import and re-export StackConfig from types.ts
+  - `src/generators/lefthook.ts` - updated to import and re-export StackConfig from types.ts, fixed optional tooling handling
+  - `src/prompts/index.ts` - updated to import StackConfig from types.ts instead of bootsralph-config.ts
+  - `src/scaffolders/base.ts` - updated to re-export PackageManager from types.ts
+- **Learnings:**
+  - **DRY principle for shared types**: Found three duplicate `StackConfig` definitions across generators - consolidated into single source of truth in `src/types.ts`
+  - **Type re-exports**: Modules can import from central types and re-export for convenience, maintaining backward compatibility while using a single definition
+  - **Optional field handling**: When a type's optional field becomes truly optional (e.g., `tooling?`), use optional chaining (`config.tooling?.linting`) to safely access nested properties
+  - **Import consistency**: All imports already used `.js` extensions and relative paths correctly - no path updates needed, only type consolidation
+  - **Circular dependency prevention**: Using `madge` verified no circular dependencies after refactoring imports
+  - All quality checks pass (typecheck, lint, format)
+  - No circular dependencies confirmed with madge
 
 ---
