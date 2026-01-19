@@ -38,6 +38,13 @@ import { scaffoldRNCli, type RNCliScaffoldOptions } from "../scaffolders/rn-cli.
 import { scaffoldReactRouter, type ReactRouterScaffoldOptions } from "../scaffolders/react-router.js";
 import { scaffoldAstro, type AstroScaffoldOptions } from "../scaffolders/astro.js";
 import { scaffoldApi, type ApiScaffoldOptions, type ApiFramework } from "../scaffolders/api.js";
+import { generateLefthook } from "../generators/lefthook.js";
+import { generateRalphSkill } from "../generators/ralph-skill.js";
+import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
+import { addPackageScripts } from "../generators/package-scripts.js";
+import { sync } from "./sync.js";
+import type { StackConfig } from "../types.js";
+import { execa } from "execa";
 
 // ============================================================================
 // Types
@@ -302,40 +309,98 @@ export async function handleCreate(
         p.log.error(`  - ${error}`);
       }
     }
+    return undefined;
   }
 
-  // Step 7: Display warnings and next steps
-  if (scaffoldResult.warnings && scaffoldResult.warnings.length > 0) {
-    p.log.warn("Warnings:");
-    for (const warning of scaffoldResult.warnings) {
-      p.log.warn(`  - ${warning}`);
+  // Step 7: Change to project directory
+  const originalCwd = process.cwd();
+  process.chdir(projectPath);
+
+  try {
+    // Step 8: Convert to StackConfig for generators
+    const stackConfig = projectConfigToStackConfig(config);
+
+    // Step 9: Generate lefthook configuration
+    p.log.step("Generating lefthook configuration...");
+    await generateLefthook(stackConfig, projectPath);
+
+    // Step 10: Generate Ralph skill
+    p.log.step("Generating Ralph skill...");
+    await generateRalphSkill(stackConfig, projectPath);
+
+    // Step 11: Generate bootsralph config
+    p.log.step("Generating bootsralph configuration...");
+    await generateBootsralphConfig(stackConfig, projectPath);
+
+    // Step 12: Add package scripts
+    p.log.step("Adding package scripts...");
+    await addPackageScripts(projectPath);
+
+    // Step 13: Run lefthook install
+    p.log.step("Installing lefthook...");
+    await execa("lefthook", ["install"], { cwd: projectPath });
+
+    // Step 14: Sync skills
+    p.log.step("Syncing skills...");
+    await sync({ quiet: true, cwd: projectPath });
+
+    // Step 15: Display warnings and next steps
+    if (scaffoldResult.warnings && scaffoldResult.warnings.length > 0) {
+      p.log.warn("Warnings:");
+      for (const warning of scaffoldResult.warnings) {
+        p.log.warn(`  - ${warning}`);
+      }
     }
-  }
 
-  if (scaffoldResult.nextSteps && scaffoldResult.nextSteps.length > 0) {
-    p.note(scaffoldResult.nextSteps.join("\n"), "Next Steps");
-  }
+    const nextSteps = [
+      `cd ${name}`,
+      `${config.packageManager} install`,
+      `${config.packageManager} run dev`,
+      "",
+      "Your project is ready! Ralph skills have been synced.",
+      "Use 'ralph-tui' to plan and execute your next tasks.",
+    ];
 
-  if (scaffoldResult.success) {
+    if (scaffoldResult.nextSteps && scaffoldResult.nextSteps.length > 0) {
+      nextSteps.push("", ...scaffoldResult.nextSteps);
+    }
+
+    p.note(nextSteps.join("\n"), "Next Steps");
     p.outro(`Project "${name}" created successfully!`);
+  } catch (error) {
+    p.log.error(`Post-scaffolding setup failed: ${error instanceof Error ? error.message : String(error)}`);
+    return undefined;
+  } finally {
+    // Restore original working directory
+    process.chdir(originalCwd);
   }
 
   // Build result object conditionally for exactOptionalPropertyTypes
   const result: CreateResult = {
-    success: scaffoldResult.success,
-    projectPath: scaffoldResult.projectPath,
+    success: true,
+    projectPath,
     config,
   };
 
-  if (scaffoldResult.errors && scaffoldResult.errors.length > 0) {
-    result.errors = scaffoldResult.errors;
-  }
   if (scaffoldResult.warnings && scaffoldResult.warnings.length > 0) {
     result.warnings = scaffoldResult.warnings;
   }
+
+  // Always include next steps since we built them
+  const nextStepsList = [
+    `cd ${name}`,
+    `${config.packageManager} install`,
+    `${config.packageManager} run dev`,
+    "",
+    "Your project is ready! Ralph skills have been synced.",
+    "Use 'ralph-tui' to plan and execute your next tasks.",
+  ];
+
   if (scaffoldResult.nextSteps && scaffoldResult.nextSteps.length > 0) {
-    result.nextSteps = scaffoldResult.nextSteps;
+    nextStepsList.push("", ...scaffoldResult.nextSteps);
   }
+
+  result.nextSteps = nextStepsList;
 
   return result;
 }
@@ -764,6 +829,59 @@ function buildApiOptions(config: ProjectConfig, targetDir: string): ApiScaffoldO
 // ============================================================================
 // Helper Functions
 // ============================================================================
+
+/**
+ * Convert ProjectConfig to StackConfig for generators
+ */
+function projectConfigToStackConfig(config: ProjectConfig): StackConfig {
+  const stackConfig: StackConfig = {
+    packageManager: config.packageManager,
+  };
+
+  // Map framework
+  if (config.framework) {
+    stackConfig.framework = config.framework;
+  }
+
+  // Map auth
+  if (config.auth) {
+    stackConfig.auth = config.auth;
+  }
+
+  // Map database - use backend or orm
+  if (config.backend) {
+    stackConfig.database = config.backend;
+  } else if (config.orm && config.orm !== "none") {
+    stackConfig.database = config.orm;
+  }
+
+  // Map styling
+  if (config.styling) {
+    stackConfig.styling = config.styling;
+  }
+
+  // Map testing
+  if (config.unitTesting) {
+    stackConfig.testing = config.unitTesting;
+  } else if (config.e2eTesting) {
+    stackConfig.testing = config.e2eTesting;
+  }
+
+  // Map deployment
+  if (config.deployment) {
+    stackConfig.deployment = config.deployment;
+  }
+
+  // Map tooling
+  stackConfig.tooling = {
+    linting: !!config.linter,
+    formatting: !!config.formatter,
+    hasTypeScript: true, // Default to true for new projects
+    hasTests: !!config.unitTesting,
+  };
+
+  return stackConfig;
+}
 
 /**
  * Get project name from argument or prompt
