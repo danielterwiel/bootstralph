@@ -1,0 +1,122 @@
+{
+  "mappings": [
+    {
+      "skill": "react",
+      "source": "github:anthropics/openskills/react",
+      "packages": ["react", "react-dom"]
+    },
+    {
+      "skill": "nextjs",
+      "source": "github:anthropics/openskills/nextjs",
+      "packages": ["next"],
+      "configFiles": ["next.config.js", "next.config.mjs", "next.config.ts"],
+      "frameworks": ["nextjs"]
+    },
+    {
+      "skill": "expo",
+      "source": "github:anthropics/openskills/expo",
+      "packages": ["expo"],
+      "configFiles": ["app.json", "app.config.js", "app.config.ts", "expo.config.js", "expo.config.ts"],
+      "frameworks": ["expo"]
+    },
+    {
+      "skill": "tanstack-start",
+      "source": "github:anthropics/openskills/tanstack-start",
+      "packages": ["@tanstack/start"],
+      "frameworks": ["tanstack-start"]
+    },
+    {
+      "skill": "astro",
+      "source": "github:anthropics/openskills/astro",
+      "packages": ["astro"],
+      "configFiles": ["astro.config.js", "astro.config.mjs", "astro.config.ts"],
+      "frameworks": ["astro"]
+    },
+    {
+      "skill": "hono",
+      "source": "github:anthropics/openskills/hono",
+      "packages": ["hono"],
+      "frameworks": ["hono"]
+    },
+    {
+      "skill": "better-auth",
+      "source": "github:anthropics/openskills/better-auth",
+      "packages": ["better-auth"]
+    },
+    {
+      "skill": "clerk",
+      "source": "github:anthropics/openskills/clerk",
+      "packages": ["@clerk/nextjs", "@clerk/clerk-react", "@clerk/remix"]
+    },
+    {
+      "skill": "supabase",
+      "source": "github:anthropics/openskills/supabase",
+      "packages": ["@supabase/supabase-js", "@supabase/auth-helpers-nextjs", "@supabase/auth-helpers-react"]
+    },
+    {
+      "skill": "drizzle",
+      "source": "github:anthropics/openskills/drizzle",
+      "packages": ["drizzle-orm"],
+      "devPackages": ["drizzle-kit"],
+      "configFiles": ["drizzle.config.js", "drizzle.config.ts"]
+    },
+    {
+      "skill": "prisma",
+      "source": "github:anthropics/openskills/prisma",
+      "packages": ["@prisma/client"],
+      "devPackages": ["prisma"],
+      "configFiles": ["prisma/schema.prisma"]
+    },
+    {
+      "skill": "tailwind",
+      "source": "github:anthropics/openskills/tailwind",
+      "devPackages": ["tailwindcss"],
+      "configFiles": ["tailwind.config.js", "tailwind.config.ts"]
+    },
+    {
+      "skill": "vitest",
+      "source": "github:anthropics/openskills/vitest",
+      "devPackages": ["vitest"],
+      "configFiles": ["vitest.config.js", "vitest.config.ts"]
+    },
+    {
+      "skill": "jest",
+      "source": "github:anthropics/openskills/jest",
+      "devPackages": ["jest"],
+      "configFiles": ["jest.config.js", "jest.config.ts"]
+    },
+    {
+      "skill": "playwright",
+      "source": "github:anthropics/openskills/playwright",
+      "devPackages": ["@playwright/test"],
+      "configFiles": ["playwright.config.js", "playwright.config.ts"]
+    },
+    {
+      "skill": "vercel",
+      "source": "github:anthropics/openskills/vercel",
+      "configFiles": ["vercel.json", ".vercel/project.json"]
+    },
+    {
+      "skill": "cloudflare",
+      "source": "github:anthropics/openskills/cloudflare",
+      "packages": ["@cloudflare/workers-types"],
+      "configFiles": ["wrangler.toml"]
+    },
+    {
+      "skill": "turborepo",
+      "source": "github:anthropics/openskills/turborepo",
+      "devPackages": ["turbo"],
+      "configFiles": ["turbo.json"]
+    }
+  ],
+  "defaultSkills": [
+    {
+      "skill": "systematic-debugging",
+      "source": "github:anthropics/openskills/systematic-debugging"
+    },
+    {
+      "skill": "verification-before-completion",
+      "source": "github:anthropics/openskills/verification-before-completion"
+    }
+  ]
+}
