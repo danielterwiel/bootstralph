@@ -418,3 +418,43 @@ Created detection module entry point that orchestrates the full stack detection 
 es, and confidence score\n- Converts detection results to `DetectedConfig` format for init command\n- Handles type mapping gracefully (filters unsupported types)\n- Well-documented with JSDoc comments and usage examples\n\n### Quality checks:\n✅ `bun run typecheck` passes (0 errors)  \n✅ `bun run lint` passes (0 errors from new file)  \n✅ `bun run format` passes  \n\n### Commits:\n- `ce6d0fe` - feat: US-009 - Create detection module entry point\n- `759987d` - docs: Update progress for US-009\n\n
 
 ---
+## [2026-01-19] - US-010
+
+### What was implemented
+Created detect command that runs detectStack and prints results using logger utilities. The command shows framework, features, confidence score, and provides helpful feedback based on confidence level.
+
+### Files changed
+- src/commands/detect.ts: Created with detect function and DetectOptions interface
+- src/index.ts: Updated to import and wire up the detect command
+
+### Learnings
+
+**Patterns discovered:**
+- Following the established command pattern from init.ts: intro/outro, spinner for async operations, note for formatted output
+- Using the detectStack function from detection module (US-009) for all analysis
+- Structured output: building array of strings, then displaying with p.note() for formatted block display
+- Conditional feedback based on confidence: <0.4 = warning, <0.7 = info, ≥0.7 = success
+- Simple command handler pattern: command module exports function, index.ts imports and calls it
+- Optional DetectOptions interface following TypeScript best practices with JSDoc
+
+**Gotchas encountered:**
+- Need to display "Not detected" instead of null for better UX when framework is not detected
+- Features object has optional properties, need to check each one before displaying
+- Boolean features (typescript, docker) need to be shown as "Yes" instead of "true" for better UX
+- Confidence needs to be converted from 0-1 decimal to percentage with .toFixed(1) for display
+- The detect command in index.ts was a placeholder function that needed to be replaced entirely
+
+**API Design:**
+- detect() takes optional DetectOptions with cwd parameter for flexibility
+- Returns Promise<void> since it's a CLI command that prints output
+- Uses spinner pattern consistently: start → operation → stop
+- Uses note() for main output block, log methods for contextual feedback
+- Three-tier confidence feedback: warn (low), info (medium), success (high)
+
+**Output format:**
+- Title: "Detected Stack" using p.note()
+- Lines: Framework, Auth, Database, Styling, Testing, TypeScript, Docker, Confidence
+- Only shows features that were detected (no empty/undefined values)
+- Percentage formatting for confidence score (e.g., "34.0%")
+
+---
