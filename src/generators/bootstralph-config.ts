@@ -1,7 +1,7 @@
 /**
- * Bootsralph config generator
+ * Bootstralph config generator
  *
- * Creates .bootsralph/config.json with stack configuration, version, and metadata.
+ * Creates .bootstralph/config.json with stack configuration, version, and metadata.
  */
 
 import { writeJson, ensureDir } from "../utils/fs.js";
@@ -16,9 +16,9 @@ import type { StackConfig } from "../types.js";
 export type { StackConfig } from "../types.js";
 
 /**
- * Shape of .bootsralph/config.json
+ * Shape of .bootstralph/config.json
  */
-interface BootsralphConfig {
+interface BootstralphConfig {
   /** Config format version */
   version: string;
   /** ISO timestamp when config was created */
@@ -42,13 +42,13 @@ const CONFIG_VERSION = "1.0.0";
 // ============================================================================
 
 /**
- * Generate .bootsralph/config.json with stack configuration
+ * Generate .bootstralph/config.json with stack configuration
  *
- * Creates .bootsralph/ directory and writes config.json with version,
+ * Creates .bootstralph/ directory and writes config.json with version,
  * creation timestamp, and stack configuration.
  *
  * @param stackConfig - Stack configuration to persist
- * @param outputDir - Directory where .bootsralph/ should be created (default: cwd)
+ * @param outputDir - Directory where .bootstralph/ should be created (default: cwd)
  * @returns Promise resolving to the path of the generated config.json
  *
  * @example
@@ -69,7 +69,7 @@ const CONFIG_VERSION = "1.0.0";
  *   },
  * };
  *
- * const configPath = await generateBootsralphConfig(config);
+ * const configPath = await generateBootstralphConfig(config);
  * console.log(`Generated: ${configPath}`);
  * ```
  *
@@ -80,26 +80,26 @@ const CONFIG_VERSION = "1.0.0";
  *   packageManager: "npm",
  * };
  *
- * await generateBootsralphConfig(minimalConfig, "/path/to/project");
+ * await generateBootstralphConfig(minimalConfig, "/path/to/project");
  * ```
  */
-export async function generateBootsralphConfig(
+export async function generateBootstralphConfig(
   stackConfig: StackConfig,
-  outputDir: string = process.cwd()
+  outputDir: string = process.cwd(),
 ): Promise<string> {
-  // Step 1: Ensure .bootsralph directory exists
-  const bootsralphDir = join(outputDir, ".bootsralph");
-  await ensureDir(bootsralphDir);
+  // Step 1: Ensure .bootstralph directory exists
+  const bootstralphDir = join(outputDir, ".bootstralph");
+  await ensureDir(bootstralphDir);
 
   // Step 2: Build config object
-  const config: BootsralphConfig = {
+  const config: BootstralphConfig = {
     version: CONFIG_VERSION,
     createdAt: new Date().toISOString(),
     stack: stackConfig,
   };
 
   // Step 3: Write config.json
-  const configPath = join(bootsralphDir, "config.json");
+  const configPath = join(bootstralphDir, "config.json");
   await writeJson(configPath, config, { spaces: 2 });
 
   return configPath;

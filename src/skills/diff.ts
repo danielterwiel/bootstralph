@@ -44,7 +44,7 @@ export interface SkillsDiff {
  * - Skills that are installed but no longer required
  * - Typically happens when packages are removed from package.json
  *
- * @param manifest - Current skills manifest from .bootsralph/skills-manifest.json
+ * @param manifest - Current skills manifest from .bootstralph/skills-manifest.json
  * @param requiredSkills - Array of skills that should be installed
  * @returns SkillsDiff object with toInstall and toRemove arrays
  *
@@ -111,7 +111,7 @@ export interface SkillsDiff {
  */
 export function computeDiff(
   manifest: SkillsManifest,
-  requiredSkills: RequiredSkill[]
+  requiredSkills: RequiredSkill[],
 ): SkillsDiff {
   const toInstall: RequiredSkill[] = [];
   const toRemove: InstalledSkill[] = [];

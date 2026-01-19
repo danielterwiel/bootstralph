@@ -1,5 +1,5 @@
 /**
- * bootsralph CLI entry point
+ * bootstralph CLI entry point
  *
  * v2: Stack scaffolding + skills sync + pre-commit hooks
  * Delegates planning/execution to Ralph TUI
@@ -22,7 +22,6 @@ const VALID_PRESETS: readonly Preset[] = [
   "fullstack",
 ];
 
-
 async function handleDetect(): Promise<void> {
   await detect();
 }
@@ -30,7 +29,7 @@ async function handleDetect(): Promise<void> {
 const program = new Command();
 
 program
-  .name("bootsralph")
+  .name("bootstralph")
   .version(VERSION)
   .description("Stack scaffolding + skills sync + pre-commit hooks");
 
@@ -38,14 +37,17 @@ program
   .command("create")
   .description("Create a new project with wizard")
   .argument("<name>", "Name of the project to create")
-  .option("-p, --preset <preset>", `Use a preset configuration (${VALID_PRESETS.join(", ")})`)
+  .option(
+    "-p, --preset <preset>",
+    `Use a preset configuration (${VALID_PRESETS.join(", ")})`,
+  )
   .action(async (name: string, options: { preset?: Preset }) => {
     await handleCreate(name, options.preset);
   });
 
 program
   .command("init")
-  .description("Initialize bootsralph in existing project")
+  .description("Initialize bootstralph in existing project")
   .action(async () => {
     await handleInit();
   });
@@ -54,7 +56,10 @@ program
   .command("sync")
   .description("Sync skills based on package.json (interactive by default)")
   .option("-q, --quiet", "Quiet mode (less output)")
-  .option("-a, --auto", "Auto mode - install all matched skills without prompting")
+  .option(
+    "-a, --auto",
+    "Auto mode - install all matched skills without prompting",
+  )
   .action(async (options: { quiet?: boolean; auto?: boolean }) => {
     await sync({ quiet: options.quiet ?? false, auto: options.auto ?? false });
   });

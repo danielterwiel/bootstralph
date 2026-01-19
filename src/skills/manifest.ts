@@ -2,7 +2,7 @@
  * Skills manifest CRUD operations
  *
  * Manages the skills manifest file that tracks which OpenSkills are installed
- * and why they were installed. The manifest is stored at .bootsralph/skills-manifest.json
+ * and why they were installed. The manifest is stored at .bootstralph/skills-manifest.json
  * and is used to determine which skills need to be added or removed during sync.
  */
 
@@ -50,7 +50,7 @@ export interface SkillsManifest {
 /**
  * Default manifest path relative to project root
  */
-const MANIFEST_PATH = ".bootsralph/skills-manifest.json";
+const MANIFEST_PATH = ".bootstralph/skills-manifest.json";
 
 /**
  * Current manifest format version
@@ -64,7 +64,7 @@ const MANIFEST_VERSION = "1.0.0";
 /**
  * Load the skills manifest from disk
  *
- * Reads the skills manifest from .bootsralph/skills-manifest.json. If the
+ * Reads the skills manifest from .bootstralph/skills-manifest.json. If the
  * manifest doesn't exist, returns a default empty manifest.
  *
  * @param projectRoot - Project root directory (defaults to current directory)
@@ -83,7 +83,7 @@ const MANIFEST_VERSION = "1.0.0";
  * ```
  */
 export async function loadManifest(
-  projectRoot: string = process.cwd()
+  projectRoot: string = process.cwd(),
 ): Promise<SkillsManifest> {
   const manifestPath = join(projectRoot, MANIFEST_PATH);
 
@@ -110,8 +110,8 @@ export async function loadManifest(
 /**
  * Save the skills manifest to disk
  *
- * Writes the skills manifest to .bootsralph/skills-manifest.json. Creates the
- * .bootsralph directory if it doesn't exist. Automatically updates the
+ * Writes the skills manifest to .bootstralph/skills-manifest.json. Creates the
+ * .bootstralph directory if it doesn't exist. Automatically updates the
  * updatedAt timestamp.
  *
  * @param manifest - The skills manifest to save
@@ -138,12 +138,12 @@ export async function loadManifest(
  */
 export async function saveManifest(
   manifest: SkillsManifest,
-  projectRoot: string = process.cwd()
+  projectRoot: string = process.cwd(),
 ): Promise<void> {
   const manifestPath = join(projectRoot, MANIFEST_PATH);
-  const manifestDir = join(projectRoot, ".bootsralph");
+  const manifestDir = join(projectRoot, ".bootstralph");
 
-  // Ensure .bootsralph directory exists
+  // Ensure .bootstralph directory exists
   await ensureDir(manifestDir);
 
   // Update timestamp

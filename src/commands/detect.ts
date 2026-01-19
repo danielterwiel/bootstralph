@@ -38,7 +38,7 @@ export interface DetectOptions {
  * ```
  */
 export async function detect(options: DetectOptions = {}): Promise<void> {
-  p.intro("bootsralph detect");
+  p.intro("bootstralph detect");
 
   const cwd = options.cwd ?? process.cwd();
 
@@ -87,7 +87,9 @@ export async function detect(options: DetectOptions = {}): Promise<void> {
   if (stack.confidence < 0.4) {
     p.log.warn("Low confidence in detection. Results may be inaccurate.");
   } else if (stack.confidence < 0.7) {
-    p.log.info("Medium confidence in detection. Some details may need verification.");
+    p.log.info(
+      "Medium confidence in detection. Some details may need verification.",
+    );
   } else {
     p.log.success("High confidence in detection.");
   }

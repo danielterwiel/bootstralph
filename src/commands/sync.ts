@@ -79,7 +79,7 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
   };
 
   if (!quiet) {
-    p.intro("bootsralph sync");
+    p.intro("bootstralph sync");
   }
 
   try {
@@ -112,7 +112,11 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
       }));
 
       const options = [
-        { value: SELECT_ALL_VALUE, label: "Select all", hint: "Install all recommended skills" },
+        {
+          value: SELECT_ALL_VALUE,
+          label: "Select all",
+          hint: "Install all recommended skills",
+        },
         ...skillOptions,
       ];
 
@@ -185,7 +189,7 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
   } catch (error) {
     if (!quiet) {
       p.log.error(
-        `Sync failed: ${error instanceof Error ? error.message : String(error)}`
+        `Sync failed: ${error instanceof Error ? error.message : String(error)}`,
       );
       p.outro("Failed");
     }

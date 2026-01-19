@@ -1,7 +1,7 @@
 /**
  * Package scripts generator
  *
- * Adds postinstall and prepare scripts to package.json for bootsralph sync
+ * Adds postinstall and prepare scripts to package.json for bootstralph sync
  * and lefthook installation.
  */
 
@@ -40,8 +40,8 @@ interface PackageJson {
  * Scripts that should be added to package.json
  */
 const SCRIPTS_TO_ADD = {
-  postinstall: "bootsralph sync --quiet",
-  prepare: "lefthook install && bootsralph sync --quiet",
+  postinstall: "bootstralph sync --quiet",
+  prepare: "lefthook install && bootstralph sync --quiet",
 } as const;
 
 // ============================================================================
@@ -51,12 +51,12 @@ const SCRIPTS_TO_ADD = {
 /**
  * Add postinstall and prepare scripts to package.json
  *
- * Reads package.json, adds/updates scripts for bootsralph sync and lefthook
+ * Reads package.json, adds/updates scripts for bootstralph sync and lefthook
  * installation, and writes the result back to package.json.
  *
  * Scripts added:
- * - postinstall: 'bootsralph sync --quiet' - runs after npm/yarn/pnpm/bun install
- * - prepare: 'lefthook install && bootsralph sync --quiet' - runs before publish
+ * - postinstall: 'bootstralph sync --quiet' - runs after npm/yarn/pnpm/bun install
+ * - prepare: 'lefthook install && bootstralph sync --quiet' - runs before publish
  *
  * @param outputDir - Directory containing package.json (default: cwd)
  * @param options - Options for script merging behavior
@@ -83,7 +83,7 @@ const SCRIPTS_TO_ADD = {
  */
 export async function addPackageScripts(
   outputDir: string = process.cwd(),
-  options: AddPackageScriptsOptions = {}
+  options: AddPackageScriptsOptions = {},
 ): Promise<string> {
   const { merge = false } = options;
 
@@ -93,7 +93,7 @@ export async function addPackageScripts(
 
   if (!packageJsonExists) {
     throw new Error(
-      `package.json not found at ${packageJsonPath}. Cannot add scripts.`
+      `package.json not found at ${packageJsonPath}. Cannot add scripts.`,
     );
   }
 

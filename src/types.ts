@@ -1,5 +1,5 @@
 /**
- * Shared types across the bootsralph codebase
+ * Shared types across the bootstralph codebase
  *
  * This file contains type definitions that are used by multiple modules
  * to ensure consistency and avoid duplication.
@@ -12,10 +12,10 @@
 // ============================================================================
 
 /**
- * Stack configuration for bootsralph
+ * Stack configuration for bootstralph
  *
  * This interface defines the complete technology stack configuration
- * that is persisted in .bootsralph/config.json and used throughout
+ * that is persisted in .bootstralph/config.json and used throughout
  * the application for generating config files, skills, and documentation.
  */
 export interface StackConfig {

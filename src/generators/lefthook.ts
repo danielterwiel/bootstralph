@@ -135,7 +135,7 @@ function buildTestCommand(packageManager: string): LefthookCommand {
 function buildSkillsSyncCommand(packageManagerRunner: string): LefthookCommand {
   return {
     glob: "package.json",
-    run: `${packageManagerRunner} bootsralph sync --quiet`,
+    run: `${packageManagerRunner} bootstralph sync --quiet`,
   };
 }
 
@@ -188,7 +188,7 @@ function buildSkillsSyncCommand(packageManagerRunner: string): LefthookCommand {
 export async function generateLefthook(
   config: StackConfig,
   outputDir: string = process.cwd(),
-  options: GenerateLefthookOptions = {}
+  options: GenerateLefthookOptions = {},
 ): Promise<GenerateLefthookGeneratorResult> {
   const { force = false } = options;
   const packageManager = config.packageManager;
@@ -223,7 +223,8 @@ export async function generateLefthook(
   }
 
   // Always add skills-sync
-  preCommitCommands["skills-sync"] = buildSkillsSyncCommand(packageManagerRunner);
+  preCommitCommands["skills-sync"] =
+    buildSkillsSyncCommand(packageManagerRunner);
 
   // Generate or merge configuration (checks for other hook systems)
   const result = await generateOrMergeLefthook({

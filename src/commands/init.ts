@@ -1,9 +1,9 @@
 /**
- * Init command - Initialize bootsralph in an existing project
+ * Init command - Initialize bootstralph in an existing project
  *
  * v2 Flow:
  * 1. Detect stack from package.json and config files
- * 2. Generate lefthook.yml, .ralph-tui/skills/, .bootsralph/config.json
+ * 2. Generate lefthook.yml, .ralph-tui/skills/, .bootstralph/config.json
  * 3. Add postinstall/prepare scripts to package.json
  * 4. Run lefthook install
  * 5. Sync skills based on detected stack
@@ -27,7 +27,7 @@ import type {
   PreCommitTool,
 } from "../compatibility/matrix.js";
 import { generateLefthook } from "../generators/lefthook.js";
-import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
+import { generateBootstralphConfig } from "../generators/bootstralph-config.js";
 import { addPackageScripts } from "../generators/package-scripts.js";
 import { sync } from "./sync.js";
 import { runWizard } from "../prompts/index.js";
@@ -91,7 +91,9 @@ interface PackageJson {
  * Dependencies from workspaces are merged into the root package.json,
  * allowing detection to find packages used anywhere in the monorepo.
  */
-async function readAggregatedPackageJson(projectPath: string): Promise<PackageJson | null> {
+async function readAggregatedPackageJson(
+  projectPath: string,
+): Promise<PackageJson | null> {
   const rootPkg = await readPackageJson(projectPath);
   if (!rootPkg) return null;
 
@@ -132,7 +134,9 @@ async function readAggregatedPackageJson(projectPath: string): Promise<PackageJs
   return aggregated;
 }
 
-async function readPackageJson(projectPath: string): Promise<PackageJson | null> {
+async function readPackageJson(
+  projectPath: string,
+): Promise<PackageJson | null> {
   const packageJsonPath = path.join(projectPath, "package.json");
 
   if (!(await fs.pathExists(packageJsonPath))) {
@@ -153,7 +157,7 @@ function hasDependency(pkg: PackageJson, name: string): boolean {
 
 // Use the shared detectPackageManager utility
 async function detectPackageManager(
-  projectPath: string
+  projectPath: string,
 ): Promise<PackageManager> {
   return detectPackageManagerUtil(projectPath);
 }
@@ -162,28 +166,46 @@ async function detectPackageManager(
 // Framework Detection
 // ============================================================================
 
-function detectFramework(pkg: PackageJson): { framework: Framework | null; confidence: "high" | "medium" | "low" } {
-  if (hasDependency(pkg, "next")) return { framework: "nextjs", confidence: "high" };
-  if (hasDependency(pkg, "@tanstack/react-start") || hasDependency(pkg, "@tanstack/start")) {
+function detectFramework(pkg: PackageJson): {
+  framework: Framework | null;
+  confidence: "high" | "medium" | "low";
+} {
+  if (hasDependency(pkg, "next"))
+    return { framework: "nextjs", confidence: "high" };
+  if (
+    hasDependency(pkg, "@tanstack/react-start") ||
+    hasDependency(pkg, "@tanstack/start")
+  ) {
     return { framework: "tanstack-start", confidence: "high" };
   }
-  if (hasDependency(pkg, "react-router") || hasDependency(pkg, "@react-router/dev")) {
+  if (
+    hasDependency(pkg, "react-router") ||
+    hasDependency(pkg, "@react-router/dev")
+  ) {
     return { framework: "react-router", confidence: "medium" };
   }
-  if (hasDependency(pkg, "astro")) return { framework: "astro", confidence: "high" };
-  if (hasDependency(pkg, "expo")) return { framework: "expo", confidence: "high" };
+  if (hasDependency(pkg, "astro"))
+    return { framework: "astro", confidence: "high" };
+  if (hasDependency(pkg, "expo"))
+    return { framework: "expo", confidence: "high" };
   if (hasDependency(pkg, "react-native") && !hasDependency(pkg, "expo")) {
     return { framework: "react-native-cli", confidence: "high" };
   }
-  if (hasDependency(pkg, "hono")) return { framework: "hono", confidence: "high" };
-  if (hasDependency(pkg, "elysia")) return { framework: "elysia", confidence: "high" };
+  if (hasDependency(pkg, "hono"))
+    return { framework: "hono", confidence: "high" };
+  if (hasDependency(pkg, "elysia"))
+    return { framework: "elysia", confidence: "high" };
 
   return { framework: null, confidence: "low" };
 }
 
-function detectPlatform(framework: Framework | null, pkg: PackageJson): Platform {
+function detectPlatform(
+  framework: Framework | null,
+  pkg: PackageJson,
+): Platform {
   if (framework === "expo") {
-    if (hasDependency(pkg, "tamagui") || hasDependency(pkg, "@tamagui/core")) return "universal";
+    if (hasDependency(pkg, "tamagui") || hasDependency(pkg, "@tamagui/core"))
+      return "universal";
     return "mobile";
   }
   if (framework === "react-native-cli") return "mobile";
@@ -195,16 +217,24 @@ function detectPlatform(framework: Framework | null, pkg: PackageJson): Platform
 // Tech Stack Detection
 // ============================================================================
 
-function detectStyling(pkg: PackageJson, framework: Framework | null): Styling | undefined {
-  if (hasDependency(pkg, "class-variance-authority") && hasDependency(pkg, "tailwindcss")) {
+function detectStyling(
+  pkg: PackageJson,
+  framework: Framework | null,
+): Styling | undefined {
+  if (
+    hasDependency(pkg, "class-variance-authority") &&
+    hasDependency(pkg, "tailwindcss")
+  ) {
     return "tailwind-shadcn";
   }
-  if (hasDependency(pkg, "tamagui") || hasDependency(pkg, "@tamagui/core")) return "tamagui";
+  if (hasDependency(pkg, "tamagui") || hasDependency(pkg, "@tamagui/core"))
+    return "tamagui";
   if (hasDependency(pkg, "uniwind")) return "uniwind";
   if (hasDependency(pkg, "nativewind")) return "nativewind";
   if (hasDependency(pkg, "react-native-unistyles")) return "unistyles";
   if (hasDependency(pkg, "tailwindcss")) return "tailwind";
-  if (framework === "expo" || framework === "react-native-cli") return "stylesheets";
+  if (framework === "expo" || framework === "react-native-cli")
+    return "stylesheets";
   return undefined;
 }
 
@@ -218,25 +248,46 @@ function detectState(pkg: PackageJson): StateManagement[] {
 
 function detectORM(pkg: PackageJson): ORM | undefined {
   if (hasDependency(pkg, "drizzle-orm")) return "drizzle";
-  if (hasDependency(pkg, "@prisma/client") || hasDependency(pkg, "prisma")) return "prisma";
+  if (hasDependency(pkg, "@prisma/client") || hasDependency(pkg, "prisma"))
+    return "prisma";
   return undefined;
 }
 
 function detectBackend(pkg: PackageJson): Backend | undefined {
-  if (hasDependency(pkg, "@supabase/supabase-js") || hasDependency(pkg, "@supabase/ssr")) return "supabase";
+  if (
+    hasDependency(pkg, "@supabase/supabase-js") ||
+    hasDependency(pkg, "@supabase/ssr")
+  )
+    return "supabase";
   if (hasDependency(pkg, "convex")) return "convex";
-  if (hasDependency(pkg, "firebase") || hasDependency(pkg, "@react-native-firebase/app")) return "firebase";
+  if (
+    hasDependency(pkg, "firebase") ||
+    hasDependency(pkg, "@react-native-firebase/app")
+  )
+    return "firebase";
   return undefined;
 }
 
 function detectAuth(pkg: PackageJson): AuthProvider | undefined {
-  if (hasDependency(pkg, "better-auth") || hasDependency(pkg, "@better-auth/expo")) return "better-auth";
-  if (hasDependency(pkg, "@clerk/nextjs") || hasDependency(pkg, "@clerk/clerk-expo")) return "clerk";
-  if (hasDependency(pkg, "@supabase/auth-helpers-nextjs")) return "supabase-auth";
+  if (
+    hasDependency(pkg, "better-auth") ||
+    hasDependency(pkg, "@better-auth/expo")
+  )
+    return "better-auth";
+  if (
+    hasDependency(pkg, "@clerk/nextjs") ||
+    hasDependency(pkg, "@clerk/clerk-expo")
+  )
+    return "clerk";
+  if (hasDependency(pkg, "@supabase/auth-helpers-nextjs"))
+    return "supabase-auth";
   return undefined;
 }
 
-async function detectLinter(pkg: PackageJson, projectPath: string): Promise<Linter | undefined> {
+async function detectLinter(
+  pkg: PackageJson,
+  projectPath: string,
+): Promise<Linter | undefined> {
   if (hasDependency(pkg, "@biomejs/biome")) return "biome";
   if (await fs.pathExists(path.join(projectPath, "biome.json"))) return "biome";
   if (hasDependency(pkg, "oxlint")) return "oxlint";
@@ -244,11 +295,16 @@ async function detectLinter(pkg: PackageJson, projectPath: string): Promise<Lint
   return undefined;
 }
 
-async function detectFormatter(pkg: PackageJson, projectPath: string, linter?: Linter): Promise<Formatter | undefined> {
+async function detectFormatter(
+  pkg: PackageJson,
+  projectPath: string,
+  linter?: Linter,
+): Promise<Formatter | undefined> {
   if (linter === "biome") return "biome";
   if (hasDependency(pkg, "oxfmt")) return "oxfmt";
   if (hasDependency(pkg, "prettier")) return "prettier";
-  if (await fs.pathExists(path.join(projectPath, ".prettierrc"))) return "prettier";
+  if (await fs.pathExists(path.join(projectPath, ".prettierrc")))
+    return "prettier";
   return undefined;
 }
 
@@ -259,15 +315,23 @@ function detectUnitTesting(pkg: PackageJson): UnitTestFramework | undefined {
 }
 
 function detectE2ETesting(pkg: PackageJson): E2ETestFramework | undefined {
-  if (hasDependency(pkg, "@playwright/test") || hasDependency(pkg, "playwright")) return "playwright";
+  if (
+    hasDependency(pkg, "@playwright/test") ||
+    hasDependency(pkg, "playwright")
+  )
+    return "playwright";
   if (hasDependency(pkg, "cypress")) return "cypress";
   if (hasDependency(pkg, "detox")) return "detox";
   return undefined;
 }
 
-async function detectPreCommit(pkg: PackageJson, projectPath: string): Promise<PreCommitTool | undefined> {
+async function detectPreCommit(
+  pkg: PackageJson,
+  projectPath: string,
+): Promise<PreCommitTool | undefined> {
   if (hasDependency(pkg, "lefthook")) return "lefthook";
-  if (await fs.pathExists(path.join(projectPath, "lefthook.yml"))) return "lefthook";
+  if (await fs.pathExists(path.join(projectPath, "lefthook.yml")))
+    return "lefthook";
   if (hasDependency(pkg, "husky")) return "husky";
   if (await fs.pathExists(path.join(projectPath, ".husky"))) return "husky";
   return undefined;
@@ -277,7 +341,9 @@ async function detectPreCommit(pkg: PackageJson, projectPath: string): Promise<P
 // Main Detection
 // ============================================================================
 
-async function detectProjectConfig(projectPath: string): Promise<DetectedConfig | null> {
+async function detectProjectConfig(
+  projectPath: string,
+): Promise<DetectedConfig | null> {
   // Use aggregated package.json to detect dependencies from all workspaces
   const pkg = await readAggregatedPackageJson(projectPath);
   if (!pkg) return null;
@@ -394,20 +460,26 @@ function displayDetectedConfig(detected: DetectedConfig): void {
   summaryLines.push(`Package Manager: ${detected.packageManager}`);
 
   if (detected.styling) summaryLines.push(`Styling: ${detected.styling}`);
-  if (detected.state && detected.state.length > 0) summaryLines.push(`State: ${detected.state.join(", ")}`);
+  if (detected.state && detected.state.length > 0)
+    summaryLines.push(`State: ${detected.state.join(", ")}`);
   if (detected.orm) summaryLines.push(`ORM: ${detected.orm}`);
   if (detected.backend) summaryLines.push(`Backend: ${detected.backend}`);
   if (detected.auth) summaryLines.push(`Auth: ${detected.auth}`);
   if (detected.linter) summaryLines.push(`Linter: ${detected.linter}`);
   if (detected.formatter) summaryLines.push(`Formatter: ${detected.formatter}`);
-  if (detected.unitTesting) summaryLines.push(`Unit Testing: ${detected.unitTesting}`);
-  if (detected.e2eTesting) summaryLines.push(`E2E Testing: ${detected.e2eTesting}`);
-  if (detected.preCommit) summaryLines.push(`Pre-commit: ${detected.preCommit}`);
+  if (detected.unitTesting)
+    summaryLines.push(`Unit Testing: ${detected.unitTesting}`);
+  if (detected.e2eTesting)
+    summaryLines.push(`E2E Testing: ${detected.e2eTesting}`);
+  if (detected.preCommit)
+    summaryLines.push(`Pre-commit: ${detected.preCommit}`);
 
   p.note(summaryLines.join("\n"), "Detected Configuration");
 
   if (detected.confidence === "low") {
-    p.log.warn("Low confidence in detection. Some settings may need manual configuration.");
+    p.log.warn(
+      "Low confidence in detection. Some settings may need manual configuration.",
+    );
   }
 }
 
@@ -416,16 +488,18 @@ function displayDetectedConfig(detected: DetectedConfig): void {
 // ============================================================================
 
 export async function handleInit(): Promise<InitResult | undefined> {
-  p.intro("bootsralph init - Initialize in existing project");
+  p.intro("bootstralph init - Initialize in existing project");
 
   const projectPath = process.cwd();
 
   // Check for package.json
-  const packageJsonExists = await fs.pathExists(path.join(projectPath, "package.json"));
+  const packageJsonExists = await fs.pathExists(
+    path.join(projectPath, "package.json"),
+  );
   if (!packageJsonExists) {
     p.log.error("No package.json found in current directory");
     p.log.info("Please run this command from a Node.js project root");
-    p.log.info("Or use 'bootsralph create' to create a new project");
+    p.log.info("Or use 'bootstralph create' to create a new project");
     return undefined;
   }
 
@@ -450,7 +524,8 @@ export async function handleInit(): Promise<InitResult | undefined> {
 
   if (detected.confidence === "low") {
     const useDetected = await p.confirm({
-      message: "Low confidence in detection. Use detected configuration anyway?",
+      message:
+        "Low confidence in detection. Use detected configuration anyway?",
       initialValue: false,
     });
 
@@ -491,14 +566,15 @@ export async function handleInit(): Promise<InitResult | undefined> {
       if (wizardResult.orm) newConfig.orm = wizardResult.orm;
       if (wizardResult.backend) newConfig.backend = wizardResult.backend;
       if (wizardResult.auth) newConfig.auth = wizardResult.auth;
-      if (wizardResult.e2eTesting) newConfig.e2eTesting = wizardResult.e2eTesting;
+      if (wizardResult.e2eTesting)
+        newConfig.e2eTesting = wizardResult.e2eTesting;
 
       finalConfig = newConfig;
     }
   } else {
     // Confirm with high/medium confidence
     const proceed = await p.confirm({
-      message: "Initialize bootsralph with detected configuration?",
+      message: "Initialize bootstralph with detected configuration?",
       initialValue: true,
     });
 
@@ -525,18 +601,23 @@ export async function handleInit(): Promise<InitResult | undefined> {
     } else {
       lefthookSkipped = true;
       p.log.info(
-        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`
+        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`,
       );
     }
 
-    // Step 2: Generate bootsralph config
-    p.log.step("Generating bootsralph configuration...");
-    const bootsralphConfigPath = await generateBootsralphConfig(stackConfig, projectPath);
-    filesWritten.push(bootsralphConfigPath);
+    // Step 2: Generate bootstralph config
+    p.log.step("Generating bootstralph configuration...");
+    const bootstralphConfigPath = await generateBootstralphConfig(
+      stackConfig,
+      projectPath,
+    );
+    filesWritten.push(bootstralphConfigPath);
 
     // Step 3: Add package scripts (merge mode to preserve existing scripts)
     p.log.step("Adding package scripts...");
-    const packageJsonPath = await addPackageScripts(projectPath, { merge: true });
+    const packageJsonPath = await addPackageScripts(projectPath, {
+      merge: true,
+    });
     filesWritten.push(packageJsonPath);
 
     // Step 4: Run lefthook install (only if lefthook was generated)
@@ -544,9 +625,13 @@ export async function handleInit(): Promise<InitResult | undefined> {
       p.log.step("Installing lefthook...");
       try {
         // Use package manager runner to execute lefthook
-        const [cmd, ...prefixArgs] = getPackageManagerRunner(finalConfig.packageManager);
+        const [cmd, ...prefixArgs] = getPackageManagerRunner(
+          finalConfig.packageManager,
+        );
         // Use --force to overwrite existing hooks (handles pre-commit.old already exists error)
-        await execa(cmd, [...prefixArgs, "lefthook", "install", "--force"], { cwd: projectPath });
+        await execa(cmd, [...prefixArgs, "lefthook", "install", "--force"], {
+          cwd: projectPath,
+        });
       } catch (error) {
         const errorMsg = error instanceof Error ? error.message : String(error);
         warnings.push(`Failed to run lefthook install: ${errorMsg}`);

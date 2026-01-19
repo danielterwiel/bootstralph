@@ -92,7 +92,12 @@ export interface WizardResult {
  */
 export interface WizardOptions {
   /** Starting step (for resuming wizard) */
-  startAt?: "project-type" | "framework" | "features" | "deployment" | "tooling";
+  startAt?:
+    | "project-type"
+    | "framework"
+    | "features"
+    | "deployment"
+    | "tooling";
   /** Pre-selected values (for partial resume or defaults) */
   defaults?: Partial<WizardResult>;
   /** Package manager to use (defaults to detection or 'npm') */
@@ -144,18 +149,19 @@ export interface WizardOptions {
  * ```
  */
 export async function runWizard(
-  options: WizardOptions = {}
+  options: WizardOptions = {},
 ): Promise<WizardResult | undefined> {
   const { startAt = "project-type", defaults = {} } = options;
 
   // Show wizard introduction
-  p.intro("Welcome to Bootsralph!");
+  p.intro("Welcome to Bootstralph!");
 
   try {
     // Step 1: Project Type (Targets/Platform)
-    let projectTypeResult = defaults.targets && defaults.platform
-      ? { targets: defaults.targets, platform: defaults.platform }
-      : undefined;
+    let projectTypeResult =
+      defaults.targets && defaults.platform
+        ? { targets: defaults.targets, platform: defaults.platform }
+        : undefined;
 
     if (!projectTypeResult && ["project-type"].includes(startAt)) {
       projectTypeResult = await promptProjectType();
@@ -232,8 +238,14 @@ export async function runWizard(
       return undefined;
     }
 
-    const { linter, formatter, unitTesting, e2eTesting, preCommit, isCustomized } =
-      toolingResult;
+    const {
+      linter,
+      formatter,
+      unitTesting,
+      e2eTesting,
+      preCommit,
+      isCustomized,
+    } = toolingResult;
 
     // Build complete result
     const result: WizardResult = {
@@ -278,7 +290,7 @@ export async function runWizard(
  * Convert WizardResult to StackConfig format
  *
  * Maps the detailed wizard result to the simpler StackConfig format
- * used for persistence in .bootsralph/config.json
+ * used for persistence in .bootstralph/config.json
  *
  * @param result - Complete wizard result
  * @param packageManager - Package manager to use (defaults to 'npm')
@@ -289,13 +301,13 @@ export async function runWizard(
  * const wizardResult = await runWizard();
  * if (wizardResult) {
  *   const config = wizardResultToStackConfig(wizardResult, "bun");
- *   await generateBootsralphConfig(config);
+ *   await generateBootstralphConfig(config);
  * }
  * ```
  */
 export function wizardResultToStackConfig(
   result: WizardResult,
-  packageManager: "bun" | "pnpm" | "npm" | "yarn" = "npm"
+  packageManager: "bun" | "pnpm" | "npm" | "yarn" = "npm",
 ): StackConfig {
   return {
     packageManager,
@@ -326,12 +338,12 @@ export function wizardResultToStackConfig(
  * ```typescript
  * const config = await runWizardAndConvert({ packageManager: "bun" });
  * if (config) {
- *   await generateBootsralphConfig(config);
+ *   await generateBootstralphConfig(config);
  * }
  * ```
  */
 export async function runWizardAndConvert(
-  options: WizardOptions = {}
+  options: WizardOptions = {},
 ): Promise<StackConfig | undefined> {
   const result = await runWizard(options);
   if (!result) {

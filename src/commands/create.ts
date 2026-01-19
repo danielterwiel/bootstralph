@@ -24,22 +24,48 @@ import type {
   PreCommitTool,
   Routing,
 } from "../compatibility/matrix.js";
-import { FRAMEWORKS, DEFAULTS, derivePlatformFromTargets } from "../compatibility/matrix.js";
+import {
+  FRAMEWORKS,
+  DEFAULTS,
+  derivePlatformFromTargets,
+} from "../compatibility/matrix.js";
 import { validateAllSelections } from "../compatibility/validators.js";
 import { promptProjectType } from "../prompts/project-type.js";
-import { promptFramework, getFrameworkDisplayName } from "../prompts/framework.js";
+import {
+  promptFramework,
+  getFrameworkDisplayName,
+} from "../prompts/framework.js";
 import { promptFeatures } from "../prompts/features.js";
 import { promptDeployment } from "../prompts/deployment.js";
 import { promptTooling } from "../prompts/tooling.js";
-import { scaffoldNextjs, type NextjsScaffoldOptions } from "../scaffolders/nextjs.js";
-import { scaffoldTanStack, type TanStackScaffoldOptions } from "../scaffolders/tanstack.js";
+import {
+  scaffoldNextjs,
+  type NextjsScaffoldOptions,
+} from "../scaffolders/nextjs.js";
+import {
+  scaffoldTanStack,
+  type TanStackScaffoldOptions,
+} from "../scaffolders/tanstack.js";
 import { scaffoldExpo, type ExpoScaffoldOptions } from "../scaffolders/expo.js";
-import { scaffoldRNCli, type RNCliScaffoldOptions } from "../scaffolders/rn-cli.js";
-import { scaffoldReactRouter, type ReactRouterScaffoldOptions } from "../scaffolders/react-router.js";
-import { scaffoldAstro, type AstroScaffoldOptions } from "../scaffolders/astro.js";
-import { scaffoldApi, type ApiScaffoldOptions, type ApiFramework } from "../scaffolders/api.js";
+import {
+  scaffoldRNCli,
+  type RNCliScaffoldOptions,
+} from "../scaffolders/rn-cli.js";
+import {
+  scaffoldReactRouter,
+  type ReactRouterScaffoldOptions,
+} from "../scaffolders/react-router.js";
+import {
+  scaffoldAstro,
+  type AstroScaffoldOptions,
+} from "../scaffolders/astro.js";
+import {
+  scaffoldApi,
+  type ApiScaffoldOptions,
+  type ApiFramework,
+} from "../scaffolders/api.js";
 import { generateLefthook } from "../generators/lefthook.js";
-import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
+import { generateBootstralphConfig } from "../generators/bootstralph-config.js";
 import { addPackageScripts } from "../generators/package-scripts.js";
 import { sync } from "./sync.js";
 import type { StackConfig } from "../types.js";
@@ -52,7 +78,13 @@ import { execa } from "execa";
 /**
  * Preset configurations for quick project setup
  */
-export type Preset = "saas" | "mobile" | "api" | "content" | "universal" | "fullstack";
+export type Preset =
+  | "saas"
+  | "mobile"
+  | "api"
+  | "content"
+  | "universal"
+  | "fullstack";
 
 /**
  * Complete project configuration collected from wizard
@@ -210,7 +242,7 @@ const PRESET_CONFIGS: Record<Preset, Partial<ProjectConfig>> = {
  */
 export async function handleCreate(
   projectName?: string,
-  preset?: Preset
+  preset?: Preset,
 ): Promise<CreateResult | undefined> {
   p.intro("bootstralph - Ralph-powered project scaffolding");
 
@@ -326,13 +358,13 @@ export async function handleCreate(
     if (!lefthookResult.success) {
       lefthookSkipped = true;
       p.log.info(
-        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`
+        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`,
       );
     }
 
-    // Step 10: Generate bootsralph config
-    p.log.step("Generating bootsralph configuration...");
-    await generateBootsralphConfig(stackConfig, projectPath);
+    // Step 10: Generate bootstralph config
+    p.log.step("Generating bootstralph configuration...");
+    await generateBootstralphConfig(stackConfig, projectPath);
 
     // Step 11: Add package scripts
     p.log.step("Adding package scripts...");
@@ -372,7 +404,9 @@ export async function handleCreate(
     p.note(nextSteps.join("\n"), "Next Steps");
     p.outro(`Project "${name}" created successfully!`);
   } catch (error) {
-    p.log.error(`Post-scaffolding setup failed: ${error instanceof Error ? error.message : String(error)}`);
+    p.log.error(
+      `Post-scaffolding setup failed: ${error instanceof Error ? error.message : String(error)}`,
+    );
     return undefined;
   } finally {
     // Restore original working directory
@@ -416,7 +450,9 @@ export async function handleCreate(
 /**
  * Run the full wizard flow to collect project configuration
  */
-async function runWizard(projectName: string): Promise<ProjectConfig | undefined> {
+async function runWizard(
+  projectName: string,
+): Promise<ProjectConfig | undefined> {
   // Step 1: Target platforms selection
   const projectTypeResult = await promptProjectType();
   if (!projectTypeResult) {
@@ -450,7 +486,11 @@ async function runWizard(projectName: string): Promise<ProjectConfig | undefined
   }
 
   // Step 4: Deployment selection (pass targets for multi-platform deployment)
-  const deploymentContext: { framework: Framework; orm?: ORM; targets?: Target[] } = {
+  const deploymentContext: {
+    framework: Framework;
+    orm?: ORM;
+    targets?: Target[];
+  } = {
     framework: frameworkResult.framework,
     targets,
   };
@@ -598,7 +638,7 @@ function applyPreset(projectName: string, preset: Preset): ProjectConfig {
  */
 async function runScaffolder(
   config: ProjectConfig,
-  targetDir: string
+  targetDir: string,
 ): Promise<{
   success: boolean;
   projectPath: string;
@@ -622,7 +662,9 @@ async function runScaffolder(
       return await scaffoldRNCli(buildRNCliOptions(config, targetDir));
 
     case "react-router":
-      return await scaffoldReactRouter(buildReactRouterOptions(config, targetDir));
+      return await scaffoldReactRouter(
+        buildReactRouterOptions(config, targetDir),
+      );
 
     case "astro":
       return await scaffoldAstro(buildAstroOptions(config, targetDir));
@@ -644,7 +686,10 @@ async function runScaffolder(
 // Options Builders
 // ============================================================================
 
-function buildNextjsOptions(config: ProjectConfig, targetDir: string): NextjsScaffoldOptions {
+function buildNextjsOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): NextjsScaffoldOptions {
   const options: NextjsScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -668,7 +713,10 @@ function buildNextjsOptions(config: ProjectConfig, targetDir: string): NextjsSca
   return options;
 }
 
-function buildTanStackOptions(config: ProjectConfig, targetDir: string): TanStackScaffoldOptions {
+function buildTanStackOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): TanStackScaffoldOptions {
   const options: TanStackScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -693,7 +741,10 @@ function buildTanStackOptions(config: ProjectConfig, targetDir: string): TanStac
   return options;
 }
 
-function buildExpoOptions(config: ProjectConfig, targetDir: string): ExpoScaffoldOptions {
+function buildExpoOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): ExpoScaffoldOptions {
   const options: ExpoScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -702,7 +753,10 @@ function buildExpoOptions(config: ProjectConfig, targetDir: string): ExpoScaffol
   };
 
   if (config.routing) {
-    options.routing = config.routing as Extract<Routing, "expo-router" | "react-navigation">;
+    options.routing = config.routing as Extract<
+      Routing,
+      "expo-router" | "react-navigation"
+    >;
   }
   if (config.styling) {
     options.styling = config.styling as Extract<
@@ -722,14 +776,20 @@ function buildExpoOptions(config: ProjectConfig, targetDir: string): ExpoScaffol
   if (config.linter) options.linter = config.linter;
   if (config.formatter) options.formatter = config.formatter;
   if (config.e2eTesting) {
-    options.e2eTesting = config.e2eTesting as Extract<E2ETestFramework, "maestro" | "detox">;
+    options.e2eTesting = config.e2eTesting as Extract<
+      E2ETestFramework,
+      "maestro" | "detox"
+    >;
   }
   if (config.preCommit) options.preCommit = config.preCommit;
 
   return options;
 }
 
-function buildRNCliOptions(config: ProjectConfig, targetDir: string): RNCliScaffoldOptions {
+function buildRNCliOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): RNCliScaffoldOptions {
   const options: RNCliScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -754,14 +814,20 @@ function buildRNCliOptions(config: ProjectConfig, targetDir: string): RNCliScaff
   if (config.linter) options.linter = config.linter;
   if (config.formatter) options.formatter = config.formatter;
   if (config.e2eTesting) {
-    options.e2eTesting = config.e2eTesting as Extract<E2ETestFramework, "maestro" | "detox">;
+    options.e2eTesting = config.e2eTesting as Extract<
+      E2ETestFramework,
+      "maestro" | "detox"
+    >;
   }
   if (config.preCommit) options.preCommit = config.preCommit;
 
   return options;
 }
 
-function buildReactRouterOptions(config: ProjectConfig, targetDir: string): ReactRouterScaffoldOptions {
+function buildReactRouterOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): ReactRouterScaffoldOptions {
   const options: ReactRouterScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -783,7 +849,10 @@ function buildReactRouterOptions(config: ProjectConfig, targetDir: string): Reac
   return options;
 }
 
-function buildAstroOptions(config: ProjectConfig, targetDir: string): AstroScaffoldOptions {
+function buildAstroOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): AstroScaffoldOptions {
   const options: AstroScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -791,7 +860,10 @@ function buildAstroOptions(config: ProjectConfig, targetDir: string): AstroScaff
   };
 
   if (config.styling) {
-    options.styling = config.styling as Extract<Styling, "tailwind" | "vanilla">;
+    options.styling = config.styling as Extract<
+      Styling,
+      "tailwind" | "vanilla"
+    >;
   }
   if (config.orm) options.orm = config.orm;
   if (config.backend) options.backend = config.backend;
@@ -811,7 +883,10 @@ function buildAstroOptions(config: ProjectConfig, targetDir: string): AstroScaff
   return options;
 }
 
-function buildApiOptions(config: ProjectConfig, targetDir: string): ApiScaffoldOptions {
+function buildApiOptions(
+  config: ProjectConfig,
+  targetDir: string,
+): ApiScaffoldOptions {
   const options: ApiScaffoldOptions = {
     projectName: config.projectName,
     targetDir,
@@ -890,11 +965,15 @@ function projectConfigToStackConfig(config: ProjectConfig): StackConfig {
 /**
  * Get project name from argument or prompt
  */
-async function getProjectName(projectName?: string): Promise<string | undefined> {
+async function getProjectName(
+  projectName?: string,
+): Promise<string | undefined> {
   if (projectName) {
     // Validate provided name
     if (!/^[a-z0-9-_]+$/i.test(projectName)) {
-      p.log.error("Project name can only contain letters, numbers, hyphens, and underscores");
+      p.log.error(
+        "Project name can only contain letters, numbers, hyphens, and underscores",
+      );
       return undefined;
     }
     return projectName;
@@ -940,7 +1019,7 @@ function displayConfigSummary(config: ProjectConfig): void {
     android: "Android",
     api: "API",
   };
-  const targetsDisplay = config.targets.map(t => targetLabels[t]).join(" + ");
+  const targetsDisplay = config.targets.map((t) => targetLabels[t]).join(" + ");
 
   const summaryLines: string[] = [
     `Project: ${config.projectName}`,
