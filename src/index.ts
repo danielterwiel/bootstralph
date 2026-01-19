@@ -7,10 +7,10 @@
  */
 
 import { Command } from "commander";
-import * as p from "@clack/prompts";
 import { handleCreate, type Preset } from "./commands/create.js";
 import { handleInit } from "./commands/init.js";
 import { detect } from "./commands/detect.js";
+import { sync } from "./commands/sync.js";
 
 const VERSION = "0.2.0";
 
@@ -23,16 +23,6 @@ const VALID_PRESETS: readonly Preset[] = [
   "fullstack",
 ];
 
-async function handleSync(quiet: boolean): Promise<void> {
-  if (!quiet) {
-    p.intro("bootsralph sync");
-  }
-  // TODO: Implement skills sync (US-017)
-  p.log.warn("sync command not yet implemented - coming in v2");
-  if (!quiet) {
-    p.outro("Done");
-  }
-}
 
 async function handleDetect(): Promise<void> {
   await detect();
@@ -67,7 +57,7 @@ program
   .description("Sync skills based on package.json")
   .option("-q, --quiet", "Quiet mode (less output)")
   .action(async (options: { quiet?: boolean }) => {
-    await handleSync(options.quiet ?? false);
+    await sync({ quiet: options.quiet ?? false });
   });
 
 program
