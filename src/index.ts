@@ -38,11 +38,10 @@ program
 program
   .command("create")
   .description("Create a new project with wizard")
-  .argument("[project-name]", "Name of the project to create")
+  .argument("<name>", "Name of the project to create")
   .option("-p, --preset <preset>", `Use a preset configuration (${VALID_PRESETS.join(", ")})`)
-  .option("-q, --quiet", "Quiet mode (less output)")
-  .action(async (projectName: string | undefined, options: { preset?: Preset; quiet?: boolean }) => {
-    await handleCreate(projectName, options.preset);
+  .action(async (name: string, options: { preset?: Preset }) => {
+    await handleCreate(name, options.preset);
   });
 
 program
