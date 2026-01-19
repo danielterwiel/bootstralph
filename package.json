@@ -22,8 +22,8 @@
     "dist"
   ],
   "scripts": {
-    "dev": "tsup --watch",
-    "build": "tsup",
+    "dev": "bun --watch run build.ts",
+    "build": "bun run build.ts && tsc --emitDeclarationOnly --declaration --outDir dist",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -34,8 +34,6 @@
   },
   "dependencies": {
     "@clack/prompts": "^0.11.0",
-    "@opentui/core": "^0.1.74",
-    "@opentui/solid": "^0.1.74",
     "async-lock": "^1.4.1",
     "commander": "^12.1.0",
     "detect-package-manager": "^3.0.2",
@@ -43,26 +41,19 @@
     "fast-glob": "^3.3.2",
     "fs-extra": "^11.2.0",
     "handlebars": "^4.7.8",
-    "solid-js": "^1.9.9",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@babel/core": "^7.28.6",
-    "@babel/preset-typescript": "^7.28.5",
     "@types/async-lock": "^1.4.2",
     "@types/bun": "^1.1.18",
     "@types/fs-extra": "^11.0.4",
     "@types/node": "^22.10.7",
-    "babel-preset-solid": "^1.9.9",
-    "esbuild-plugin-babel": "^0.2.3",
     "oxlint": "^1.39.0",
-    "tsup": "^8.3.5",
     "typescript": "^5.7.3",
     "vitest": "^4.0.0"
   },
   "peerDependencies": {
-    "lefthook": "^1.9.4",
-    "openskills": "^0.1.0"
+    "lefthook": "^1.9.4"
   },
   "engines": {
     "node": ">=18.19.0"

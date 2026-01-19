@@ -1,4 +1,3 @@
-#!/usr/bin/env bun
 /**
  * bootsralph CLI entry point
  *

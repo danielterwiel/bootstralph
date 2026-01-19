@@ -107,6 +107,12 @@
       "source": "github:anthropics/openskills/turborepo",
       "devPackages": ["turbo"],
       "configFiles": ["turbo.json"]
+    },
+    {
+      "skill": "agent-browser",
+      "source": "github:vercel-labs/agent-browser/skills/agent-browser",
+      "packages": ["next", "@tanstack/start", "@react-router/dev", "astro"],
+      "frameworks": ["nextjs", "tanstack-start", "react-router", "astro"]
     }
   ],
   "defaultSkills": [
