@@ -1,18 +1,18 @@
+#!/usr/bin/env bun
+/**
+ * bootsralph CLI entry point
+ *
+ * v2: Stack scaffolding + skills sync + pre-commit hooks
+ * Delegates planning/execution to Ralph TUI
+ */
+
+import { Command } from "commander";
 import * as p from "@clack/prompts";
-import { handlePrd } from "./commands/prd.js";
-import { handleRalph } from "./commands/ralph.js";
 import { handleCreate, type Preset } from "./commands/create.js";
 import { handleInit } from "./commands/init.js";
-import { handleAdd } from "./commands/add.js";
 
-/**
- * CLI version - should match package.json
- */
-const VERSION = "0.1.0";
+const VERSION = "0.2.0";
 
-/**
- * Available presets for quick project scaffolding
- */
 const VALID_PRESETS: readonly Preset[] = [
   "saas",
   "mobile",
@@ -22,174 +22,61 @@ const VALID_PRESETS: readonly Preset[] = [
   "fullstack",
 ];
 
-/**
- * Parsed CLI arguments
- */
-interface ParsedArgs {
-  command: "create" | "init" | "add" | "prd" | "ralph" | "help" | "version";
-  projectName: string | undefined;
-  preset: Preset | undefined;
-  args: string[];
-}
-
-/**
- * Parse command-line arguments
- */
-function parseArgs(argv: string[]): ParsedArgs {
-  const args = argv.slice(2); // Remove node and script path
-
-  // Handle flags first
-  if (args.includes("--version") || args.includes("-v")) {
-    return { command: "version", projectName: undefined, preset: undefined, args: [] };
+async function handleSync(quiet: boolean): Promise<void> {
+  if (!quiet) {
+    p.intro("bootsralph sync");
   }
-  if (args.includes("--help") || args.includes("-h") || args.length === 0) {
-    return { command: "help", projectName: undefined, preset: undefined, args: [] };
-  }
-
-  const command = args[0];
-  const restArgs = args.slice(1);
-
-  // Find --preset flag
-  let preset: Preset | undefined;
-  const presetIndex = restArgs.findIndex(
-    (arg) => arg === "--preset" || arg === "-p"
-  );
-  if (presetIndex !== -1 && restArgs[presetIndex + 1]) {
-    const presetValue = restArgs[presetIndex + 1];
-    if (VALID_PRESETS.includes(presetValue as Preset)) {
-      preset = presetValue as Preset;
-    } else {
-      // Invalid preset will be handled in the command
-      preset = undefined;
-    }
-    // Remove preset args from restArgs
-    restArgs.splice(presetIndex, 2);
-  }
-
-  // Get project name (first non-flag argument)
-  const projectName = restArgs.find((arg) => !arg.startsWith("-"));
-
-  switch (command) {
-    case "create":
-      return { command: "create", projectName, preset, args: restArgs };
-    case "init":
-      return { command: "init", projectName: undefined, preset: undefined, args: restArgs };
-    case "add":
-      return { command: "add", projectName: undefined, preset: undefined, args: restArgs };
-    case "prd":
-      return { command: "prd", projectName: undefined, preset: undefined, args: restArgs };
-    case "ralph":
-      return { command: "ralph", projectName: undefined, preset: undefined, args: restArgs };
-    default:
-      // Treat unknown command as project name for create
-      if (command && !command.startsWith("-")) {
-        return {
-          command: "create",
-          projectName: command,
-          preset,
-          args: restArgs,
-        };
-      }
-      return { command: "help", projectName: undefined, preset: undefined, args: [] };
+  // TODO: Implement skills sync (US-017)
+  p.log.warn("sync command not yet implemented - coming in v2");
+  if (!quiet) {
+    p.outro("Done");
   }
 }
 
-/**
- * Display version information
- */
-function showVersion(): void {
-  console.log(`bootstralph v${VERSION}`);
+async function handleDetect(): Promise<void> {
+  p.intro("bootsralph detect");
+  // TODO: Implement stack detection (US-010)
+  p.log.warn("detect command not yet implemented - coming in v2");
+  p.outro("Done");
 }
 
-/**
- * Display help information
- */
-function showHelp(): void {
-  console.log(`
-bootstralph v${VERSION}
-CLI for scaffolding Ralph-powered projects
+const program = new Command();
 
-Usage:
-  bootstralph create [project-name] [options]
-  bootstralph init
-  bootstralph add <feature> [options]
-  bootstralph prd <description>
-  bootstralph ralph [options]
+program
+  .name("bootsralph")
+  .version(VERSION)
+  .description("Stack scaffolding + skills sync + pre-commit hooks");
 
-Commands:
-  create [name]        Create a new Ralph-powered project
-  init                 Initialize Ralph in an existing project
-  add <feature>        Add features to an existing project
-  prd <description>    Generate a PRD for Ralph loop
-  ralph                Execute Ralph loop on a PRD
+program
+  .command("create")
+  .description("Create a new project with wizard")
+  .argument("[project-name]", "Name of the project to create")
+  .option("-p, --preset <preset>", `Use a preset configuration (${VALID_PRESETS.join(", ")})`)
+  .option("-q, --quiet", "Quiet mode (less output)")
+  .action(async (projectName: string | undefined, options: { preset?: Preset; quiet?: boolean }) => {
+    await handleCreate(projectName, options.preset);
+  });
 
-Options:
-  -p, --preset <preset>   Use a preset configuration
-                          Presets: saas, mobile, api, content, universal, fullstack
-  -v, --version           Show version number
-  -h, --help              Show this help message
+program
+  .command("init")
+  .description("Initialize bootsralph in existing project")
+  .action(async () => {
+    await handleInit();
+  });
 
-PRD Command Options:
-  --list, -l             List all PRDs and their status
-  --status, -s [file]    Show status for a specific PRD
+program
+  .command("sync")
+  .description("Sync skills based on package.json")
+  .option("-q, --quiet", "Quiet mode (less output)")
+  .action(async (options: { quiet?: boolean }) => {
+    await handleSync(options.quiet ?? false);
+  });
 
-Ralph Command Options:
-  --prd, -p <file>       Use specific PRD file
-  --iterations, -i <n>   Max iterations (default: 10)
-  --afk, -a              Run in AFK mode (unattended)
-  --verbose              Enable verbose output
+program
+  .command("detect")
+  .description("Print detected stack (debug)")
+  .action(async () => {
+    await handleDetect();
+  });
 
-Examples:
-  bootstralph create my-app
-  bootstralph create my-app --preset saas
-  bootstralph my-app                              # Shorthand for 'create my-app'
-  bootstralph init
-  bootstralph add auth --provider better-auth
-  bootstralph prd "Add user authentication"       # Generate a PRD
-  bootstralph prd --list                          # List all PRDs
-  bootstralph ralph                               # Run Ralph (select PRD)
-  bootstralph ralph --afk --iterations 20         # AFK mode with 20 iterations
-
-Learn more: https://github.com/danterwiel/bootstralph
-`);
-}
-
-
-
-/**
- * Main CLI entry point
- */
-async function main(): Promise<void> {
-  const parsed = parseArgs(process.argv);
-
-  switch (parsed.command) {
-    case "version":
-      showVersion();
-      break;
-    case "help":
-      showHelp();
-      break;
-    case "create":
-      await handleCreate(parsed.projectName, parsed.preset);
-      break;
-    case "init":
-      await handleInit();
-      break;
-    case "add":
-      await handleAdd(parsed.args);
-      break;
-    case "prd":
-      await handlePrd(parsed.args);
-      break;
-    case "ralph":
-      await handleRalph(parsed.args);
-      break;
-  }
-}
-
-// Run the CLI
-main().catch((error: unknown) => {
-  p.log.error("An unexpected error occurred:");
-  console.error(error);
-  process.exit(1);
-});
+program.parse();
