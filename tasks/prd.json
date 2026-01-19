@@ -1,0 +1,847 @@
+{
+  "name": "bootsralph-v2",
+  "description": "Stack scaffolding + skills sync + pre-commit hooks. Delegates planning/execution to Ralph TUI.",
+  "branchName": "ralph/bootsralph-v2",
+  "userStories": [
+    {
+      "id": "US-001",
+      "title": "Setup project with bun, TypeScript, and tsup",
+      "description": "As a developer, I need the project initialized with bun, TypeScript, and tsup so that I can build the CLI.",
+      "acceptanceCriteria": [
+        "package.json created with name 'bootsralph', type 'module', bin entry pointing to dist/index.js",
+        "Dependencies installed: @clack/prompts, commander, execa, handlebars, fast-glob, zod",
+        "DevDependencies installed: @types/bun, tsup, typescript, vitest",
+        "PeerDependencies declared: openskills, lefthook",
+        "tsconfig.json configured for ES2022, bundler moduleResolution, strict mode",
+        "tsup.config.ts configured for ESM output, src/index.ts entry",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 1,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-002",
+      "title": "Create CLI entry point with commander",
+      "description": "As a developer, I need a CLI entry point using commander so that users can run bootsralph commands.",
+      "acceptanceCriteria": [
+        "src/index.ts created with #!/usr/bin/env bun shebang",
+        "commander program configured with name, version, description",
+        "Placeholder commands added: create, init, sync, detect",
+        "Running 'bun src/index.ts --help' shows all commands",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 2,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-003",
+      "title": "Create logger utilities with @clack/prompts",
+      "description": "As a developer, I need logger utilities wrapping @clack/prompts so that CLI output is consistent and user-friendly.",
+      "acceptanceCriteria": [
+        "src/utils/logger.ts created",
+        "Exports: intro, outro, spin, log (info, success, warn, error), confirm, select, multiselect",
+        "All functions properly typed",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 3,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-004",
+      "title": "Create exec utilities with execa wrapper",
+      "description": "As a developer, I need exec utilities wrapping execa so that I can run shell commands consistently.",
+      "acceptanceCriteria": [
+        "src/utils/exec.ts created",
+        "Exports: exec function that wraps execa with sensible defaults",
+        "Handles stdout/stderr capture",
+        "Throws typed errors on failure",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 4,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-005",
+      "title": "Create file utilities",
+      "description": "As a developer, I need file utilities so that I can read/write JSON, check file existence, and work with paths.",
+      "acceptanceCriteria": [
+        "src/utils/fs.ts created",
+        "Exports: readJson, writeJson, exists, ensureDir, readFile, writeFile",
+        "All functions properly typed with generics where appropriate",
+        "Uses bun:fs or node:fs/promises",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 5,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-006",
+      "title": "Create package scanner for detection",
+      "description": "As a developer, I need a package scanner that reads package.json to extract dependencies for stack detection.",
+      "acceptanceCriteria": [
+        "src/detection/package-scanner.ts created",
+        "Exports: scanPackageJson function",
+        "Returns: { dependencies: string[], devDependencies: string[], scripts: Record<string, string> }",
+        "Handles missing package.json gracefully",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 6,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-005"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-007",
+      "title": "Create config scanner for detection",
+      "description": "As a developer, I need a config scanner that finds configuration files to help detect the stack.",
+      "acceptanceCriteria": [
+        "src/detection/config-scanner.ts created",
+        "Exports: scanConfigFiles function",
+        "Uses fast-glob to find config files (next.config.*, app.json, drizzle.config.*, etc.)",
+        "Returns array of found config file paths",
+        "CONFIG_PATTERNS constant exported with framework/feature mappings",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 7,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-005"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-008",
+      "title": "Create stack inferrer for detection",
+      "description": "As a developer, I need a stack inferrer that combines package and config signals to determine the framework and features.",
+      "acceptanceCriteria": [
+        "src/detection/stack-inferrer.ts created",
+        "Exports: inferStack function",
+        "Takes package scan + config scan results as input",
+        "Returns DetectedStack type with framework, features, confidence score",
+        "Correctly identifies: nextjs, expo, tanstack-start, astro, hono, elysia",
+        "Correctly identifies features: auth type, database, styling, testing",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 8,
+      "passes": true,
+      "notes": "",
+      "dependsOn": [
+        "US-006",
+        "US-007"
+      ],
+      "completionNotes": "Completed by agent"
+    },
+    {
+      "id": "US-009",
+      "title": "Create detection module entry point",
+      "description": "As a developer, I need a detection entry point that orchestrates the full stack detection flow.",
+      "acceptanceCriteria": [
+        "src/detection/index.ts created",
+        "Exports: detectStack function",
+        "Orchestrates: package scan -> config scan -> inference",
+        "Returns complete DetectedStack object",
+        "Also exports detectedToConfig helper to convert DetectedStack to StackConfig",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-008"
+      ]
+    },
+    {
+      "id": "US-010",
+      "title": "Implement detect command",
+      "description": "As a user, I want to run 'bootsralph detect' to see what stack was detected in the current project.",
+      "acceptanceCriteria": [
+        "src/commands/detect.ts created",
+        "Exports detect function that takes options",
+        "Runs detectStack and prints results using logger utilities",
+        "Shows: framework, features, confidence score, detected packages",
+        "Wired up in src/index.ts",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-002",
+        "US-003",
+        "US-009"
+      ]
+    },
+    {
+      "id": "US-011",
+      "title": "Create skill mappings data file",
+      "description": "As a developer, I need a skill mappings data file that maps packages/configs to OpenSkills skills.",
+      "acceptanceCriteria": [
+        "data/skill-mappings.json created with SkillMapping[] structure",
+        "Includes mappings for: react, nextjs, expo, tanstack, astro, hono",
+        "Includes mappings for: better-auth, clerk, supabase, drizzle, prisma",
+        "Includes mappings for: tailwind, vitest, jest, playwright",
+        "Includes mappings for: vercel, cloudflare, turborepo",
+        "Includes DEFAULT_SKILLS array (systematic-debugging, verification-before-completion)",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "",
+      "dependsOn": []
+    },
+    {
+      "id": "US-012",
+      "title": "Create mappings loader for skills",
+      "description": "As a developer, I need a mappings loader that reads and parses the skill mappings data.",
+      "acceptanceCriteria": [
+        "src/skills/mappings.ts created",
+        "Exports: loadMappings function that returns SkillMapping[]",
+        "Exports: computeRequiredSkills function that takes deps + configFiles and returns required skills",
+        "Handles both packages and configFiles triggers",
+        "Includes DEFAULT_SKILLS in result",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005",
+        "US-011"
+      ]
+    },
+    {
+      "id": "US-013",
+      "title": "Create manifest CRUD for skills",
+      "description": "As a developer, I need manifest CRUD operations to track which skills are installed and why.",
+      "acceptanceCriteria": [
+        "src/skills/manifest.ts created",
+        "Exports: loadManifest, saveManifest functions",
+        "Manifest stored at .bootsralph/skills-manifest.json",
+        "SkillsManifest type: version, updatedAt, skills record",
+        "Creates default manifest if none exists",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005"
+      ]
+    },
+    {
+      "id": "US-014",
+      "title": "Create diff computation for skills",
+      "description": "As a developer, I need diff computation to determine which skills to install or remove.",
+      "acceptanceCriteria": [
+        "src/skills/diff.ts created",
+        "Exports: computeDiff function",
+        "Takes current manifest + required skills as input",
+        "Returns SkillsDiff with toInstall and toRemove arrays",
+        "Handles orphaned skills (installed for packages that no longer exist)",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-012",
+        "US-013"
+      ]
+    },
+    {
+      "id": "US-015",
+      "title": "Create OpenSkills CLI wrapper",
+      "description": "As a developer, I need an OpenSkills CLI wrapper to install/uninstall/list skills.",
+      "acceptanceCriteria": [
+        "src/skills/openskills.ts created",
+        "Exports: openskillsInstall(source) - runs 'npx openskills install'",
+        "Exports: openskillsSync() - runs 'npx openskills sync -y'",
+        "Exports: openskillsList() - runs 'npx openskills list' and parses output",
+        "Exports: openskillsUninstall(skillName) - deletes .claude/skills/{name} directory",
+        "Uses exec utility from US-004",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-004"
+      ]
+    },
+    {
+      "id": "US-016",
+      "title": "Create skills sync entry point",
+      "description": "As a developer, I need a skills sync entry point that orchestrates the full sync flow.",
+      "acceptanceCriteria": [
+        "src/skills/index.ts created",
+        "Exports: syncSkills function with quiet option",
+        "Flow: read package.json -> detect configs -> load manifest -> compute diff -> install/remove -> save manifest -> regenerate AGENTS.md",
+        "Logs progress unless quiet mode",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-009",
+        "US-014",
+        "US-015"
+      ]
+    },
+    {
+      "id": "US-017",
+      "title": "Implement sync command",
+      "description": "As a user, I want to run 'bootsralph sync' to synchronize skills based on my package.json.",
+      "acceptanceCriteria": [
+        "src/commands/sync.ts created",
+        "Exports sync function with --quiet option",
+        "Calls syncSkills and reports results",
+        "Shows: +N installed, -N removed",
+        "Wired up in src/index.ts",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-002",
+        "US-003",
+        "US-016"
+      ]
+    },
+    {
+      "id": "US-018",
+      "title": "Create lefthook template",
+      "description": "As a developer, I need a lefthook.yml Handlebars template that generates stack-appropriate hooks.",
+      "acceptanceCriteria": [
+        "templates/lefthook.yml.hbs created",
+        "Template variables: packageManager, linting, formatting, hasTypeScript, hasTests",
+        "Conditionally includes: lockfile check, format, lint, typecheck, test",
+        "Includes skills-sync hook: 'npx bootsralph sync --quiet'",
+        "Comments indicate it was generated by bootsralph",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "",
+      "dependsOn": []
+    },
+    {
+      "id": "US-019",
+      "title": "Create lefthook generator",
+      "description": "As a developer, I need a lefthook generator that renders the template with stack config.",
+      "acceptanceCriteria": [
+        "src/generators/lefthook.ts created",
+        "Exports: generateLefthook function taking StackConfig",
+        "Reads template, compiles with Handlebars, writes to lefthook.yml",
+        "Maps StackConfig.tooling to template variables",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005",
+        "US-018"
+      ]
+    },
+    {
+      "id": "US-020",
+      "title": "Create ralph skill template",
+      "description": "As a developer, I need a SKILL.md Handlebars template for .ralph-tui/skills/bootsralph-stack/.",
+      "acceptanceCriteria": [
+        "templates/ralph-skill.md.hbs created",
+        "Template includes: framework, auth, database, styling, testing, deployment",
+        "Documents key patterns for the detected stack",
+        "Documents file conventions",
+        "Documents common commands",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "",
+      "dependsOn": []
+    },
+    {
+      "id": "US-021",
+      "title": "Create ralph skill generator",
+      "description": "As a developer, I need a ralph skill generator that creates .ralph-tui/skills/bootsralph-stack/SKILL.md.",
+      "acceptanceCriteria": [
+        "src/generators/ralph-skill.ts created",
+        "Exports: generateRalphSkill function taking StackConfig",
+        "Creates .ralph-tui/skills/bootsralph-stack/ directory",
+        "Renders template to SKILL.md",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005",
+        "US-020"
+      ]
+    },
+    {
+      "id": "US-022",
+      "title": "Create package scripts generator",
+      "description": "As a developer, I need a generator that adds postinstall/prepare scripts to package.json.",
+      "acceptanceCriteria": [
+        "src/generators/package-scripts.ts created",
+        "Exports: addPackageScripts function with merge option",
+        "Adds postinstall: 'bootsralph sync --quiet'",
+        "Adds prepare: 'lefthook install && bootsralph sync --quiet'",
+        "Merge option preserves existing scripts",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005"
+      ]
+    },
+    {
+      "id": "US-023",
+      "title": "Create bootsralph config generator",
+      "description": "As a developer, I need a generator that creates .bootsralph/config.json with the stack configuration.",
+      "acceptanceCriteria": [
+        "src/generators/bootsralph-config.ts created",
+        "Exports: generateBootsralphConfig function taking StackConfig",
+        "Creates .bootsralph/ directory",
+        "Writes config.json with version, createdAt, stack fields",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-005"
+      ]
+    },
+    {
+      "id": "US-024",
+      "title": "Copy compatibility module from v1",
+      "description": "As a developer, I need the compatibility module from v1 to handle framework/feature compatibility rules.",
+      "acceptanceCriteria": [
+        "src/compatibility/matrix.ts copied and adapted",
+        "src/compatibility/filters.ts copied and adapted",
+        "src/compatibility/validators.ts copied and adapted",
+        "src/compatibility/index.ts created with re-exports",
+        "Types updated to match new StackConfig types",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 24,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-001"
+      ]
+    },
+    {
+      "id": "US-025",
+      "title": "Copy prompts module from v1",
+      "description": "As a developer, I need the prompts module from v1 to handle wizard questions.",
+      "acceptanceCriteria": [
+        "src/prompts/project-type.ts copied and adapted",
+        "src/prompts/framework.ts copied and adapted",
+        "src/prompts/features.ts copied and adapted",
+        "src/prompts/deployment.ts copied and adapted",
+        "src/prompts/tooling.ts copied and adapted",
+        "src/prompts/index.ts created with runWizard export",
+        "Uses logger utilities for UI",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 25,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-003"
+      ]
+    },
+    {
+      "id": "US-026",
+      "title": "Copy scaffolders module from v1",
+      "description": "As a developer, I need the scaffolders module from v1 to run framework CLIs.",
+      "acceptanceCriteria": [
+        "src/scaffolders/base.ts copied and adapted",
+        "src/scaffolders/nextjs.ts copied and adapted",
+        "src/scaffolders/tanstack.ts copied and adapted",
+        "src/scaffolders/expo.ts copied and adapted",
+        "src/scaffolders/rn-cli.ts copied and adapted",
+        "src/scaffolders/react-router.ts copied and adapted",
+        "src/scaffolders/astro.ts copied and adapted",
+        "src/scaffolders/api.ts copied and adapted (Hono/Elysia)",
+        "src/scaffolders/index.ts created with scaffold export",
+        "Uses exec utility",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 26,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-004"
+      ]
+    },
+    {
+      "id": "US-027",
+      "title": "Update imports and paths for migrated modules",
+      "description": "As a developer, I need to update all imports and fix any path issues in migrated v1 modules.",
+      "acceptanceCriteria": [
+        "All imports use new directory structure",
+        "No circular dependencies",
+        "Types file (src/types.ts) contains all shared types",
+        "All migrated modules build without errors",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 27,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-024",
+        "US-025",
+        "US-026"
+      ]
+    },
+    {
+      "id": "US-028",
+      "title": "Implement create command",
+      "description": "As a user, I want to run 'bootsralph create <name>' to scaffold a new project with the wizard.",
+      "acceptanceCriteria": [
+        "src/commands/create.ts created",
+        "Flow: intro -> runWizard -> scaffold -> chdir -> generateLefthook -> generateRalphSkill -> generateBootsralphConfig -> addPackageScripts -> lefthook install -> syncSkills -> outro",
+        "Accepts optional --preset flag for quick configs",
+        "Shows next steps in outro",
+        "Wired up in src/index.ts",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 28,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-027",
+        "US-019",
+        "US-021",
+        "US-022",
+        "US-023",
+        "US-016"
+      ]
+    },
+    {
+      "id": "US-029",
+      "title": "Implement init command",
+      "description": "As a user, I want to run 'bootsralph init' to set up bootsralph in an existing project.",
+      "acceptanceCriteria": [
+        "src/commands/init.ts created",
+        "Flow: intro -> detectStack -> (confirm or runWizard if low confidence) -> generateLefthook -> generateRalphSkill -> generateBootsralphConfig -> addPackageScripts(merge) -> lefthook install -> syncSkills -> outro",
+        "Wired up in src/index.ts",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 29,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-009",
+        "US-019",
+        "US-021",
+        "US-022",
+        "US-023",
+        "US-016",
+        "US-025"
+      ]
+    },
+    {
+      "id": "US-030",
+      "title": "Wire up all commands in CLI entry",
+      "description": "As a developer, I need to wire up all commands in the CLI entry point with proper options.",
+      "acceptanceCriteria": [
+        "src/index.ts imports all commands",
+        "create command: bootsralph create <name> [--preset]",
+        "init command: bootsralph init",
+        "sync command: bootsralph sync [--quiet]",
+        "detect command: bootsralph detect",
+        "All commands have descriptions and help text",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 30,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-010",
+        "US-017",
+        "US-028",
+        "US-029"
+      ]
+    },
+    {
+      "id": "US-031",
+      "title": "Write detection module tests",
+      "description": "As a developer, I need tests for the detection module to ensure stack detection works correctly.",
+      "acceptanceCriteria": [
+        "tests/detection.test.ts created",
+        "Tests scanPackageJson with various package.json contents",
+        "Tests scanConfigFiles with mock file system",
+        "Tests inferStack for each supported framework",
+        "Tests confidence scoring logic",
+        "All tests pass with 'bun test'",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes",
+        "bun test passes"
+      ],
+      "priority": 31,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-009"
+      ]
+    },
+    {
+      "id": "US-032",
+      "title": "Write skills sync module tests",
+      "description": "As a developer, I need tests for the skills sync module to ensure skill installation works correctly.",
+      "acceptanceCriteria": [
+        "tests/skills-sync.test.ts created",
+        "Tests computeRequiredSkills with various deps",
+        "Tests computeDiff for install/remove scenarios",
+        "Tests manifest load/save",
+        "Mocks openskills CLI calls",
+        "All tests pass with 'bun test'",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes",
+        "bun test passes"
+      ],
+      "priority": 32,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-016"
+      ]
+    },
+    {
+      "id": "US-033",
+      "title": "Write generator module tests",
+      "description": "As a developer, I need tests for the generator modules to ensure config files are generated correctly.",
+      "acceptanceCriteria": [
+        "tests/generators.test.ts created",
+        "Tests generateLefthook produces valid YAML",
+        "Tests generateRalphSkill produces valid Markdown",
+        "Tests addPackageScripts merges correctly",
+        "Tests generateBootsralphConfig produces valid JSON",
+        "All tests pass with 'bun test'",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes",
+        "bun test passes"
+      ],
+      "priority": 33,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-019",
+        "US-021",
+        "US-022",
+        "US-023"
+      ]
+    },
+    {
+      "id": "US-034",
+      "title": "Write E2E test for create command",
+      "description": "As a developer, I need an E2E test that runs 'bootsralph create' and verifies the output.",
+      "acceptanceCriteria": [
+        "tests/e2e-create.test.ts created",
+        "Test creates a temp directory",
+        "Runs create command with test inputs",
+        "Verifies: package.json exists, lefthook.yml exists, .bootsralph/config.json exists",
+        "Cleans up temp directory after test",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes",
+        "bun test passes"
+      ],
+      "priority": 34,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-030"
+      ]
+    },
+    {
+      "id": "US-035",
+      "title": "Write E2E test for init command",
+      "description": "As a developer, I need an E2E test that runs 'bootsralph init' on an existing project.",
+      "acceptanceCriteria": [
+        "tests/e2e-init.test.ts created",
+        "Test creates temp directory with mock package.json",
+        "Runs init command",
+        "Verifies: lefthook.yml created, .bootsralph/ created, existing package.json scripts merged",
+        "Cleans up temp directory after test",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes",
+        "bun test passes"
+      ],
+      "priority": 35,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-030"
+      ]
+    },
+    {
+      "id": "US-036",
+      "title": "Create README documentation",
+      "description": "As a user, I need README documentation to understand how to install and use bootsralph.",
+      "acceptanceCriteria": [
+        "README.md created",
+        "Includes: project description, installation instructions, usage examples",
+        "Documents all commands: create, init, sync, detect",
+        "Explains skill sync feature",
+        "Explains generated files",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 36,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-030"
+      ]
+    },
+    {
+      "id": "US-037",
+      "title": "Configure npm publish settings",
+      "description": "As a developer, I need package.json configured for npm publishing.",
+      "acceptanceCriteria": [
+        "package.json has: name, version, description, keywords, author, license, repository",
+        "files array specifies what to publish (dist/, templates/, data/)",
+        "bin entry points to dist/index.js",
+        "engines specifies node/bun versions",
+        "publishConfig set for public access",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 37,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-030"
+      ]
+    },
+    {
+      "id": "US-038",
+      "title": "Create GitHub Actions CI workflow",
+      "description": "As a developer, I need a CI workflow to run tests and type checking on PRs.",
+      "acceptanceCriteria": [
+        ".github/workflows/ci.yml created",
+        "Triggers on: push to main, pull requests",
+        "Jobs: install, lint, typecheck, test",
+        "Uses bun for all steps",
+        "Caches bun dependencies",
+        "bun run typecheck passes",
+        "bun run lint passes",
+        "bun run format passes"
+      ],
+      "priority": 38,
+      "passes": false,
+      "notes": "",
+      "dependsOn": [
+        "US-031",
+        "US-032",
+        "US-033"
+      ]
+    }
+  ],
+  "metadata": {
+    "updatedAt": "2026-01-19T11:30:13.016Z"
+  }
+}

@@ -1,0 +1,14 @@
+{
+  "id": "cba582cc-ba1a-423a-93a6-2a0dccb657dd",
+  "status": "running",
+  "startedAt": "2026-01-19T11:02:33.448Z",
+  "updatedAt": "2026-01-19T11:30:12.012Z",
+  "agentPlugin": "claude",
+  "trackerPlugin": "json",
+  "prdPath": "tasks/prd.json",
+  "currentIteration": 8,
+  "maxIterations": 10,
+  "totalTasks": 0,
+  "tasksCompleted": 8,
+  "cwd": "/Users/dani/code/bootstralph"
+}
