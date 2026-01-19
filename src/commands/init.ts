@@ -26,8 +26,14 @@ import type {
   E2ETestFramework,
   PreCommitTool,
 } from "../compatibility/matrix.js";
-// DEFAULTS will be used in US-029 when full init is implemented
-// import { DEFAULTS } from "../compatibility/matrix.js";
+import { generateLefthook } from "../generators/lefthook.js";
+import { generateRalphSkill } from "../generators/ralph-skill.js";
+import { generateBootsralphConfig } from "../generators/bootsralph-config.js";
+import { addPackageScripts } from "../generators/package-scripts.js";
+import { sync } from "./sync.js";
+import { runWizard } from "../prompts/index.js";
+import type { StackConfig } from "../types.js";
+import { execa } from "execa";
 
 // ============================================================================
 // Types
@@ -271,6 +277,60 @@ async function detectProjectConfig(projectPath: string): Promise<DetectedConfig 
 }
 
 // ============================================================================
+// Configuration Conversion
+// ============================================================================
+
+/**
+ * Convert DetectedConfig to StackConfig for generators
+ */
+function detectedConfigToStackConfig(detected: DetectedConfig): StackConfig {
+  const stackConfig: StackConfig = {
+    packageManager: detected.packageManager,
+  };
+
+  // Map framework
+  if (detected.framework) {
+    stackConfig.framework = detected.framework;
+  }
+
+  // Map auth
+  if (detected.auth) {
+    stackConfig.auth = detected.auth;
+  }
+
+  // Map database - use backend or orm
+  if (detected.backend) {
+    stackConfig.database = detected.backend;
+  } else if (detected.orm) {
+    stackConfig.database = detected.orm;
+  }
+
+  // Map styling
+  if (detected.styling) {
+    stackConfig.styling = detected.styling;
+  }
+
+  // Map testing
+  if (detected.unitTesting) {
+    stackConfig.testing = detected.unitTesting;
+  } else if (detected.e2eTesting) {
+    stackConfig.testing = detected.e2eTesting;
+  }
+
+  // Map deployment (not detected in init, so not included)
+
+  // Map tooling based on detection
+  stackConfig.tooling = {
+    linting: !!detected.linter,
+    formatting: !!detected.formatter,
+    hasTypeScript: true, // Assume TypeScript for existing projects
+    hasTests: !!detected.unitTesting,
+  };
+
+  return stackConfig;
+}
+
+// ============================================================================
 // Display
 // ============================================================================
 
@@ -333,50 +393,150 @@ export async function handleInit(): Promise<InitResult | undefined> {
   // Display detected configuration
   displayDetectedConfig(detected);
 
-  // Confirm
-  const proceed = await p.confirm({
-    message: "Initialize bootsralph with detected configuration?",
-    initialValue: true,
-  });
+  // Handle low confidence - offer to run wizard
+  let finalConfig: DetectedConfig = detected;
 
-  if (p.isCancel(proceed) || !proceed) {
-    p.cancel("Operation cancelled");
-    return undefined;
+  if (detected.confidence === "low") {
+    const useDetected = await p.confirm({
+      message: "Low confidence in detection. Use detected configuration anyway?",
+      initialValue: false,
+    });
+
+    if (p.isCancel(useDetected)) {
+      p.cancel("Operation cancelled");
+      return undefined;
+    }
+
+    if (!useDetected) {
+      p.log.info("Running configuration wizard...");
+
+      const wizardResult = await runWizard({
+        packageManager: detected.packageManager,
+      });
+      if (!wizardResult) {
+        p.cancel("Operation cancelled");
+        return undefined;
+      }
+
+      // Convert wizard result to DetectedConfig format
+      // Build object with required fields first, then add optional fields conditionally
+      const newConfig: DetectedConfig = {
+        projectName: detected.projectName,
+        projectPath,
+        platform: wizardResult.platform,
+        framework: wizardResult.framework,
+        linter: wizardResult.linter,
+        formatter: wizardResult.formatter,
+        unitTesting: wizardResult.unitTesting,
+        preCommit: wizardResult.preCommit,
+        packageManager: detected.packageManager,
+        confidence: "high",
+      };
+
+      // Add optional fields only when they have values
+      if (wizardResult.styling) newConfig.styling = wizardResult.styling;
+      if (wizardResult.state) newConfig.state = wizardResult.state;
+      if (wizardResult.orm) newConfig.orm = wizardResult.orm;
+      if (wizardResult.backend) newConfig.backend = wizardResult.backend;
+      if (wizardResult.auth) newConfig.auth = wizardResult.auth;
+      if (wizardResult.e2eTesting) newConfig.e2eTesting = wizardResult.e2eTesting;
+
+      finalConfig = newConfig;
+    }
+  } else {
+    // Confirm with high/medium confidence
+    const proceed = await p.confirm({
+      message: "Initialize bootsralph with detected configuration?",
+      initialValue: true,
+    });
+
+    if (p.isCancel(proceed) || !proceed) {
+      p.cancel("Operation cancelled");
+      return undefined;
+    }
   }
 
-  // TODO: Implement full init flow (US-029)
-  // 1. generateLefthook(config)
-  // 2. generateRalphSkill(config)
-  // 3. generateBootsralphConfig(config)
-  // 4. addPackageScripts({ merge: true })
-  // 5. lefthook install
-  // 6. syncSkills({ quiet: false })
+  const filesWritten: string[] = [];
+  const warnings: string[] = [];
+  const errors: string[] = [];
 
-  p.log.warn("Full init implementation coming in v2");
-  p.log.info("For now, detection works but config generation is not yet implemented");
+  try {
+    // Convert to StackConfig for generators
+    const stackConfig = detectedConfigToStackConfig(finalConfig);
 
-  p.outro(`
-    Detected stack for ${detected.projectName}
+    // Step 1: Generate lefthook configuration
+    p.log.step("Generating lefthook configuration...");
+    const lefthookPath = await generateLefthook(stackConfig, projectPath);
+    filesWritten.push(lefthookPath);
 
-    Next steps (manual for now):
-    1. Install lefthook: bun add -D lefthook
-    2. Create lefthook.yml with your hooks
-    3. Run: lefthook install
-    4. Use ralph-tui for PRD management
-  `);
+    // Step 2: Generate Ralph skill
+    p.log.step("Generating Ralph skill...");
+    const ralphSkillPath = await generateRalphSkill(stackConfig, projectPath);
+    filesWritten.push(ralphSkillPath);
 
-  return {
-    success: true,
-    projectPath,
-    filesWritten: [],
-    warnings: ["Full init not yet implemented"],
-    errors: [],
-    nextSteps: [
-      "Install lefthook: bun add -D lefthook",
-      "Create lefthook.yml",
-      "Run: lefthook install",
-    ],
-  };
+    // Step 3: Generate bootsralph config
+    p.log.step("Generating bootsralph configuration...");
+    const bootsralphConfigPath = await generateBootsralphConfig(stackConfig, projectPath);
+    filesWritten.push(bootsralphConfigPath);
+
+    // Step 4: Add package scripts (merge mode to preserve existing scripts)
+    p.log.step("Adding package scripts...");
+    const packageJsonPath = await addPackageScripts(projectPath, { merge: true });
+    filesWritten.push(packageJsonPath);
+
+    // Step 5: Run lefthook install
+    p.log.step("Installing lefthook...");
+    try {
+      await execa("lefthook", ["install"], { cwd: projectPath });
+    } catch (_error) {
+      warnings.push("Failed to run lefthook install. You may need to install lefthook first.");
+      p.log.warn("Failed to run lefthook install. You may need to install lefthook first.");
+    }
+
+    // Step 6: Sync skills
+    p.log.step("Syncing skills...");
+    try {
+      await sync({ quiet: true, cwd: projectPath });
+    } catch (_error) {
+      warnings.push("Failed to sync skills. Run 'bootsralph sync' manually.");
+      p.log.warn("Failed to sync skills. Run 'bootsralph sync' manually.");
+    }
+
+    // Display success message
+    const nextSteps = [
+      `${finalConfig.packageManager} install`,
+      `${finalConfig.packageManager} run dev`,
+      "",
+      "Your project is initialized! Ralph skills have been synced.",
+      "Use 'ralph-tui' to plan and execute your next tasks.",
+    ];
+
+    p.note(nextSteps.join("\n"), "Next Steps");
+    p.outro(`Project "${finalConfig.projectName}" initialized successfully!`);
+
+    return {
+      success: true,
+      projectPath,
+      filesWritten,
+      warnings,
+      errors,
+      nextSteps,
+    };
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
+    errors.push(errorMessage);
+    p.log.error(`Initialization failed: ${errorMessage}`);
+    p.outro("Failed");
+
+    return {
+      success: false,
+      projectPath,
+      filesWritten,
+      warnings,
+      errors,
+      nextSteps: [],
+    };
+  }
 }
 
 // ============================================================================

@@ -64,6 +64,22 @@ For types used across multiple modules:
 
 Example: `StackConfig` and `PackageManager` types are defined in `src/types.ts` and imported by generators, prompts, and scaffolders
 
+### Command Orchestration Pattern
+For CLI commands that coordinate multiple operations:
+1. Use `p.intro()` to start the command with a clear title
+2. Collect/validate inputs first (with early returns on cancellation)
+3. Run main operation (e.g., scaffolding)
+4. Use `process.chdir()` when subsequent operations need to run in project directory
+5. Wrap directory-dependent operations in try-finally to restore original cwd
+6. Use `p.log.step()` for each major operation to show progress
+7. Pass explicit directory parameters (`outputDir`, `cwd`) to called functions
+8. Handle errors gracefully with informative messages
+9. Display warnings if any occurred
+10. Show comprehensive "Next Steps" with `p.note()`
+11. Use `p.outro()` to signal completion
+
+Example: `src/commands/create.ts` orchestrates wizard → scaffold → generators → lefthook → sync
+
 ---
 
 ## 2026-01-19 - US-021
@@ -235,5 +251,44 @@ ex.ts created with scaffold export** - Created with comprehensive barrel exports
   - **Circular dependency prevention**: Using `madge` verified no circular dependencies after refactoring imports
   - All quality checks pass (typecheck, lint, format)
   - No circular dependencies confirmed with madge
+
+---
+## ✓ Iteration 7 - US-027: Update imports and paths for migrated modules
+*2026-01-19T13:07:20.250Z (271s)*
+
+**Status:** Completed
+
+**Notes:**
+All acceptance criteria met:\n- All imports use new directory structure with `.js` extensions\n- No circular dependencies (verified with madge)\n- Central types file created with all shared types\n- All migrated modules build without errors\n- typecheck passes\n- lint passes (warnings only in test files)\n- format passes\n\n### Documentation\n- Added new \"Shared Types Pattern\" to Codebase Patterns section\n- Documented learnings in progress.md\n- Committed changes with descriptive messages\n\n
+
+---
+
+## 2026-01-19 - US-028
+- **What was implemented:** Updated create command to include complete post-scaffolding workflow
+- **Files changed:**
+  - `src/commands/create.ts` (updated) - Added post-scaffolding steps after project creation
+- **Learnings:**
+  - The create command file already existed but was missing the complete post-scaffolding flow specified in acceptance criteria
+  - Added conversion function `projectConfigToStackConfig()` to map wizard results (ProjectConfig) to generator format (StackConfig)
+  - Key mapping decisions:
+    - `database` field uses `backend` if present, falls back to `orm` if not "none"
+    - `testing` field uses `unitTesting` if present, falls back to `e2eTesting`
+    - `tooling` is always populated with defaults (hasTypeScript: true for new projects)
+  - Post-scaffolding flow uses try-finally to restore original working directory
+  - The `process.chdir()` is necessary because generators and sync operate relative to cwd
+  - All generator functions accept `outputDir` parameter - pass `projectPath` for consistency
+  - The `sync` command accepts `cwd` option for operating on different directories
+  - Using `p.log.step()` from @clack/prompts provides clear progress indicators during setup
+  - Next steps now include both standard instructions and any scaffolder-specific instructions
+  - All quality checks pass (typecheck, lint, format)
+
+---
+## ✓ Iteration 8 - US-028: Implement create command
+*2026-01-19T13:10:20.744Z (179s)*
+
+**Status:** Completed
+
+**Notes:**
+207-208, 238-242 in create.ts handle preset option\n\n✅ **Shows next steps in outro** - Lines 355-368: Comprehensive next steps displayed with `p.note()`\n\n✅ **Wired up in src/index.ts** - Already wired up (lines 39-46 in index.ts)\n\n✅ **bun run typecheck passes** - Confirmed passing ✓\n\n✅ **bun run lint passes** - Confirmed passing ✓ (warnings only in test files)\n\n✅ **bun run format passes** - Confirmed passing ✓\n\nAll acceptance criteria have been met! The implementation is complete.\n\n
 
 ---
