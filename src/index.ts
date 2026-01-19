@@ -10,6 +10,7 @@ import { Command } from "commander";
 import * as p from "@clack/prompts";
 import { handleCreate, type Preset } from "./commands/create.js";
 import { handleInit } from "./commands/init.js";
+import { detect } from "./commands/detect.js";
 
 const VERSION = "0.2.0";
 
@@ -34,10 +35,7 @@ async function handleSync(quiet: boolean): Promise<void> {
 }
 
 async function handleDetect(): Promise<void> {
-  p.intro("bootsralph detect");
-  // TODO: Implement stack detection (US-010)
-  p.log.warn("detect command not yet implemented - coming in v2");
-  p.outro("Done");
+  await detect();
 }
 
 const program = new Command();
