@@ -367,3 +367,45 @@ Created stack inferrer for detecting technology stack by combining package and c
 al:** TypeScript, Docker\n\n**Confidence Scoring:**\nWeighted system providing 0-1 confidence score based on:\n- Framework detection (40%)\n- Feature detection (30%)\n- Package.json existence (20%)\n- Config file presence (10%)\n\n### Quality Checks\n✅ `bun run typecheck` passes (0 errors)\n✅ `bun run lint` passes (0 errors from new file)\n✅ `bun run format` passes\n\n### Commits\n- `f2a3d47` - feat: US-008 - Create stack inferrer for detection\n- `f3061a8` - docs: Update progress for US-008\n\n
 
 ---
+## [2026-01-19] - US-009
+
+### What was implemented
+Created detection module entry point that orchestrates the full stack detection flow. The module provides a `detectStack` function that coordinates package scanning, config file detection, and stack inference to identify the project's technology stack. Also includes a `detectedToConfig` helper to convert the detection results into the format expected by the init command.
+
+### Files changed
+- src/detection/index.ts: Created with detectStack function, detectedToConfig helper, and comprehensive re-exports from detection submodules
+
+### Learnings
+
+**Patterns discovered:**
+- Following the established detection pattern: JSDoc comments, clear exports, type-safe APIs
+- Entry point module pattern: re-export all public APIs from submodules for convenience (`export { ... } from "./submodule.js"`)
+- Orchestration function pattern: compose smaller functions (scanPackageJson, scanConfigFiles, inferStack) into a single high-level API
+- Conversion helper pattern: bridge between different type systems (DetectedStack → DetectedConfig)
+- Using async/await with dynamic imports for lazy-loading utilities (`await import("../utils/fs.js")`)
+- Mapping objects for type conversion: `Record<SourceType, TargetType>` pattern for mapping between type systems
+
+**Gotchas encountered:**
+- The PRD referenced a `StackConfig` type that doesn't exist yet in the codebase
+- `DetectedConfig` in init.ts serves the same purpose as the planned `StackConfig` type
+- Not all detection types map 1:1 to config types (e.g., auth0/nextauth detected but not in DetectedConfig)
+- Need to filter out undefined values when converting - used conditional assignment with type maps
+- Package manager detection requires file system checks, not just package.json parsing
+- Platform inference depends on framework: expo → mobile, hono/elysia → api, others → web
+- Confidence score (0-1) maps to confidence levels: ≥0.7 = high, ≥0.4 = medium, <0.4 = low
+
+**API Design:**
+- detectStack orchestrates: package scan → config scan → inference
+- Returns DetectedStack (from stack-inferrer.ts) with framework, features, and confidence
+- detectedToConfig converts DetectedStack to DetectedConfig format for init command
+- Re-exports all types and functions from detection submodules for convenience
+- Uses type mapping objects to handle partial overlaps between type systems
+
+**Type mapping challenges:**
+- Detection auth types include auth0/nextauth/firebase-auth, but DetectedConfig only supports clerk/supabase-auth
+- Detection database types include raw databases (postgres/mysql), but DetectedConfig backend only supports services (supabase/firebase)
+- Detection styling includes styled-components/emotion/css-modules/sass, but DetectedConfig only supports tailwind
+- Testing framework maps to both unitTesting (vitest/jest) and e2eTesting (playwright/cypress)
+- Solved with mapping objects that return `undefined` for unsupported types, allowing graceful filtering
+
+---
