@@ -9,52 +9,14 @@ import Handlebars from "handlebars";
 import { readFile, writeFile, ensureDir } from "../utils/fs.js";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { StackConfig } from "../types.js";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-/**
- * Stack configuration for ralph skill generation
- *
- * This interface combines tooling configuration (from StackConfig) with
- * detected stack features (from DetectedConfig) to provide comprehensive
- * context for the generated skill documentation.
- */
-export interface StackConfig {
-  /** Package manager (bun, pnpm, npm, yarn) */
-  packageManager: "bun" | "pnpm" | "npm" | "yarn";
-
-  /** Framework detected (nextjs, expo, tanstack-start, astro, hono, elysia) */
-  framework?: string | null;
-
-  /** Authentication provider (clerk, supabase-auth) */
-  auth?: string | null;
-
-  /** Database/Backend (postgres, supabase, firebase, mysql, sqlite, mongodb) */
-  database?: string | null;
-
-  /** Styling framework (tailwind, styled-components, emotion, css-modules, sass) */
-  styling?: string | null;
-
-  /** Testing framework (vitest, jest, playwright, cypress) */
-  testing?: string | null;
-
-  /** Deployment platform (vercel, cloudflare) */
-  deployment?: string | null;
-
-  /** Tooling configuration */
-  tooling?: {
-    /** Whether linting is configured */
-    linting?: boolean;
-    /** Whether formatting is configured */
-    formatting?: boolean;
-    /** Whether TypeScript is used */
-    hasTypeScript?: boolean;
-    /** Whether tests are configured */
-    hasTests?: boolean;
-  };
-}
+// Re-export StackConfig for convenience
+export type { StackConfig } from "../types.js";
 
 /**
  * Template variables for Handlebars compilation

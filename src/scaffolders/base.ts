@@ -23,7 +23,5 @@ export interface ScaffoldResult {
   nextSteps?: string[];
 }
 
-/**
- * Package manager options
- */
-export type PackageManager = "bun" | "pnpm" | "npm" | "yarn";
+// Re-export PackageManager for convenience
+export type { PackageManager } from "../types.js";

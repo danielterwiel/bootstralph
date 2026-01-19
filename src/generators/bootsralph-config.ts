@@ -6,51 +6,14 @@
 
 import { writeJson, ensureDir } from "../utils/fs.js";
 import { join } from "node:path";
+import type { StackConfig } from "../types.js";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-/**
- * Stack configuration for bootsralph
- *
- * This interface defines the complete technology stack configuration
- * that will be persisted in .bootsralph/config.json
- */
-export interface StackConfig {
-  /** Package manager (bun, pnpm, npm, yarn) */
-  packageManager: "bun" | "pnpm" | "npm" | "yarn";
-
-  /** Framework detected (nextjs, expo, tanstack-start, astro, hono, elysia) */
-  framework?: string | null;
-
-  /** Authentication provider (clerk, supabase-auth) */
-  auth?: string | null;
-
-  /** Database/Backend (postgres, supabase, firebase, mysql, sqlite, mongodb) */
-  database?: string | null;
-
-  /** Styling framework (tailwind, styled-components, emotion, css-modules, sass) */
-  styling?: string | null;
-
-  /** Testing framework (vitest, jest, playwright, cypress) */
-  testing?: string | null;
-
-  /** Deployment platform (vercel, cloudflare) */
-  deployment?: string | null;
-
-  /** Tooling configuration */
-  tooling?: {
-    /** Whether linting is configured */
-    linting?: boolean;
-    /** Whether formatting is configured */
-    formatting?: boolean;
-    /** Whether TypeScript is used */
-    hasTypeScript?: boolean;
-    /** Whether tests are configured */
-    hasTests?: boolean;
-  };
-}
+// Re-export StackConfig for convenience
+export type { StackConfig } from "../types.js";
 
 /**
  * Shape of .bootsralph/config.json

@@ -9,32 +9,14 @@ import Handlebars from "handlebars";
 import { readFile, writeFile } from "../utils/fs.js";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import type { StackConfig } from "../types.js";
 
 // ============================================================================
 // Types
 // ============================================================================
 
-/**
- * Stack configuration for lefthook generation
- *
- * This is a simplified interface matching what the template expects.
- * Maps to DetectedConfig from detection/init modules.
- */
-export interface StackConfig {
-  /** Package manager (bun, pnpm, npm, yarn) */
-  packageManager: "bun" | "pnpm" | "npm" | "yarn";
-  /** Tooling configuration */
-  tooling: {
-    /** Whether linting is configured */
-    linting?: boolean;
-    /** Whether formatting is configured */
-    formatting?: boolean;
-    /** Whether TypeScript is used */
-    hasTypeScript?: boolean;
-    /** Whether tests are configured */
-    hasTests?: boolean;
-  };
-}
+// Re-export StackConfig for convenience
+export type { StackConfig } from "../types.js";
 
 /**
  * Template variables for Handlebars compilation
@@ -129,10 +111,10 @@ export async function generateLefthook(
   // Step 3: Map StackConfig.tooling to template variables
   const templateVars: LefthookTemplateVars = {
     packageManager: config.packageManager,
-    linting: config.tooling.linting ?? false,
-    formatting: config.tooling.formatting ?? false,
-    hasTypeScript: config.tooling.hasTypeScript ?? false,
-    hasTests: config.tooling.hasTests ?? false,
+    linting: config.tooling?.linting ?? false,
+    formatting: config.tooling?.formatting ?? false,
+    hasTypeScript: config.tooling?.hasTypeScript ?? false,
+    hasTests: config.tooling?.hasTests ?? false,
   };
 
   // Step 4: Render the template

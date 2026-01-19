@@ -9,7 +9,7 @@ import { promptFramework } from "./framework.js";
 import { promptFeatures } from "./features.js";
 import { promptDeployment } from "./deployment.js";
 import { promptTooling } from "./tooling.js";
-import type { StackConfig } from "../generators/bootsralph-config.js";
+import type { StackConfig } from "../types.js";
 import type {
   Target,
   Platform,
