@@ -80,6 +80,33 @@ For CLI commands that coordinate multiple operations:
 
 Example: `src/commands/create.ts` orchestrates wizard → scaffold → generators → lefthook → sync
 
+### Detection with Wizard Fallback Pattern
+For commands that initialize existing projects with automatic detection:
+1. Detect project configuration from package.json and config files
+2. Display detected configuration with confidence level
+3. If confidence is low, offer user choice: use detected config or run wizard
+4. If wizard is chosen, preserve context (e.g., projectName, packageManager) from detection
+5. Convert wizard result back to detected config format, keeping preserved fields
+6. Use `WizardOptions` to pass packageManager to wizard for consistency
+7. Handle optional fields with exactOptionalPropertyTypes: build required fields first, then conditionally add optional fields
+8. Wrap non-critical operations (lefthook install, sync) in try-catch with warnings
+9. Use merge mode for package.json modifications to preserve existing scripts
+
+Example: `src/commands/init.ts` detects stack, optionally runs wizard, then orchestrates generators
+
+### Test Pattern
+For writing comprehensive module tests:
+1. **Test Structure**: Organize tests with describe blocks by function/feature (e.g., scanPackageJson, inferStack, detectStack)
+2. **Temporary Directories**: Use `mkdtemp(join(tmpdir(), 'prefix-'))` for isolated test environments, clean up in `afterEach` with `rm(dir, { recursive: true, force: true })`
+3. **Test Utilities**: Create helper functions (`createTempDir()`, `writePackageJson()`, `createConfigFiles()`) to reduce boilerplate
+4. **Real File System**: Create actual files in temp directory rather than mocking - catches real file system issues
+5. **Bracket Notation for Special Keys**: Use `object['key.with.dots']` instead of `toHaveProperty()` when keys contain special characters
+6. **Confidence Score Ranges**: Use `toBeGreaterThan(0.6)` rather than exact values for scores that may fluctuate
+7. **Integration vs Unit**: Separate pure function tests from file system integration tests for clarity
+8. **Coverage**: Test empty states, edge cases, full scenarios, and error conditions
+
+Example: `tests/detection.test.ts` - 76 tests covering package scanning, config detection, stack inference, and full integration
+
 ---
 
 ## 2026-01-19 - US-021
@@ -291,4 +318,85 @@ All acceptance criteria met:\n- All imports use new directory structure with `.j
 **Notes:**
 207-208, 238-242 in create.ts handle preset option\n\n✅ **Shows next steps in outro** - Lines 355-368: Comprehensive next steps displayed with `p.note()`\n\n✅ **Wired up in src/index.ts** - Already wired up (lines 39-46 in index.ts)\n\n✅ **bun run typecheck passes** - Confirmed passing ✓\n\n✅ **bun run lint passes** - Confirmed passing ✓ (warnings only in test files)\n\n✅ **bun run format passes** - Confirmed passing ✓\n\nAll acceptance criteria have been met! The implementation is complete.\n\n
 
+---
+
+## 2026-01-19 - US-029
+- **What was implemented:** Complete init command implementation for existing projects
+- **Files changed:**
+  - `src/commands/init.ts` (updated) - Added full initialization flow after detection
+- **Learnings:**
+  - The init command was partially implemented with only detection logic - full orchestration flow was added
+  - **Detection + Wizard Fallback Pattern**: For low-confidence detection, offer user choice to use detected config or run wizard
+  - **Configuration Conversion**: Created `detectedConfigToStackConfig()` to map DetectedConfig → StackConfig for generators
+  - **WizardOptions Interface**: The `runWizard()` function takes `WizardOptions` (not a string), which includes optional `packageManager` parameter
+  - **WizardResult Structure**: Unlike `ProjectConfig`, `WizardResult` does not include `projectName` or `packageManager` - these must be preserved from detection context
+  - **Graceful Failure Handling**: Both lefthook install and skill sync are wrapped in try-catch to allow init to succeed even if these steps fail (with warnings)
+  - **Merge Mode for Scripts**: When initializing existing projects, use `{ merge: true }` option in `addPackageScripts()` to preserve existing scripts
+  - **Error Variable Naming**: Use `_error` prefix for caught errors that aren't used, to satisfy eslint rules
+  - **exactOptionalPropertyTypes Compliance**: Build objects with required fields first, then conditionally add optional fields only when they have values
+  - Init flow sequence: intro → detect → (confirm or runWizard if low confidence) → generateLefthook → generateRalphSkill → generateBootsralphConfig → addPackageScripts(merge) → lefthook install → sync → outro
+  - All quality checks pass (typecheck, lint, format)
+---
+## ✓ Iteration 9 - US-029: Implement init command
+*2026-01-19T13:13:27.935Z (186s)*
+
+**Status:** Completed
+
+**Notes:**
+for unused catch parameters\n\n### Quality Checks\n- ✅ `bun run typecheck` - Passes\n- ✅ `bun run lint` - Passes (warnings only in test files)\n- ✅ `bun run format` - Passes\n\n### Documentation\n- Added new \"Detection with Wizard Fallback Pattern\" to Codebase Patterns section\n- Documented all learnings in progress.md including WizardOptions interface, error handling approach, and merge mode usage\n\n### Committed\n- Changes committed with message: `feat: US-029 - Implement init command`\n\n
+
+---
+
+## 2026-01-19 - US-030
+- **What was implemented:** Wired up all commands in CLI entry point with proper options
+- **Files changed:**
+  - `src/index.ts` (updated) - Changed create command argument from optional `[project-name]` to required `<name>`, removed unused `--quiet` option
+- **Learnings:**
+  - **Commander.js argument syntax**: `<name>` denotes required argument, `[name]` denotes optional argument
+  - The create command was already wired up but with optional argument syntax `[project-name]`
+  - Changed to required `<name>` to match acceptance criteria exactly: `bootsralph create <name> [--preset]`
+  - The `handleCreate` function gracefully handles the required argument by prompting if validation fails
+  - Removed unused `--quiet` option from create command (it wasn't being used in the implementation)
+  - All four commands properly wired: create, init, sync, detect
+  - Each command has clear descriptions and help text
+  - All imports are already in place at the top of the file
+  - All quality checks pass (typecheck, lint, format)
+---
+## ✓ Iteration 10 - US-030: Wire up all commands in CLI entry
+*2026-01-19T13:15:52.581Z (144s)*
+
+**Status:** Completed
+
+**Notes:**
+have descriptions and help text** - Each command has `.description()` and argument/option descriptions\n7. ✅ **bun run typecheck passes** - Confirmed passing\n8. ✅ **bun run lint passes** - Confirmed passing (warnings only in test files)\n9. ✅ **bun run format passes** - Confirmed passing\n\n### Documentation\n- Documented learnings in `.ralph-tui/progress.md` including Commander.js argument syntax patterns\n- Changes committed with message: `feat: US-030 - Wire up all commands in CLI entry`\n\n
+
+---
+
+
+## 2026-01-19 - US-031
+- **What was implemented:** Comprehensive test suite for detection module
+- **Files changed:**
+  - `tests/detection.test.ts` (created) - Complete test coverage for detection functionality
+- **Learnings:**
+  - **Test Structure Pattern**: Detection tests organized into 6 main describe blocks:
+    1. `scanPackageJson` - Package.json parsing and extraction
+    2. `scanConfigFiles` - Config file detection with fast-glob
+    3. `CONFIG_PATTERNS` - Constant validation tests
+    4. `inferStack` - Core inference logic with 10 sub-categories (Framework, Auth, Database, Styling, Testing, TypeScript, Docker, Confidence, Full Stack)
+    5. `detectStack` - Full integration tests with file system
+  - **Temporary Directory Pattern**: Use Node.js `mkdtemp` with `tmpdir()` prefix for isolated test environments, clean up with `rm` in `afterEach`
+  - **Mock File System**: Create real files in temp directory rather than mocking - more realistic and catches actual file system issues
+  - **Testing Utilities**: Created helper functions `createTempDir()`, `writePackageJson()`, and `createConfigFiles()` to reduce test boilerplate
+  - **Object Property Access**: When testing constants with special characters in keys (e.g., `CONFIG_PATTERNS['next.config.*']`), use bracket notation instead of `toHaveProperty()` which doesn't handle wildcard characters correctly
+  - **Confidence Score Testing**: Use ranges like `toBeGreaterThan(0.6)` rather than exact values, as confidence scoring is relative and may fluctuate with algorithm changes
+  - **Database Detection Logic**: When Drizzle/Prisma config exists but no specific DB driver is found, detection defaults to `postgres` as most common case
+  - **Integration vs Unit Tests**: Separated pure function tests (`inferStack`) from file system integration tests (`detectStack`) for better test organization
+  - All 76 tests pass covering:
+    - Package.json scanning (empty, dependencies, devDependencies, scripts)
+    - Config file detection (framework configs, tooling, ORMs, Docker, dotfiles)
+    - Framework detection for all supported frameworks (Next.js, Expo, TanStack, Astro, Hono, Elysia)
+    - Feature detection (auth, database, styling, testing, TypeScript, Docker)
+    - Confidence scoring logic
+    - Full stack detection scenarios
+  - All quality checks pass (typecheck, lint, format, all tests including new ones)
 ---
