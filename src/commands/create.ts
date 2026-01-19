@@ -321,7 +321,14 @@ export async function handleCreate(
 
     // Step 9: Generate lefthook configuration
     p.log.step("Generating lefthook configuration...");
-    await generateLefthook(stackConfig, projectPath);
+    const lefthookResult = await generateLefthook(stackConfig, projectPath);
+    let lefthookSkipped = false;
+    if (!lefthookResult.success) {
+      lefthookSkipped = true;
+      p.log.info(
+        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`
+      );
+    }
 
     // Step 10: Generate bootsralph config
     p.log.step("Generating bootsralph configuration...");
@@ -331,9 +338,11 @@ export async function handleCreate(
     p.log.step("Adding package scripts...");
     await addPackageScripts(projectPath);
 
-    // Step 12: Run lefthook install
-    p.log.step("Installing lefthook...");
-    await execa("lefthook", ["install"], { cwd: projectPath });
+    // Step 12: Run lefthook install (only if lefthook was generated)
+    if (!lefthookSkipped) {
+      p.log.step("Installing lefthook...");
+      await execa("lefthook", ["install"], { cwd: projectPath });
+    }
 
     // Step 13: Sync skills (auto mode - install all matched skills for new projects)
     p.log.step("Syncing skills...");

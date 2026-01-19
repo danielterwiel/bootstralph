@@ -1,16 +1,21 @@
 /**
  * Lefthook generator
  *
- * Generates lefthook.yml configuration file from Handlebars template
- * based on the detected or configured stack.
+ * Generates lefthook.yml configuration file with progressive enhancement.
+ * Preserves existing user customizations and only adds commands that
+ * don't already exist or serve the same purpose.
  */
 
-import Handlebars from "handlebars";
-import { readFile, writeFile } from "../utils/fs.js";
-import { join, dirname } from "node:path";
-import { fileURLToPath } from "node:url";
+import { writeFile } from "../utils/fs.js";
+import { join } from "node:path";
 import type { StackConfig } from "../types.js";
 import { getPackageManagerRunnerString } from "../utils/package-manager.js";
+import {
+  generateOrMergeLefthook,
+  serializeLefthookConfig,
+  type LefthookCommand,
+  type DetectedHookSystem,
+} from "./lefthook-merge.js";
 
 // ============================================================================
 // Types
@@ -19,36 +24,119 @@ import { getPackageManagerRunnerString } from "../utils/package-manager.js";
 // Re-export StackConfig for convenience
 export type { StackConfig } from "../types.js";
 
+// Re-export detection types
+export type { DetectedHookSystem } from "./lefthook-merge.js";
+
 /**
- * Template variables for Handlebars compilation
+ * Options for lefthook generation
  */
-interface LefthookTemplateVars {
-  packageManager: string;
-  packageManagerRunner: string;
-  linting: boolean;
-  formatting: boolean;
-  hasTypeScript: boolean;
-  hasTests: boolean;
+export interface GenerateLefthookOptions {
+  /** Force overwrite existing config (default: false for progressive enhancement) */
+  force?: boolean;
 }
 
+/**
+ * Result of lefthook generation
+ */
+export type GenerateLefthookGeneratorResult =
+  | { success: true; path: string }
+  | {
+      success: false;
+      skipped: true;
+      reason: string;
+      hookSystem: DetectedHookSystem;
+    };
+
 // ============================================================================
-// Template Path Resolution
+// Command Builders
 // ============================================================================
 
 /**
- * Get the path to the lefthook.yml.hbs template
- *
- * Resolves the template path relative to the bundled file location.
- * In dist: templates are copied to dist/templates/
+ * Build lockfile check command for a package manager
  */
-function getTemplatePath(): string {
-  // In ESM, we need to get the current file's directory
-  const currentFilePath = fileURLToPath(import.meta.url);
-  const currentDir = dirname(currentFilePath);
+function buildLockfileCommand(packageManager: string): LefthookCommand {
+  // Different package managers have different lockfile check approaches
+  switch (packageManager) {
+    case "bun":
+      return {
+        glob: "package.json",
+        run: `bun install --lockfile-only --no-save 2>/dev/null && git diff --quiet bun.lock || (echo "Lockfile was out of sync, auto-fixing..." && git add bun.lock)`,
+        skip: ["merge", "rebase"],
+      };
+    case "pnpm":
+      return {
+        glob: "package.json",
+        run: `pnpm install --lockfile-only 2>/dev/null && git diff --quiet pnpm-lock.yaml || (echo "Lockfile was out of sync, auto-fixing..." && git add pnpm-lock.yaml)`,
+        skip: ["merge", "rebase"],
+      };
+    case "yarn":
+      return {
+        glob: "package.json",
+        run: `yarn install --mode update-lockfile 2>/dev/null && git diff --quiet yarn.lock || (echo "Lockfile was out of sync, auto-fixing..." && git add yarn.lock)`,
+        skip: ["merge", "rebase"],
+      };
+    default: // npm
+      return {
+        glob: "package.json",
+        run: `npm install --package-lock-only 2>/dev/null && git diff --quiet package-lock.json || (echo "Lockfile was out of sync, auto-fixing..." && git add package-lock.json)`,
+        skip: ["merge", "rebase"],
+      };
+  }
+}
 
-  // Templates are copied to dist/templates/ during build
-  // From dist/index.js -> templates/lefthook.yml.hbs
-  return join(currentDir, "templates/lefthook.yml.hbs");
+/**
+ * Build format command
+ */
+function buildFormatCommand(packageManager: string): LefthookCommand {
+  return {
+    glob: "*.{ts,tsx,js,jsx,json,md,yaml,yml}",
+    run: `${packageManager} run format -- --no-error-on-unmatched-pattern {staged_files}`,
+    stage_fixed: true,
+  };
+}
+
+/**
+ * Build lint command
+ */
+function buildLintCommand(packageManager: string): LefthookCommand {
+  return {
+    only: [{ glob: "**/*.{ts,tsx,js,jsx}" }],
+    run: `${packageManager} run lint:check --force`,
+  };
+}
+
+/**
+ * Build typecheck command
+ */
+function buildTypecheckCommand(packageManager: string): LefthookCommand {
+  return {
+    only: [{ glob: "**/*.{ts,tsx}" }],
+    run: `${packageManager} run typecheck`,
+  };
+}
+
+/**
+ * Build test command
+ */
+function buildTestCommand(packageManager: string): LefthookCommand {
+  return {
+    only: [
+      { glob: "**/*.{ts,tsx}" },
+      { glob: "**/*.test.{ts,tsx}" },
+      { glob: "**/*.spec.{ts,tsx}" },
+    ],
+    run: `${packageManager} run test`,
+  };
+}
+
+/**
+ * Build skills-sync command
+ */
+function buildSkillsSyncCommand(packageManagerRunner: string): LefthookCommand {
+  return {
+    glob: "package.json",
+    run: `${packageManagerRunner} bootsralph sync --quiet`,
+  };
 }
 
 // ============================================================================
@@ -56,15 +144,22 @@ function getTemplatePath(): string {
 // ============================================================================
 
 /**
- * Generate lefthook.yml from template and stack config
+ * Generate lefthook.yml with progressive enhancement
  *
- * Reads the Handlebars template, compiles it with variables mapped from
- * StackConfig.tooling, and writes the result to lefthook.yml in the
- * specified directory.
+ * If an existing lefthook.yml exists, merges new commands intelligently.
+ * Only adds commands for categories not already configured.
+ *
+ * If another hook system (husky, pre-commit, etc.) is detected,
+ * generation is skipped and information is returned about the existing system.
+ *
+ * Detection works by:
+ * 1. Checking command names (e.g., "format", "lint", "typecheck")
+ * 2. Checking tool references in run commands (e.g., "prettier", "biome", "eslint")
  *
  * @param config - Stack configuration containing tooling settings
  * @param outputDir - Directory where lefthook.yml should be written (default: cwd)
- * @returns Promise resolving to the path of the generated lefthook.yml
+ * @param options - Generation options
+ * @returns Promise resolving to success with path, or skipped with reason
  *
  * @example
  * ```typescript
@@ -78,53 +173,79 @@ function getTemplatePath(): string {
  *   },
  * };
  *
- * const outputPath = await generateLefthook(config);
- * console.log(`Generated: ${outputPath}`);
- * ```
+ * // Progressive enhancement (default) - preserves existing commands
+ * const result = await generateLefthook(config);
+ * if (result.success) {
+ *   console.log(`Generated: ${result.path}`);
+ * } else {
+ *   console.log(`Skipped: ${result.reason}`);
+ * }
  *
- * @example
- * ```typescript
- * // Minimal config (no linting/formatting)
- * const minimalConfig: StackConfig = {
- *   packageManager: "npm",
- *   tooling: {
- *     linting: false,
- *     formatting: false,
- *     hasTypeScript: false,
- *     hasTests: false,
- *   },
- * };
- *
- * await generateLefthook(minimalConfig, "/path/to/project");
+ * // Force overwrite - replaces entire config, ignores other hook systems
+ * const result = await generateLefthook(config, "/path/to/project", { force: true });
  * ```
  */
 export async function generateLefthook(
   config: StackConfig,
-  outputDir: string = process.cwd()
-): Promise<string> {
-  // Step 1: Read the Handlebars template
-  const templatePath = getTemplatePath();
-  const templateContent = await readFile(templatePath);
+  outputDir: string = process.cwd(),
+  options: GenerateLefthookOptions = {}
+): Promise<GenerateLefthookGeneratorResult> {
+  const { force = false } = options;
+  const packageManager = config.packageManager;
+  const packageManagerRunner = getPackageManagerRunnerString(packageManager);
 
-  // Step 2: Compile the template
-  const template = Handlebars.compile(templateContent);
+  // Build commands based on config
+  const preCommitCommands: Record<string, LefthookCommand> = {};
 
-  // Step 3: Map StackConfig.tooling to template variables
-  const templateVars: LefthookTemplateVars = {
-    packageManager: config.packageManager,
-    packageManagerRunner: getPackageManagerRunnerString(config.packageManager),
-    linting: config.tooling?.linting ?? false,
-    formatting: config.tooling?.formatting ?? false,
-    hasTypeScript: config.tooling?.hasTypeScript ?? false,
-    hasTests: config.tooling?.hasTests ?? false,
-  };
+  // Always add lockfile check if we have a package manager
+  if (packageManager) {
+    preCommitCommands["lockfile"] = buildLockfileCommand(packageManager);
+  }
 
-  // Step 4: Render the template
-  const rendered = template(templateVars);
+  // Add format command if formatting is enabled
+  if (config.tooling?.formatting) {
+    preCommitCommands["format"] = buildFormatCommand(packageManager);
+  }
 
-  // Step 5: Write to lefthook.yml
+  // Add lint command if linting is enabled
+  if (config.tooling?.linting) {
+    preCommitCommands["lint"] = buildLintCommand(packageManager);
+  }
+
+  // Add typecheck if TypeScript is used
+  if (config.tooling?.hasTypeScript) {
+    preCommitCommands["typecheck"] = buildTypecheckCommand(packageManager);
+  }
+
+  // Add test command if tests are enabled
+  if (config.tooling?.hasTests) {
+    preCommitCommands["test"] = buildTestCommand(packageManager);
+  }
+
+  // Always add skills-sync
+  preCommitCommands["skills-sync"] = buildSkillsSyncCommand(packageManagerRunner);
+
+  // Generate or merge configuration (checks for other hook systems)
+  const result = await generateOrMergeLefthook({
+    projectRoot: outputDir,
+    preCommitCommands,
+    force,
+  });
+
+  // If skipped due to other hook system, return skip info
+  if (result.skipped) {
+    return {
+      success: false,
+      skipped: true,
+      reason: result.skipped.reason,
+      hookSystem: result.skipped.hookSystem,
+    };
+  }
+
+  // Serialize and write
+  const yamlContent = serializeLefthookConfig(result.config!);
   const outputPath = join(outputDir, "lefthook.yml");
-  await writeFile(outputPath, rendered);
+  await writeFile(outputPath, yamlContent);
 
-  return outputPath;
+  return { success: true, path: outputPath };
 }

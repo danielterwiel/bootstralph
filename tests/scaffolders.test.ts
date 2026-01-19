@@ -8,50 +8,42 @@ import { describe, it, expect } from 'vitest';
 
 // Import scaffolder types and helper functions
 import {
-  type NextjsScaffoldOptions,
   buildCreateNextAppArgs,
   collectAdditionalDependencies as collectNextjsDeps,
   buildNextSteps as buildNextjsNextSteps,
 } from '../src/scaffolders/nextjs.js';
 
 import {
-  type TanStackScaffoldOptions,
   buildCreateStartArgs,
   collectAdditionalDependencies as collectTanStackDeps,
   buildNextSteps as buildTanStackNextSteps,
 } from '../src/scaffolders/tanstack.js';
 
 import {
-  type ReactRouterScaffoldOptions,
   buildCreateReactRouterArgs,
   collectAdditionalDependencies as collectReactRouterDeps,
   buildNextSteps as buildReactRouterNextSteps,
 } from '../src/scaffolders/react-router.js';
 
 import {
-  type ExpoScaffoldOptions,
   buildCreateExpoStackArgs,
   collectAdditionalDependencies as collectExpoDeps,
   buildNextSteps as buildExpoNextSteps,
 } from '../src/scaffolders/expo.js';
 
 import {
-  type RNCliScaffoldOptions,
   checkPrerequisites,
   collectAdditionalDependencies as collectRNCliDeps,
   buildNextSteps as buildRNCliNextSteps,
 } from '../src/scaffolders/rn-cli.js';
 
 import {
-  type AstroScaffoldOptions,
   buildCreateAstroArgs,
   collectAdditionalDependencies as collectAstroDeps,
   buildNextSteps as buildAstroNextSteps,
 } from '../src/scaffolders/astro.js';
 
 import {
-  type ApiScaffoldOptions,
-  type ApiFramework,
   getHonoTemplate,
   collectAdditionalDependencies as collectApiDeps,
   buildNextSteps as buildApiNextSteps,

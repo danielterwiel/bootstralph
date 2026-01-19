@@ -1,11 +1,5 @@
 import { describe, it, expect } from 'vitest';
 import {
-  // Types
-  type Platform,
-  type Framework,
-  type Styling,
-  type ORM,
-  type DeploymentTarget,
   // Constants
   PLATFORMS,
   FRAMEWORKS,

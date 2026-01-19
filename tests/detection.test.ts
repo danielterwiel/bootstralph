@@ -20,8 +20,6 @@ import {
 } from '../src/detection/config-scanner.js';
 import {
   inferStack,
-  type DetectedStack,
-  type Framework,
 } from '../src/detection/stack-inferrer.js';
 import { detectStack } from '../src/detection/index.js';
 

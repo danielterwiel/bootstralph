@@ -518,8 +518,16 @@ export async function handleInit(): Promise<InitResult | undefined> {
 
     // Step 1: Generate lefthook configuration
     p.log.step("Generating lefthook configuration...");
-    const lefthookPath = await generateLefthook(stackConfig, projectPath);
-    filesWritten.push(lefthookPath);
+    const lefthookResult = await generateLefthook(stackConfig, projectPath);
+    let lefthookSkipped = false;
+    if (lefthookResult.success) {
+      filesWritten.push(lefthookResult.path);
+    } else {
+      lefthookSkipped = true;
+      p.log.info(
+        `Skipping lefthook: ${lefthookResult.reason} (detected ${lefthookResult.hookSystem.indicator})`
+      );
+    }
 
     // Step 2: Generate bootsralph config
     p.log.step("Generating bootsralph configuration...");
@@ -531,17 +539,19 @@ export async function handleInit(): Promise<InitResult | undefined> {
     const packageJsonPath = await addPackageScripts(projectPath, { merge: true });
     filesWritten.push(packageJsonPath);
 
-    // Step 4: Run lefthook install
-    p.log.step("Installing lefthook...");
-    try {
-      // Use package manager runner to execute lefthook
-      const [cmd, ...prefixArgs] = getPackageManagerRunner(finalConfig.packageManager);
-      // Use --force to overwrite existing hooks (handles pre-commit.old already exists error)
-      await execa(cmd, [...prefixArgs, "lefthook", "install", "--force"], { cwd: projectPath });
-    } catch (error) {
-      const errorMsg = error instanceof Error ? error.message : String(error);
-      warnings.push(`Failed to run lefthook install: ${errorMsg}`);
-      p.log.warn(`Failed to run lefthook install: ${errorMsg}`);
+    // Step 4: Run lefthook install (only if lefthook was generated)
+    if (!lefthookSkipped) {
+      p.log.step("Installing lefthook...");
+      try {
+        // Use package manager runner to execute lefthook
+        const [cmd, ...prefixArgs] = getPackageManagerRunner(finalConfig.packageManager);
+        // Use --force to overwrite existing hooks (handles pre-commit.old already exists error)
+        await execa(cmd, [...prefixArgs, "lefthook", "install", "--force"], { cwd: projectPath });
+      } catch (error) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
+        warnings.push(`Failed to run lefthook install: ${errorMsg}`);
+        p.log.warn(`Failed to run lefthook install: ${errorMsg}`);
+      }
     }
 
     // Step 5: Sync skills (auto mode during init - users can run 'ralph sync' later to manage interactively)

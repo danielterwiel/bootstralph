@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   // Types
   type WizardSelections,
-  type FilteredOption,
   // Functions
   getAvailableFrameworks,
   getAvailableStyling,
@@ -990,9 +989,9 @@ describe('Filter Integration', () => {
     };
 
     const styling = getAvailableStyling(selections);
-    const state = getAvailableStateManagement(selections);
-    const backend = getAvailableBackend(selections);
-    const auth = getAvailableAuth(selections);
+    const _state = getAvailableStateManagement(selections);
+    const _backend = getAvailableBackend(selections);
+    const _auth = getAvailableAuth(selections);
     const unitTesting = getAvailableUnitTesting(selections);
     const e2eTesting = getAvailableE2ETesting(selections);
     const deployment = getAvailableDeployment(selections);
