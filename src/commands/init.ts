@@ -554,10 +554,10 @@ export async function handleInit(): Promise<InitResult | undefined> {
       }
     }
 
-    // Step 5: Sync skills (auto mode during init - users can run 'ralph sync' later to manage interactively)
+    // Step 5: Sync skills (interactive mode - let user select which skills to install)
     p.log.step("Syncing skills...");
     try {
-      await sync({ quiet: false, cwd: projectPath, auto: true });
+      await sync({ quiet: false, cwd: projectPath });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       warnings.push(`Failed to sync skills: ${errorMsg}`);

@@ -104,11 +104,17 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
     if (interactive && !auto && !quiet && preview.toInstall.length > 0) {
       log("\nDetected skills based on your project:");
 
-      const options = preview.toInstall.map((skill) => ({
+      const SELECT_ALL_VALUE = "__select_all__";
+      const skillOptions = preview.toInstall.map((skill) => ({
         value: skill.skill,
         label: skill.skill,
         hint: skill.reason,
       }));
+
+      const options = [
+        { value: SELECT_ALL_VALUE, label: "Select all", hint: "Install all recommended skills" },
+        ...skillOptions,
+      ];
 
       const selected = await p.multiselect({
         message: "Select skills to install (space to toggle, enter to confirm)",
@@ -122,7 +128,14 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
         return;
       }
 
-      selectedSkills = selected as string[];
+      const selectedValues = selected as string[];
+
+      // Handle "Select all" option
+      if (selectedValues.includes(SELECT_ALL_VALUE)) {
+        selectedSkills = preview.toInstall.map((s) => s.skill);
+      } else {
+        selectedSkills = selectedValues;
+      }
 
       if (selectedSkills.length === 0) {
         log("\nNo skills selected");

@@ -148,7 +148,7 @@ export async function computeRequiredSkills(
       for (const pkg of mapping.packages) {
         if (deps.includes(pkg)) {
           matched = true;
-          matchReason = `package: ${pkg}`;
+          matchReason = `detected via ${pkg}`;
           break;
         }
       }
@@ -159,7 +159,7 @@ export async function computeRequiredSkills(
       for (const pkg of mapping.devPackages) {
         if (devDeps.includes(pkg)) {
           matched = true;
-          matchReason = `devPackage: ${pkg}`;
+          matchReason = `detected via ${pkg}`;
           break;
         }
       }
@@ -187,7 +187,7 @@ export async function computeRequiredSkills(
 
         if (matchedFile) {
           matched = true;
-          matchReason = `config: ${matchedFile}`;
+          matchReason = `detected via ${matchedFile}`;
           break;
         }
       }
@@ -197,7 +197,7 @@ export async function computeRequiredSkills(
     if (!matched && framework && mapping.frameworks) {
       if (mapping.frameworks.includes(framework)) {
         matched = true;
-        matchReason = `framework: ${framework}`;
+        matchReason = `detected via ${framework}`;
       }
     }
 
