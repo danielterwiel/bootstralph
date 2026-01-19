@@ -400,21 +400,6 @@
       "packages": ["passport", "passport-oauth2", "passport-google-oauth20", "passport-github2", "arctic"]
     },
     {
-      "skill": "lucia-auth",
-      "source": "secondsky/claude-skills/plugins/better-auth/skills/better-auth",
-      "packages": ["lucia", "@lucia-auth/adapter-prisma", "@lucia-auth/adapter-drizzle"]
-    },
-    {
-      "skill": "next-auth",
-      "source": "secondsky/claude-skills/plugins/clerk-auth/skills/clerk-auth",
-      "packages": ["next-auth", "@auth/core", "@auth/prisma-adapter", "@auth/drizzle-adapter"]
-    },
-    {
-      "skill": "fastify",
-      "source": "secondsky/claude-skills/plugins/hono-routing/skills/hono-routing",
-      "packages": ["fastify", "@fastify/cors", "@fastify/swagger"]
-    },
-    {
       "skill": "express",
       "source": "secondsky/claude-skills/plugins/api-design-principles/skills/api-design-principles",
       "packages": ["express", "express-validator", "helmet"]
@@ -439,11 +424,6 @@
       "skill": "sequelize",
       "source": "secondsky/claude-skills/plugins/database-schema-design/skills/database-schema-design",
       "packages": ["sequelize", "sequelize-typescript"]
-    },
-    {
-      "skill": "redis",
-      "source": "secondsky/claude-skills/plugins/vercel-kv/skills/vercel-kv",
-      "packages": ["redis", "ioredis", "@upstash/redis"]
     },
     {
       "skill": "stripe-payments",
@@ -489,56 +469,6 @@
       "skill": "lottie-animation",
       "source": "secondsky/claude-skills/plugins/motion/skills/motion",
       "packages": ["lottie-web", "lottie-react", "@lottiefiles/react-lottie-player"]
-    },
-    {
-      "skill": "mdx",
-      "source": "secondsky/claude-skills/plugins/nuxt-content/skills/nuxt-content",
-      "packages": ["@mdx-js/react", "@mdx-js/loader", "@next/mdx", "next-mdx-remote"]
-    },
-    {
-      "skill": "contentlayer",
-      "source": "secondsky/claude-skills/plugins/content-collections/skills/content-collections",
-      "packages": ["contentlayer", "next-contentlayer"]
-    },
-    {
-      "skill": "swr-data-fetching",
-      "source": "secondsky/claude-skills/plugins/tanstack-query/skills/tanstack-query",
-      "packages": ["swr"]
-    },
-    {
-      "skill": "puppeteer-automation",
-      "source": "secondsky/claude-skills/plugins/cloudflare-browser-rendering/skills/cloudflare-browser-rendering",
-      "packages": ["puppeteer", "puppeteer-core"]
-    },
-    {
-      "skill": "cheerio-scraping",
-      "source": "secondsky/claude-skills/plugins/firecrawl-scraper/skills/firecrawl-scraper",
-      "packages": ["cheerio", "jsdom"]
-    },
-    {
-      "skill": "date-fns",
-      "source": "secondsky/claude-skills/plugins/zod/skills/zod",
-      "packages": ["date-fns", "date-fns-tz"]
-    },
-    {
-      "skill": "dayjs",
-      "source": "secondsky/claude-skills/plugins/zod/skills/zod",
-      "packages": ["dayjs"]
-    },
-    {
-      "skill": "jotai-state",
-      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
-      "packages": ["jotai"]
-    },
-    {
-      "skill": "redux-toolkit",
-      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
-      "packages": ["@reduxjs/toolkit", "react-redux", "redux"]
-    },
-    {
-      "skill": "mobx-state",
-      "source": "secondsky/claude-skills/plugins/zustand-state-management/skills/zustand-state-management",
-      "packages": ["mobx", "mobx-react", "mobx-react-lite"]
     },
     {
       "skill": "xstate-machines",
@@ -606,17 +536,6 @@
       "packages": ["@vercel/blob"]
     },
     {
-      "skill": "upstash",
-      "source": "secondsky/claude-skills/plugins/vercel-kv/skills/vercel-kv",
-      "packages": ["@upstash/redis", "@upstash/ratelimit", "@upstash/qstash"]
-    },
-    {
-      "skill": "prettier",
-      "source": "secondsky/claude-skills/plugins/eslint/skills/eslint",
-      "devPackages": ["prettier", "prettier-plugin-tailwindcss"],
-      "configFiles": [".prettierrc", ".prettierrc.js", ".prettierrc.json", "prettier.config.js", "prettier.config.mjs"]
-    },
-    {
       "skill": "commitlint",
       "source": "secondsky/claude-skills/plugins/github-project-automation/skills/github-project-automation",
       "devPackages": ["@commitlint/cli", "@commitlint/config-conventional"],
@@ -648,23 +567,6 @@
       "skill": "firecrawl",
       "source": "secondsky/claude-skills/plugins/firecrawl-scraper/skills/firecrawl-scraper",
       "packages": ["@mendable/firecrawl-js", "firecrawl"]
-    },
-    {
-      "skill": "tanstack-form",
-      "source": "secondsky/claude-skills/plugins/react-hook-form-zod/skills/react-hook-form-zod",
-      "packages": ["@tanstack/react-form", "@tanstack/vue-form"]
-    },
-    {
-      "skill": "react-router",
-      "source": "secondsky/claude-skills/plugins/nextjs/skills/nextjs",
-      "packages": ["react-router", "react-router-dom", "@remix-run/router"],
-      "frameworks": ["react-router"]
-    },
-    {
-      "skill": "remix",
-      "source": "secondsky/claude-skills/plugins/nextjs/skills/nextjs",
-      "packages": ["@remix-run/node", "@remix-run/react", "@remix-run/serve"],
-      "configFiles": ["remix.config.js", "remix.config.ts"]
     },
     {
       "skill": "solid-js",
@@ -782,76 +684,6 @@
       "packages": ["@mikro-orm/core", "@mikro-orm/postgresql"]
     },
     {
-      "skill": "langchain",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["langchain", "@langchain/core", "@langchain/openai", "@langchain/anthropic"]
-    },
-    {
-      "skill": "llamaindex",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["llamaindex"]
-    },
-    {
-      "skill": "pinecone",
-      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
-      "packages": ["@pinecone-database/pinecone"]
-    },
-    {
-      "skill": "weaviate",
-      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
-      "packages": ["weaviate-ts-client", "weaviate-client"]
-    },
-    {
-      "skill": "qdrant",
-      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
-      "packages": ["@qdrant/js-client-rest"]
-    },
-    {
-      "skill": "chroma",
-      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
-      "packages": ["chromadb"]
-    },
-    {
-      "skill": "milvus",
-      "source": "secondsky/claude-skills/plugins/cloudflare-vectorize/skills/cloudflare-vectorize",
-      "packages": ["@zilliz/milvus2-sdk-node"]
-    },
-    {
-      "skill": "replicate",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["replicate"]
-    },
-    {
-      "skill": "huggingface",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["@huggingface/inference", "@huggingface/hub"]
-    },
-    {
-      "skill": "cohere",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["cohere-ai"]
-    },
-    {
-      "skill": "mistral",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["@mistralai/mistralai"]
-    },
-    {
-      "skill": "together-ai",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["together-ai"]
-    },
-    {
-      "skill": "groq",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["groq-sdk"]
-    },
-    {
-      "skill": "perplexity",
-      "source": "secondsky/claude-skills/plugins/ai-sdk-core/skills/ai-sdk-core",
-      "packages": ["@anthropic-ai/perplexity"]
-    },
-    {
       "skill": "posthog-analytics",
       "source": "secondsky/claude-skills/plugins/logging-best-practices/skills/logging-best-practices",
       "packages": ["posthog-js", "posthog-node"]
@@ -872,30 +704,5 @@
       "packages": ["@segment/analytics-node", "analytics"]
     }
   ],
-  "defaultSkills": [
-    {
-      "skill": "verification-before-completion",
-      "source": "obra/superpowers/skills/verification-before-completion"
-    },
-    {
-      "skill": "systematic-debugging",
-      "source": "obra/superpowers/skills/systematic-debugging"
-    },
-    {
-      "skill": "test-driven-development",
-      "source": "obra/superpowers/skills/test-driven-development"
-    },
-    {
-      "skill": "brainstorming",
-      "source": "obra/superpowers/skills/brainstorming"
-    },
-    {
-      "skill": "writing-plans",
-      "source": "obra/superpowers/skills/writing-plans"
-    },
-    {
-      "skill": "executing-plans",
-      "source": "obra/superpowers/skills/executing-plans"
-    }
-  ]
+  "defaultSkills": []
 }

@@ -544,10 +544,10 @@ export async function handleInit(): Promise<InitResult | undefined> {
       p.log.warn(`Failed to run lefthook install: ${errorMsg}`);
     }
 
-    // Step 5: Sync skills (verbose for debugging)
+    // Step 5: Sync skills (auto mode during init - users can run 'ralph sync' later to manage interactively)
     p.log.step("Syncing skills...");
     try {
-      await sync({ quiet: false, cwd: projectPath });
+      await sync({ quiet: false, cwd: projectPath, auto: true });
     } catch (error) {
       const errorMsg = error instanceof Error ? error.message : String(error);
       warnings.push(`Failed to sync skills: ${errorMsg}`);

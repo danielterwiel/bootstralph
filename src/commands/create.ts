@@ -335,9 +335,9 @@ export async function handleCreate(
     p.log.step("Installing lefthook...");
     await execa("lefthook", ["install"], { cwd: projectPath });
 
-    // Step 13: Sync skills
+    // Step 13: Sync skills (auto mode - install all matched skills for new projects)
     p.log.step("Syncing skills...");
-    await sync({ quiet: true, cwd: projectPath });
+    await sync({ quiet: true, cwd: projectPath, auto: true });
 
     // Step 14: Display warnings and next steps
     if (scaffoldResult.warnings && scaffoldResult.warnings.length > 0) {

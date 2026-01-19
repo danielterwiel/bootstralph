@@ -3,6 +3,12 @@
  *
  * Loads and processes skill mappings that define which OpenSkills should be
  * installed based on detected packages and configuration files in the project.
+ *
+ * Skills are only installed when explicitly matched by project dependencies,
+ * dev dependencies, config files, or detected framework. No default skills
+ * are automatically installed - this follows Anthropic's context engineering
+ * best practices: "every skill must justify its existence" and skills should
+ * provide domain knowledge Claude doesn't already have.
  */
 
 import { readJson } from "../utils/fs.js";
@@ -53,22 +59,7 @@ export interface RequiredSkill {
 interface SkillMappingsData {
   /** Main skill mappings */
   mappings: SkillMapping[];
-  /** Default skills always included */
-  defaultSkills: Array<{
-    skill: string;
-    source: string;
-  }>;
 }
-
-// ============================================================================
-// Constants
-// ============================================================================
-
-/**
- * Default skills loaded from the mappings file
- * These skills are always included regardless of detected packages/configs
- */
-export let DEFAULT_SKILLS: RequiredSkill[] = [];
 
 // ============================================================================
 // Mappings Loader
@@ -98,13 +89,6 @@ export async function loadMappings(): Promise<SkillMapping[]> {
   // Load the mappings data
   const data = await readJson<SkillMappingsData>(dataPath);
 
-  // Update DEFAULT_SKILLS from loaded data
-  DEFAULT_SKILLS = (data.defaultSkills || []).map((s) => ({
-    skill: s.skill,
-    source: s.source,
-    reason: "default",
-  }));
-
   return data.mappings;
 }
 
@@ -117,7 +101,10 @@ export async function loadMappings(): Promise<SkillMapping[]> {
  *
  * Analyzes the project's dependencies (both runtime and dev), configuration
  * files, and detected framework to determine which OpenSkills should be installed.
- * Always includes DEFAULT_SKILLS in the result.
+ *
+ * Only skills that explicitly match project characteristics are included.
+ * This follows Anthropic's context engineering principle that skills should
+ * provide domain-specific knowledge Claude doesn't already have.
  *
  * @param deps - Runtime dependencies from package.json
  * @param devDeps - Development dependencies from package.json
@@ -134,24 +121,9 @@ export async function loadMappings(): Promise<SkillMapping[]> {
  * const required = await computeRequiredSkills(deps, devDeps, configFiles, "nextjs");
  * // Returns: [
  * //   { skill: "nextjs", source: "...", reason: "package: next" },
- * //   { skill: "clerk", source: "...", reason: "package: @clerk/nextjs" },
- * //   { skill: "tailwind", source: "...", reason: "package: tailwindcss" },
- * //   ...DEFAULT_SKILLS
+ * //   { skill: "clerk-auth", source: "...", reason: "package: @clerk/nextjs" },
+ * //   { skill: "tailwind-v4-shadcn", source: "...", reason: "devPackage: tailwindcss" },
  * // ]
- * ```
- *
- * @example
- * ```typescript
- * // From package scanner results
- * const packageScan = await scanPackageJson();
- * const configScan = await scanConfigFiles();
- *
- * const required = await computeRequiredSkills(
- *   packageScan.dependencies,
- *   packageScan.devDependencies,
- *   configScan,
- *   "tanstack-start"
- * );
  * ```
  */
 export async function computeRequiredSkills(
@@ -239,15 +211,6 @@ export async function computeRequiredSkills(
     }
   }
 
-  // Convert map to array and add default skills
-  const requiredSkills = Array.from(skillMap.values());
-
-  // Add default skills if not already present
-  for (const defaultSkill of DEFAULT_SKILLS) {
-    if (!skillMap.has(defaultSkill.skill)) {
-      requiredSkills.push(defaultSkill);
-    }
-  }
-
-  return requiredSkills;
+  // Convert map to array
+  return Array.from(skillMap.values());
 }

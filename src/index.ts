@@ -52,10 +52,11 @@ program
 
 program
   .command("sync")
-  .description("Sync skills based on package.json")
+  .description("Sync skills based on package.json (interactive by default)")
   .option("-q, --quiet", "Quiet mode (less output)")
-  .action(async (options: { quiet?: boolean }) => {
-    await sync({ quiet: options.quiet ?? false });
+  .option("-a, --auto", "Auto mode - install all matched skills without prompting")
+  .action(async (options: { quiet?: boolean; auto?: boolean }) => {
+    await sync({ quiet: options.quiet ?? false, auto: options.auto ?? false });
   });
 
 program

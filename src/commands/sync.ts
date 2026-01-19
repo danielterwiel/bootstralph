@@ -4,12 +4,18 @@
  * Orchestrates the full skills sync flow:
  * - Scans package.json and config files
  * - Computes required skills
+ * - (Interactive mode) Shows skills and lets user select
  * - Installs/removes skills as needed
  * - Reports results to user
+ *
+ * This follows Anthropic's context engineering best practices:
+ * - Skills are opt-in by default in interactive mode
+ * - Users can preview and select which skills to install
+ * - Only skills that match project characteristics are suggested
  */
 
 import * as p from "@clack/prompts";
-import { syncSkills } from "../skills/index.js";
+import { previewSkills, syncSkills } from "../skills/index.js";
 
 /**
  * Options for sync command
@@ -24,30 +30,47 @@ export interface SyncOptions {
    * Project root directory (default: process.cwd())
    */
   cwd?: string;
+
+  /**
+   * Interactive mode - prompt user to select skills (default: true)
+   */
+  interactive?: boolean;
+
+  /**
+   * Auto mode - install all matched skills without prompting (default: false)
+   * When true, behaves like the old automatic installation
+   */
+  auto?: boolean;
 }
 
 /**
  * Handle the sync command
  *
  * Synchronizes OpenSkills based on project dependencies and configuration.
- * Shows summary of installed and removed skills.
+ * By default, shows users which skills match their project and lets them
+ * choose which to install (opt-in). Use --auto to install all matched skills.
  *
  * @param options - Sync command options
  *
  * @example
  * ```typescript
- * // Sync with progress logs
+ * // Interactive sync (default) - user selects skills
  * await sync();
  *
- * // Sync in quiet mode
- * await sync({ quiet: true });
+ * // Auto sync - install all matched skills
+ * await sync({ auto: true });
  *
- * // Sync specific directory
- * await sync({ cwd: '/path/to/project' });
+ * // Quiet mode with auto
+ * await sync({ quiet: true, auto: true });
  * ```
  */
 export async function sync(options: SyncOptions = {}): Promise<void> {
-  const { quiet = false, cwd = process.cwd() } = options;
+  const {
+    quiet = false,
+    cwd = process.cwd(),
+    interactive = true,
+    auto = false,
+  } = options;
 
   const log = (...args: unknown[]) => {
     if (!quiet) {
@@ -60,10 +83,66 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
   }
 
   try {
-    // Perform sync (which handles all the internal steps)
-    const result = await syncSkills({ quiet, projectRoot: cwd });
+    // Preview what skills would be installed
+    const preview = await previewSkills(cwd);
 
-    // Report results based on actual sync outcome
+    // If nothing to do, exit early
+    if (preview.toInstall.length === 0 && preview.toRemove.length === 0) {
+      if (!quiet) {
+        log("\nNo skill changes detected");
+        if (preview.installed.length > 0) {
+          log(`Currently installed: ${preview.installed.join(", ")}`);
+        }
+        p.outro("Done");
+      }
+      return;
+    }
+
+    let selectedSkills: string[] | undefined;
+
+    // Interactive mode: let user select skills
+    if (interactive && !auto && !quiet && preview.toInstall.length > 0) {
+      log("\nDetected skills based on your project:");
+
+      const options = preview.toInstall.map((skill) => ({
+        value: skill.skill,
+        label: skill.skill,
+        hint: skill.reason,
+      }));
+
+      const selected = await p.multiselect({
+        message: "Select skills to install (space to toggle, enter to confirm)",
+        options,
+        initialValues: [], // None selected by default - true opt-in
+        required: false,
+      });
+
+      if (p.isCancel(selected)) {
+        p.cancel("Operation cancelled");
+        return;
+      }
+
+      selectedSkills = selected as string[];
+
+      if (selectedSkills.length === 0) {
+        log("\nNo skills selected");
+        p.outro("Done");
+        return;
+      }
+    }
+
+    // Perform sync
+    const syncOptions: Parameters<typeof syncSkills>[0] = {
+      quiet,
+      projectRoot: cwd,
+    };
+    // Only add selectedSkills if we have a selection (opt-in mode)
+    if (!auto && selectedSkills && selectedSkills.length > 0) {
+      syncOptions.selectedSkills = selectedSkills;
+    }
+    const result = await syncSkills(syncOptions);
+
+    // Report results
     if (!quiet) {
       const parts: string[] = [];
       if (result.installed > 0) {
@@ -79,7 +158,7 @@ export async function sync(options: SyncOptions = {}): Promise<void> {
       if (parts.length > 0) {
         log(`\n${parts.join(", ")}`);
       } else {
-        log("\nNo changes needed - skills already up to date");
+        log("\nNo changes made");
       }
 
       // Show failed skills if any
