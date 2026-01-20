@@ -2,32 +2,16 @@
 
 **Scaffold Ralph projects**
 
+- recommends a set of skills based on your dependencies
+- automatically creates missing git hooks using Lefthook
+
+## Commands
+
 ```bash
-bootstralph create my-saas-app --preset saas
-bootstralph prd "Add Stripe payments with usage-based billing"
-./ralph.sh afk 20   # 20 autonomous iterations
-```
-
-## What Makes It Different
-
-### Compatibility Matrix
-
-Impossible combinations are hidden before you can select them. 30+ conflict rules ensure your stack works.
-
-```
-Next.js selected   → TanStack Router hidden (conflicts with App Router)
-Expo selected      → Playwright hidden (use Maestro instead)
-Biome selected     → formatting prompt skipped (handles both)
-```
-
-### Intelligent Skill Installation
-
-700+ [OpenSkills](https://openskills.io) mappings. Skills install **only** when matched to your dependencies.
-
-```
-drizzle-orm detected     → drizzle skill installed
-@clerk/nextjs detected   → clerk-auth skill installed
-next detected            → nextjs + react-best-practices installed
+bootstralph create <name>              # Interactive wizard
+bootstralph create <name> -p <preset>  # Use preset
+bootstralph init                       # Initialize existing project
+bootstralph sync                       # Sync skills to dependencies
 ```
 
 ## Quick Start
@@ -66,24 +50,34 @@ bootstralph init
 | `universal` | Expo + Tamagui + shared codebase                        |
 | `fullstack` | Turborepo monorepo                                      |
 
-## Commands
-
-```bash
-bootstralph create <name>              # Interactive wizard
-bootstralph create <name> -p <preset>  # Use preset
-bootstralph init                       # Initialize existing project
-bootstralph sync                       # Sync skills to dependencies
-bootstralph prd "description"          # Create PRD
-bootstralph ralph                      # Run Ralph Loop
-```
-
 ## What Gets Generated
 
 - Framework scaffolding via official CLIs
 - `CLAUDE.md` with project context for Claude Code
 - `lefthook.yml` pre-commit hooks (lint, format, typecheck)
 - `.bootstralph/config.json` stack configuration
-- Docker sandbox configuration
+
+## What Makes It Different
+
+### Compatibility Matrix
+
+Impossible combinations are hidden before you can select them. 30+ conflict rules ensure your stack works.
+
+```
+Next.js selected   → TanStack Router hidden (conflicts with App Router)
+Expo selected      → Playwright hidden (use Maestro instead)
+Biome selected     → formatting prompt skipped (handles both)
+```
+
+### Intelligent Skill Installation
+
+700+ [OpenSkills](https://openskills.io) mappings. Skills install **only** when matched to your dependencies.
+
+```
+drizzle-orm detected     → drizzle skill installed
+@clerk/nextjs detected   → clerk-auth skill installed
+next detected            → nextjs + react-best-practices installed
+```
 
 ## Requirements
 
